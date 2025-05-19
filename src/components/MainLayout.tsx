@@ -17,7 +17,7 @@ const MainLayout = () => {
     <div className="flex h-screen bg-gray-100">
       <Sidebar isOpen={sidebarOpen} toggle={toggleSidebar} />
       
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <div className={`flex flex-col flex-1 overflow-hidden transition-all duration-200 ${sidebarOpen ? 'ml-0 md:ml-64' : 'ml-0 md:ml-16'}`}>
         <Header toggleSidebar={toggleSidebar} />
         
         <main className="flex-1 overflow-y-auto p-4 md:p-6">

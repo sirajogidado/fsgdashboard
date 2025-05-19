@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Unauthorized from "./pages/Unauthorized";
 import UsersPage from "./pages/UsersPage";
+import AOCPage from "./pages/AOC/AOCPage";
 
 const queryClient = new QueryClient();
 
@@ -50,8 +51,17 @@ const App = () => (
                 } 
               />
               
+              {/* AOC Management */}
+              <Route 
+                path="aoc" 
+                element={
+                  <ProtectedRoute requiredRole="Technical">
+                    <AOCPage />
+                  </ProtectedRoute>
+                } 
+              />
+              
               {/* Placeholder routes for future implementation */}
-              <Route path="aoc" element={<div className="p-8">AOC Page - Coming Soon</div>} />
               <Route path="ato" element={<div className="p-8">ATO Page - Coming Soon</div>} />
               <Route path="ac-status" element={<div className="p-8">Aircraft Status Page - Coming Soon</div>} />
               <Route path="foreign-airline-dacl" element={<div className="p-8">Foreign Airline DACL Page - Coming Soon</div>} />

@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -55,7 +56,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
       return true; // General sections accessible to all
     }
     
-    return user.directorate === directorate || user.directorate === "ICT";
+    return user.directorate === directorate;
   };
   
   // Function to determine if user has edit access
@@ -69,7 +70,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
 
   if (!isOpen) {
     return (
-      <div className="h-full fixed bg-ncaa-primary text-white w-16 flex flex-col py-4 z-40">
+      <div className="h-full fixed bg-ncaa-primary text-white w-16 flex flex-col py-4 z-40 transition-all duration-200">
         <div className="flex items-center justify-center mb-8">
           <img
             src="/lovable-uploads/660cad38-3239-4b0f-8012-a92a08141716.png"
@@ -186,7 +187,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
   }
 
   return (
-    <div className="h-full fixed bg-ncaa-primary text-white w-64 flex flex-col py-4 z-40">
+    <div className="h-full fixed bg-ncaa-primary text-white w-64 flex flex-col py-4 z-40 transition-all duration-200">
       <div className="flex items-center justify-center mb-8">
         <img
           src="/lovable-uploads/660cad38-3239-4b0f-8012-a92a08141716.png"
