@@ -17,6 +17,8 @@ import Dashboard from "./pages/Dashboard";
 import Unauthorized from "./pages/Unauthorized";
 import UsersPage from "./pages/UsersPage";
 import AOCPage from "./pages/AOC/AOCPage";
+import ATOPage from "./pages/ATO/ATOPage";
+import ACStatusPage from "./pages/ACStatus/ACStatusPage";
 
 // Create QueryClient outside the component
 const queryClient = new QueryClient();
@@ -61,9 +63,27 @@ function App() {
                   } 
                 />
                 
+                {/* ATO Management */}
+                <Route 
+                  path="ato" 
+                  element={
+                    <ProtectedRoute requiredRole="Technical">
+                      <ATOPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* Aircraft Status */}
+                <Route 
+                  path="ac-status" 
+                  element={
+                    <ProtectedRoute requiredRole="Technical">
+                      <ACStatusPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                
                 {/* Placeholder routes for future implementation */}
-                <Route path="ato" element={<div className="p-8">ATO Page - Coming Soon</div>} />
-                <Route path="ac-status" element={<div className="p-8">Aircraft Status Page - Coming Soon</div>} />
                 <Route path="foreign-airline-dacl" element={<div className="p-8">Foreign Airline DACL Page - Coming Soon</div>} />
                 <Route path="amo/foreign" element={<div className="p-8">Foreign AMO Page - Coming Soon</div>} />
                 <Route path="amo/local" element={<div className="p-8">Local AMO Page - Coming Soon</div>} />
