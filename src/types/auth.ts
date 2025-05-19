@@ -7,6 +7,14 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  phoneNumber?: string;
+  profileImage?: string;
   role: UserRole;
   directorate: Directorate;
+}
+
+export interface AuthState {
+  user: User | null;
+  isAuthenticated: boolean;
+  isLoading: boolean;
 }
