@@ -1,0 +1,63 @@
+
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { Directorate } from "../types/auth";
+
+interface ProtectedRouteProps {
+  children: React.ReactNode;
+  requiredRole?: "Super User" | "Technical" | "Read and View";
+  requiredDirectorate?: Directorate;
+  allowReadOnly?: boolean;
+}
+
+const ProtectedRoute = ({ 
+  children,
+  requiredRole,
+  requiredDirectorate,
+  allowReadOnly = true
+}: ProtectedRouteProps) => {
+  const { user, isAuthenticated, isLoading } = useAuth();
+  const location = useLocation();
+
+  if (isLoading) {
+    return (
+      <div className="h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-ncaa-primary"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    // Redirect to login and save the intended destination
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // Check for required role
+  if (requiredRole && user.role !== requiredRole) {
+    if (requiredRole === "Super User" || 
+        (requiredRole === "Technical" && user.role === "Read and View")) {
+      return <Navigate to="/unauthorized" replace />;
+    }
+  }
+
+  // Check for required directorate
+  if (requiredDirectorate && 
+      user.directorate !== requiredDirectorate && 
+      user.directorate !== "ICT" && // ICT can access all areas
+      user.role !== "Super User") {  // Super Users can access all areas
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  // Check if read-only user is trying to access non-read-only content
+  if (!allowReadOnly && user.role === "Read and View") {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
+  return <>{children}</>;
+};
+
+export default ProtectedRoute;
