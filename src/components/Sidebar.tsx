@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -12,7 +11,7 @@ import {
   Plane,
   Settings,
   FileText,
-  Tool,
+  Wrench,
   Users,
   Shield,
 } from "lucide-react";
@@ -163,7 +162,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                     openMenus.amo && "bg-white/20"
                   )}
                 >
-                  <Tool className="h-6 w-6" />
+                  <Wrench className="h-6 w-6" />
                 </button>
               </li>
             )}
@@ -423,7 +422,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                   )}
                 >
                   <div className="flex items-center">
-                    <Tool className="h-5 w-5 mr-3" />
+                    <Wrench className="h-5 w-5 mr-3" />
                     <span>AMO</span>
                   </div>
                   <ChevronDown
