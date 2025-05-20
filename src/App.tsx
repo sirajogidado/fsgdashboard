@@ -30,6 +30,13 @@ import AircraftTypePage from "./pages/Global/AircraftType/AircraftTypePage";
 // Global Operations Pages
 import ForeignRegistrationPage from "./pages/Global/ForeignRegistration/ForeignRegistrationPage";
 import GlobalForeignAMOPage from "./pages/Global/ForeignAMO/ForeignAMOPage";
+import GeneralAviationPage from "./pages/Global/GeneralAviation/GeneralAviationPage";
+import OperationTypePage from "./pages/Global/OperationType/OperationTypePage";
+import StateRegistryPage from "./pages/Global/StateRegistry/StateRegistryPage";
+import TrainingOrganizationPage from "./pages/Global/TrainingOrganization/TrainingOrganizationPage";
+import TravelAgencyPage from "./pages/Global/TravelAgency/TravelAgencyPage";
+import ForeignAirlinePage from "./pages/Global/ForeignAirline/ForeignAirlinePage";
+import CertificateTypePage from "./pages/Global/CertificateType/CertificateTypePage";
 
 // Create QueryClient outside the component
 const queryClient = new QueryClient();
@@ -152,13 +159,48 @@ function App() {
                     <GlobalForeignAMOPage />
                   } 
                 />
-                <Route path="global/general-aviation" element={<div className="p-8">General Aviation Page - Coming Soon</div>} />
-                <Route path="global/operation-type" element={<div className="p-8">Operation Type Page - Coming Soon</div>} />
-                <Route path="global/state-registry" element={<div className="p-8">State of Registry Page - Coming Soon</div>} />
-                <Route path="global/training-organization" element={<div className="p-8">Training Organization Page - Coming Soon</div>} />
-                <Route path="global/travel-agency" element={<div className="p-8">Travel Agency Page - Coming Soon</div>} />
-                <Route path="global/foreign-airline" element={<div className="p-8">Foreign Airline Page - Coming Soon</div>} />
-                <Route path="global/certificate-type" element={<div className="p-8">Certificate Type Page - Coming Soon</div>} />
+                <Route 
+                  path="global/general-aviation" 
+                  element={
+                    <GeneralAviationPage />
+                  } 
+                />
+                <Route 
+                  path="global/operation-type" 
+                  element={
+                    <OperationTypePage />
+                  } 
+                />
+                <Route 
+                  path="global/state-registry" 
+                  element={
+                    <StateRegistryPage />
+                  } 
+                />
+                <Route 
+                  path="global/training-organization" 
+                  element={
+                    <TrainingOrganizationPage />
+                  } 
+                />
+                <Route 
+                  path="global/travel-agency" 
+                  element={
+                    <TravelAgencyPage />
+                  } 
+                />
+                <Route 
+                  path="global/foreign-airline" 
+                  element={
+                    <ForeignAirlinePage />
+                  } 
+                />
+                <Route 
+                  path="global/certificate-type" 
+                  element={
+                    <CertificateTypePage />
+                  } 
+                />
               </Route>
               
               <Route path="*" element={<NotFound />} />
