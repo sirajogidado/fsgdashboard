@@ -20,6 +20,12 @@ import AOCPage from "./pages/AOC/AOCPage";
 import ATOPage from "./pages/ATO/ATOPage";
 import ACStatusPage from "./pages/ACStatus/ACStatusPage";
 
+// New Pages
+import ForeignAirlineDACLPage from "./pages/ForeignAirlineDACL/ForeignAirlineDACLPage";
+import ForeignAMOPage from "./pages/AMO/Foreign/ForeignAMOPage";
+import LocalAMOPage from "./pages/AMO/Local/LocalAMOPage";
+import AircraftManufacturerPage from "./pages/Global/AircraftManufacturer/AircraftManufacturerPage";
+
 // Create QueryClient outside the component
 const queryClient = new QueryClient();
 
@@ -83,16 +89,46 @@ function App() {
                   } 
                 />
                 
-                {/* Placeholder routes for future implementation */}
-                <Route path="foreign-airline-dacl" element={<div className="p-8">Foreign Airline DACL Page - Coming Soon</div>} />
-                <Route path="amo/foreign" element={<div className="p-8">Foreign AMO Page - Coming Soon</div>} />
-                <Route path="amo/local" element={<div className="p-8">Local AMO Page - Coming Soon</div>} />
+                {/* Foreign Airline DACL */}
+                <Route 
+                  path="foreign-airline-dacl" 
+                  element={
+                    <ProtectedRoute requiredRole="Technical">
+                      <ForeignAirlineDACLPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* AMO Routes */}
+                <Route 
+                  path="amo/foreign" 
+                  element={
+                    <ProtectedRoute requiredRole="Technical">
+                      <ForeignAMOPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                <Route 
+                  path="amo/local" 
+                  element={
+                    <ProtectedRoute requiredRole="Technical">
+                      <LocalAMOPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                
                 <Route path="focc-mcc" element={<div className="p-8">FOCC/MCC Page - Coming Soon</div>} />
                 <Route path="acceptance-certificate" element={<div className="p-8">Type Acceptance Certificate Page - Coming Soon</div>} />
                 <Route path="settings" element={<div className="p-8">Settings Page - Coming Soon</div>} />
                 
                 {/* Global Operations routes */}
-                <Route path="global/aircraft-manufacturer" element={<div className="p-8">Aircraft Manufacturer Page - Coming Soon</div>} />
+                <Route 
+                  path="global/aircraft-manufacturer" 
+                  element={
+                    <AircraftManufacturerPage />
+                  } 
+                />
                 <Route path="global/aircraft-type" element={<div className="p-8">Aircraft Type Page - Coming Soon</div>} />
                 <Route path="global/foreign-registration" element={<div className="p-8">Foreign Registration Mark Page - Coming Soon</div>} />
                 <Route path="global/foreign-amo" element={<div className="p-8">Foreign AMO Page - Coming Soon</div>} />
