@@ -3,8 +3,9 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, Edit, Trash2, Plus } from "lucide-react";
+import { Search, Plus } from "lucide-react";
 import AircraftManufacturerTable from "./AircraftManufacturerTable";
+import AircraftManufacturerForm from "./AircraftManufacturerForm";
 
 const AircraftManufacturerPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
