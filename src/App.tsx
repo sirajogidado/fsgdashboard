@@ -25,6 +25,7 @@ import ForeignAirlineDACLPage from "./pages/ForeignAirlineDACL/ForeignAirlineDAC
 import ForeignAMOPage from "./pages/AMO/Foreign/ForeignAMOPage";
 import LocalAMOPage from "./pages/AMO/Local/LocalAMOPage";
 import AircraftManufacturerPage from "./pages/Global/AircraftManufacturer/AircraftManufacturerPage";
+import AircraftTypePage from "./pages/Global/AircraftType/AircraftTypePage";
 
 // Create QueryClient outside the component
 const queryClient = new QueryClient();
@@ -129,7 +130,12 @@ function App() {
                     <AircraftManufacturerPage />
                   } 
                 />
-                <Route path="global/aircraft-type" element={<div className="p-8">Aircraft Type Page - Coming Soon</div>} />
+                <Route 
+                  path="global/aircraft-type" 
+                  element={
+                    <AircraftTypePage />
+                  } 
+                />
                 <Route path="global/foreign-registration" element={<div className="p-8">Foreign Registration Mark Page - Coming Soon</div>} />
                 <Route path="global/foreign-amo" element={<div className="p-8">Foreign AMO Page - Coming Soon</div>} />
                 <Route path="global/general-aviation" element={<div className="p-8">General Aviation Page - Coming Soon</div>} />

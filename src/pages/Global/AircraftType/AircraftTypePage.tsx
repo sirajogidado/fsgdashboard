@@ -3,10 +3,11 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Search, Edit, Trash2, Plus } from "lucide-react";
-import AircraftManufacturerTable from "./AircraftManufacturerTable";
+import { Search, Plus } from "lucide-react";
+import AircraftTypeTable from "./AircraftTypeTable";
+import AircraftTypeForm from "./AircraftTypeForm";
 
-const AircraftManufacturerPage = () => {
+const AircraftTypePage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -24,19 +25,19 @@ const AircraftManufacturerPage = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight">Aircraft Manufacturer</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Aircraft Type</h2>
       </div>
 
       <div className="flex justify-between items-center mb-4">
         <Button onClick={toggleForm}>
           <Plus className="mr-2 h-4 w-4" />
-          {isFormVisible ? "Hide Form" : "Add Aircraft Manufacturer"}
+          {isFormVisible ? "Hide Form" : "Add Aircraft Type"}
         </Button>
         
         <div className="relative">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search manufacturer..."
+            placeholder="Search aircraft type..."
             className="pl-8 w-[250px]"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -47,7 +48,7 @@ const AircraftManufacturerPage = () => {
       {isFormVisible && (
         <Card>
           <CardContent className="pt-6">
-            <AircraftManufacturerForm 
+            <AircraftTypeForm 
               onCancel={toggleForm} 
               editingId={editingId} 
             />
@@ -57,7 +58,7 @@ const AircraftManufacturerPage = () => {
 
       <Card>
         <CardContent className="pt-6">
-          <AircraftManufacturerTable 
+          <AircraftTypeTable 
             searchQuery={searchQuery} 
             onEdit={handleEdit} 
           />
@@ -67,4 +68,4 @@ const AircraftManufacturerPage = () => {
   );
 };
 
-export default AircraftManufacturerPage;
+export default AircraftTypePage;
