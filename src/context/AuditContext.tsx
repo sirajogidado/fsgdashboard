@@ -11,7 +11,7 @@ interface AuditContextType {
 
 const AuditContext = createContext<AuditContextType | undefined>(undefined);
 
-export const AuditProvider = ({ children }: { children: ReactNode }) => {
+export function AuditProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth();
 
   const logAction = useCallback((
@@ -58,7 +58,7 @@ export const AuditProvider = ({ children }: { children: ReactNode }) => {
       {children}
     </AuditContext.Provider>
   );
-};
+}
 
 export const useAudit = () => {
   const context = useContext(AuditContext);
