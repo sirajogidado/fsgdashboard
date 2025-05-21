@@ -6,11 +6,16 @@ import { Input } from "@/components/ui/input";
 import { Search, Plus } from "lucide-react";
 import TravelAgencyTable from "./TravelAgencyTable";
 import TravelAgencyForm from "./TravelAgencyForm";
+import { useAuth } from "@/context/AuthContext";
 
 const TravelAgencyPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isFormVisible, setIsFormVisible] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const { user } = useAuth();
+  
+  // Check if user can edit (not Read and View role)
+  const canEdit = user && user.role !== "Read and View";
 
   const toggleForm = () => {
     setIsFormVisible(!isFormVisible);
@@ -18,8 +23,10 @@ const TravelAgencyPage = () => {
   };
 
   const handleEdit = (id: string) => {
-    setIsFormVisible(true);
-    setEditingId(id);
+    if (canEdit) {
+      setIsFormVisible(true);
+      setEditingId(id);
+    }
   };
 
   return (
@@ -29,12 +36,14 @@ const TravelAgencyPage = () => {
       </div>
 
       <div className="flex justify-between items-center mb-4">
-        <Button onClick={toggleForm}>
-          <Plus className="mr-2 h-4 w-4" />
-          {isFormVisible ? "Hide Form" : "Add Travel Agency"}
-        </Button>
+        {canEdit && (
+          <Button onClick={toggleForm}>
+            <Plus className="mr-2 h-4 w-4" />
+            {isFormVisible ? "Hide Form" : "Add Travel Agency"}
+          </Button>
+        )}
         
-        <div className="relative">
+        <div className="relative ml-auto">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search agency..."
@@ -45,7 +54,7 @@ const TravelAgencyPage = () => {
         </div>
       </div>
 
-      {isFormVisible && (
+      {isFormVisible && canEdit && (
         <Card>
           <CardContent className="pt-6">
             <TravelAgencyForm 
@@ -60,7 +69,8 @@ const TravelAgencyPage = () => {
         <CardContent className="pt-6">
           <TravelAgencyTable 
             searchQuery={searchQuery} 
-            onEdit={handleEdit} 
+            onEdit={handleEdit}
+            canEdit={canEdit}
           />
         </CardContent>
       </Card>

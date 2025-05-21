@@ -15,6 +15,7 @@ import {
   Wrench,
   Users,
   Shield,
+  Activity,
 } from "lucide-react";
 import {
   Collapsible,
@@ -44,19 +45,36 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
     }));
   };
 
-  // Function to determine if user has access to a specific section
-  const hasAccess = (directorate: string | null = null) => {
+  // Function to determine if user has access to a specific section based on role and directorate
+  const hasAccess = (section: string) => {
     if (!user) return false;
     
+    // Super Users and ICT have access to everything
     if (user.role === "Super User" || user.directorate === "ICT") {
       return true;
     }
     
-    if (!directorate) {
-      return true; // General sections accessible to all
+    // Global Operations only for Super Users and ICT
+    if (section === "globalOperations") {
+      return false;
+    }
+
+    // DAWS specific access
+    if (user.directorate === "DAWS") {
+      return ["aoc", "amo", "acStatus", "focc", "acceptance", "foreignDACL"].includes(section);
     }
     
-    return user.directorate === directorate;
+    // DOLTS specific access
+    if (user.directorate === "DOLTS") {
+      return ["aoc", "acStatus", "ato", "focc"].includes(section);
+    }
+    
+    // DAAS specific access
+    if (user.directorate === "DAAS") {
+      return ["aoc", "acStatus"].includes(section);
+    }
+    
+    return false;
   };
   
   // Function to determine if user has edit access
@@ -70,7 +88,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
 
   if (!isOpen) {
     return (
-      <div className="h-full fixed bg-ncaa-primary text-white w-16 flex flex-col py-4 z-40 transition-all duration-200">
+      <div className="h-full fixed top-0 left-0 bg-ncaa-primary text-white w-16 flex flex-col py-4 z-40 transition-all duration-200">
         <div className="flex items-center justify-center mb-8">
           <img
             src="/lovable-uploads/660cad38-3239-4b0f-8012-a92a08141716.png"
@@ -91,18 +109,20 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                 <LayoutDashboard className="h-6 w-6" />
               </Link>
             </li>
-            <li>
-              <button
-                onClick={() => toggleMenu("globalOperations")}
-                className={cn(
-                  "flex items-center justify-center p-2 rounded-md hover:bg-white/10 w-full",
-                  openMenus.globalOperations && "bg-white/20"
-                )}
-              >
-                <Globe className="h-6 w-6" />
-              </button>
-            </li>
-            {hasAccess("DAWS") && (
+            {hasAccess("globalOperations") && (
+              <li>
+                <button
+                  onClick={() => toggleMenu("globalOperations")}
+                  className={cn(
+                    "flex items-center justify-center p-2 rounded-md hover:bg-white/10 w-full",
+                    openMenus.globalOperations && "bg-white/20"
+                  )}
+                >
+                  <Globe className="h-6 w-6" />
+                </button>
+              </li>
+            )}
+            {hasAccess("aoc") && (
               <li>
                 <Link
                   to="/aoc"
@@ -115,7 +135,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                 </Link>
               </li>
             )}
-            {hasAccess("DAAS") && (
+            {hasAccess("ato") && (
               <li>
                 <Link
                   to="/ato"
@@ -128,7 +148,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                 </Link>
               </li>
             )}
-            {hasAccess("DOLTS") && (
+            {hasAccess("foreignDACL") && (
               <li>
                 <Link
                   to="/foreign-airline-dacl"
@@ -141,7 +161,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                 </Link>
               </li>
             )}
-            {hasAccess("DAWS") && (
+            {hasAccess("acStatus") && (
               <li>
                 <Link
                   to="/ac-status"
@@ -154,7 +174,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                 </Link>
               </li>
             )}
-            {hasAccess("DAWS") && (
+            {hasAccess("amo") && (
               <li>
                 <button
                   onClick={() => toggleMenu("amo")}
@@ -180,6 +200,19 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                 </Link>
               </li>
             )}
+            {user?.role === "Super User" && (
+              <li>
+                <Link
+                  to="/audit-trail"
+                  className={cn(
+                    "flex items-center justify-center p-2 rounded-md hover:bg-white/10",
+                    isActive("/audit-trail") && "bg-white/20"
+                  )}
+                >
+                  <Activity className="h-6 w-6" />
+                </Link>
+              </li>
+            )}
           </ul>
         </nav>
       </div>
@@ -187,7 +220,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
   }
 
   return (
-    <div className="h-full fixed bg-ncaa-primary text-white w-64 flex flex-col py-4 z-40 transition-all duration-200">
+    <div className="h-full fixed top-0 left-0 bg-ncaa-primary text-white w-64 flex flex-col py-4 z-40 transition-all duration-200">
       <div className="flex items-center justify-center mb-8">
         <img
           src="/lovable-uploads/660cad38-3239-4b0f-8012-a92a08141716.png"
@@ -211,145 +244,136 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
             </Link>
           </li>
           
-          <li>
-            <Collapsible
-              open={openMenus.globalOperations}
-              onOpenChange={() => toggleMenu("globalOperations")}
-              className="w-full"
-            >
-              <CollapsibleTrigger
-                className={cn(
-                  "flex items-center justify-between px-3 py-2 w-full rounded-md hover:bg-white/10 transition-colors",
-                  openMenus.globalOperations && "bg-white/20"
-                )}
+          {hasAccess("globalOperations") && (
+            <li>
+              <Collapsible
+                open={openMenus.globalOperations}
+                onOpenChange={() => toggleMenu("globalOperations")}
+                className="w-full"
               >
-                <div className="flex items-center">
-                  <Globe className="h-5 w-5 mr-3" />
-                  <span>Global Operations</span>
-                </div>
-                <ChevronDown
+                <CollapsibleTrigger
                   className={cn(
-                    "h-4 w-4 transition-transform",
-                    openMenus.globalOperations && "transform rotate-180"
-                  )}
-                />
-              </CollapsibleTrigger>
-              <CollapsibleContent className="pl-10 space-y-1 mt-1">
-                <Link
-                  to="/global/aircraft-manufacturer"
-                  className={cn(
-                    "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
-                    isActive("/global/aircraft-manufacturer") && "bg-white/10"
+                    "flex items-center justify-between px-3 py-2 w-full rounded-md hover:bg-white/10 transition-colors",
+                    openMenus.globalOperations && "bg-white/20"
                   )}
                 >
-                  Aircraft Manufacturer
-                </Link>
-                <Link
-                  to="/global/aircraft-type"
-                  className={cn(
-                    "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
-                    isActive("/global/aircraft-type") && "bg-white/10"
-                  )}
-                >
-                  Aircraft Type
-                </Link>
-                <Link
-                  to="/global/foreign-registration"
-                  className={cn(
-                    "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
-                    isActive("/global/foreign-registration") && "bg-white/10"
-                  )}
-                >
-                  Foreign Registration Mark
-                </Link>
-                <Link
-                  to="/global/foreign-amo"
-                  className={cn(
-                    "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
-                    isActive("/global/foreign-amo") && "bg-white/10"
-                  )}
-                >
-                  Foreign AMO
-                </Link>
-                <Link
-                  to="/global/general-aviation"
-                  className={cn(
-                    "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
-                    isActive("/global/general-aviation") && "bg-white/10"
-                  )}
-                >
-                  General Aviation
-                </Link>
-                <Link
-                  to="/global/operation-type"
-                  className={cn(
-                    "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
-                    isActive("/global/operation-type") && "bg-white/10"
-                  )}
-                >
-                  Operation Type
-                </Link>
-                <Link
-                  to="/global/state-registry"
-                  className={cn(
-                    "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
-                    isActive("/global/state-registry") && "bg-white/10"
-                  )}
-                >
-                  State of Registry
-                </Link>
-                <Link
-                  to="/global/training-organization"
-                  className={cn(
-                    "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
-                    isActive("/global/training-organization") && "bg-white/10"
-                  )}
-                >
-                  Training Organization
-                </Link>
-                <Link
-                  to="/global/travel-agency"
-                  className={cn(
-                    "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
-                    isActive("/global/travel-agency") && "bg-white/10"
-                  )}
-                >
-                  Travel Agency
-                </Link>
-                <Link
-                  to="/global/foreign-airline"
-                  className={cn(
-                    "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
-                    isActive("/global/foreign-airline") && "bg-white/10"
-                  )}
-                >
-                  Foreign Airline
-                </Link>
-                <Link
-                  to="/global/certificate-type"
-                  className={cn(
-                    "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
-                    isActive("/global/certificate-type") && "bg-white/10"
-                  )}
-                >
-                  Certificate Type
-                </Link>
-                {user?.role === "Super User" && (
+                  <div className="flex items-center">
+                    <Globe className="h-5 w-5 mr-3" />
+                    <span>Global Operations</span>
+                  </div>
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 transition-transform",
+                      openMenus.globalOperations && "transform rotate-180"
+                    )}
+                  />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pl-10 space-y-1 mt-1">
                   <Link
-                    to="/global/user-roles"
+                    to="/global/aircraft-manufacturer"
                     className={cn(
                       "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
-                      isActive("/global/user-roles") && "bg-white/10"
+                      isActive("/global/aircraft-manufacturer") && "bg-white/10"
                     )}
                   >
-                    User Roles
+                    Aircraft Manufacturer
                   </Link>
-                )}
-              </CollapsibleContent>
-            </Collapsible>
-          </li>
+                  <Link
+                    to="/global/aircraft-type"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/global/aircraft-type") && "bg-white/10"
+                    )}
+                  >
+                    Aircraft Type
+                  </Link>
+                  <Link
+                    to="/global/foreign-registration"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/global/foreign-registration") && "bg-white/10"
+                    )}
+                  >
+                    Foreign Registration Mark
+                  </Link>
+                  <Link
+                    to="/global/foreign-amo"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/global/foreign-amo") && "bg-white/10"
+                    )}
+                  >
+                    Foreign AMO
+                  </Link>
+                  <Link
+                    to="/global/general-aviation"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/global/general-aviation") && "bg-white/10"
+                    )}
+                  >
+                    General Aviation
+                  </Link>
+                  <Link
+                    to="/global/operation-type"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/global/operation-type") && "bg-white/10"
+                    )}
+                  >
+                    Operation Type
+                  </Link>
+                  <Link
+                    to="/global/state-registry"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/global/state-registry") && "bg-white/10"
+                    )}
+                  >
+                    State of Registry
+                  </Link>
+                  <Link
+                    to="/global/training-organization"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/global/training-organization") && "bg-white/10"
+                    )}
+                  >
+                    Training Organization
+                  </Link>
+                  <Link
+                    to="/global/travel-agency"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/global/travel-agency") && "bg-white/10"
+                    )}
+                  >
+                    Travel Agency
+                  </Link>
+                  <Link
+                    to="/global/foreign-airline"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/global/foreign-airline") && "bg-white/10"
+                    )}
+                  >
+                    Foreign Airline
+                  </Link>
+                  <Link
+                    to="/global/certificate-type"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/global/certificate-type") && "bg-white/10"
+                    )}
+                  >
+                    Certificate Type
+                  </Link>
+                </CollapsibleContent>
+              </Collapsible>
+            </li>
+          )}
 
-          {hasAccess("DAWS") && (
+          {hasAccess("aoc") && (
             <li>
               <Link
                 to="/aoc"
@@ -364,7 +388,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
             </li>
           )}
 
-          {hasAccess("DAAS") && (
+          {hasAccess("ato") && (
             <li>
               <Link
                 to="/ato"
@@ -379,7 +403,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
             </li>
           )}
 
-          {hasAccess("DOLTS") && (
+          {hasAccess("foreignDACL") && (
             <li>
               <Link
                 to="/foreign-airline-dacl"
@@ -394,7 +418,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
             </li>
           )}
 
-          {hasAccess("DAWS") && (
+          {hasAccess("acStatus") && (
             <li>
               <Link
                 to="/ac-status"
@@ -409,7 +433,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
             </li>
           )}
 
-          {hasAccess("DAWS") && (
+          {hasAccess("amo") && (
             <li>
               <Collapsible
                 open={openMenus.amo}
@@ -457,7 +481,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
             </li>
           )}
 
-          {hasAccess("DAWS") && (
+          {hasAccess("focc") && (
             <li>
               <Link
                 to="/focc-mcc"
@@ -472,7 +496,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
             </li>
           )}
 
-          {hasAccess("DAWS") && (
+          {hasAccess("acceptance") && (
             <li>
               <Link
                 to="/acceptance-certificate"
@@ -498,6 +522,21 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
               >
                 <Users className="h-5 w-5 mr-3" />
                 <span>Users</span>
+              </Link>
+            </li>
+          )}
+          
+          {user?.role === "Super User" && (
+            <li>
+              <Link
+                to="/audit-trail"
+                className={cn(
+                  "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
+                  isActive("/audit-trail") && "bg-white/20"
+                )}
+              >
+                <Activity className="h-5 w-5 mr-3" />
+                <span>Audit Trail</span>
               </Link>
             </li>
           )}
