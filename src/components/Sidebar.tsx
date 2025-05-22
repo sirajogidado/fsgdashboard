@@ -70,7 +70,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
 
   if (!isOpen) {
     return (
-      <div className="h-full fixed bg-ncaa-primary text-white w-16 flex flex-col py-4 z-40 transition-all duration-200">
+      <div className="h-screen bg-ncaa-primary text-white w-16 flex flex-col py-4 shadow-lg">
         <div className="flex items-center justify-center mb-8">
           <img
             src="/lovable-uploads/660cad38-3239-4b0f-8012-a92a08141716.png"
@@ -187,7 +187,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
   }
 
   return (
-    <div className="h-full fixed bg-ncaa-primary text-white w-64 flex flex-col py-4 z-40 transition-all duration-200">
+    <div className="h-screen bg-ncaa-primary text-white w-64 flex flex-col py-4 shadow-lg">
       <div className="flex items-center justify-center mb-8">
         <img
           src="/lovable-uploads/660cad38-3239-4b0f-8012-a92a08141716.png"
