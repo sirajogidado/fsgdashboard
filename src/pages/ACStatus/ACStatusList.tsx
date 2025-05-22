@@ -12,8 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Edit } from "lucide-react";
 
-interface ACStatusListProps {
+export interface ACStatusListProps {
   searchQuery: string;
+  onEdit: (id: string) => void;
 }
 
 // Mock data - in a real app this would come from an API
@@ -79,7 +80,7 @@ const getStatusColor = (status: string) => {
   }
 };
 
-const ACStatusList = ({ searchQuery }: ACStatusListProps) => {
+const ACStatusList = ({ searchQuery, onEdit }: ACStatusListProps) => {
   // Filter data based on search query
   const filteredData = mockData.filter((item) =>
     Object.values(item).some((value) =>
@@ -96,8 +97,8 @@ const ACStatusList = ({ searchQuery }: ACStatusListProps) => {
             <TableHead>Registration Mark</TableHead>
             <TableHead>Serial Number</TableHead>
             <TableHead>Operator</TableHead>
-            <TableHead>Last Maintenance</TableHead>
-            <TableHead>Next Maintenance</TableHead>
+            <TableHead className="hidden md:table-cell">Last Maintenance</TableHead>
+            <TableHead className="hidden md:table-cell">Next Maintenance</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
@@ -110,8 +111,8 @@ const ACStatusList = ({ searchQuery }: ACStatusListProps) => {
                 <TableCell>{aircraft.registrationMark}</TableCell>
                 <TableCell>{aircraft.serialNumber}</TableCell>
                 <TableCell>{aircraft.operator}</TableCell>
-                <TableCell>{new Date(aircraft.lastMaintenanceDate).toLocaleDateString()}</TableCell>
-                <TableCell>{new Date(aircraft.nextMaintenanceDate).toLocaleDateString()}</TableCell>
+                <TableCell className="hidden md:table-cell">{new Date(aircraft.lastMaintenanceDate).toLocaleDateString()}</TableCell>
+                <TableCell className="hidden md:table-cell">{new Date(aircraft.nextMaintenanceDate).toLocaleDateString()}</TableCell>
                 <TableCell>
                   <Badge
                     className={`${
@@ -132,7 +133,7 @@ const ACStatusList = ({ searchQuery }: ACStatusListProps) => {
                     <Button variant="ghost" size="icon">
                       <FileText className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" onClick={() => onEdit(aircraft.id)}>
                       <Edit className="h-4 w-4" />
                     </Button>
                   </div>

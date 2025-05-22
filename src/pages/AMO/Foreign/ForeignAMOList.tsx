@@ -12,8 +12,9 @@ import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-interface ForeignAMOListProps {
+export interface ForeignAMOListProps {
   searchQuery: string;
+  onEdit: (id: string) => void;
 }
 
 // Sample data for demonstration
@@ -47,7 +48,7 @@ const sampleData = [
   },
 ];
 
-const ForeignAMOList: React.FC<ForeignAMOListProps> = ({ searchQuery }) => {
+const ForeignAMOList: React.FC<ForeignAMOListProps> = ({ searchQuery, onEdit }) => {
   const [data, setData] = useState(sampleData);
 
   // Filter data based on search query
@@ -104,7 +105,11 @@ const ForeignAMOList: React.FC<ForeignAMOListProps> = ({ searchQuery }) => {
                 </TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => onEdit(item.id)}
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button

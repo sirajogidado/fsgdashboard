@@ -12,52 +12,50 @@ import { Button } from "@/components/ui/button";
 import { Edit, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-interface ForeignAirlineDACLListProps {
+export interface ForeignAirlineDACLListProps {
   searchQuery: string;
+  onEdit: (id: string) => void;
 }
 
 // Sample data for demonstration
 const sampleData = [
   {
     id: "1",
-    airlineName: "Emirates Airlines",
-    countryOfOrigin: "United Arab Emirates",
-    aircraftType: "Boeing 777-300ER",
-    licenseNumber: "UAE-DACL-2023-001",
-    issueDate: "2023-01-15",
-    expiryDate: "2024-01-14",
+    airlineName: "Emirates",
+    country: "United Arab Emirates",
+    approval: "DACL/FOR/2023-001",
+    issueDate: "2023-01-10",
+    expiryDate: "2023-12-31",
     status: "Active",
   },
   {
     id: "2",
     airlineName: "British Airways",
-    countryOfOrigin: "United Kingdom",
-    aircraftType: "Airbus A380",
-    licenseNumber: "UK-DACL-2023-002",
-    issueDate: "2023-02-10",
-    expiryDate: "2024-02-09",
+    country: "United Kingdom",
+    approval: "DACL/FOR/2023-002",
+    issueDate: "2023-02-15",
+    expiryDate: "2023-12-31",
     status: "Active",
   },
   {
     id: "3",
-    airlineName: "Lufthansa",
-    countryOfOrigin: "Germany",
-    aircraftType: "Boeing 747-8",
-    licenseNumber: "GER-DACL-2023-003",
+    airlineName: "Air France",
+    country: "France",
+    approval: "DACL/FOR/2023-003",
     issueDate: "2023-03-05",
-    expiryDate: "2023-03-04",
+    expiryDate: "2023-06-30",
     status: "Expired",
   },
 ];
 
-const ForeignAirlineDACLList: React.FC<ForeignAirlineDACLListProps> = ({ searchQuery }) => {
+const ForeignAirlineDACLList: React.FC<ForeignAirlineDACLListProps> = ({ searchQuery, onEdit }) => {
   const [data, setData] = useState(sampleData);
 
   // Filter data based on search query
   const filteredData = data.filter((item) =>
     item.airlineName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.countryOfOrigin.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.licenseNumber.toLowerCase().includes(searchQuery.toLowerCase())
+    item.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.approval.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleDelete = (id: string) => {
@@ -86,8 +84,7 @@ const ForeignAirlineDACLList: React.FC<ForeignAirlineDACLListProps> = ({ searchQ
           <TableRow>
             <TableHead>Airline Name</TableHead>
             <TableHead className="hidden md:table-cell">Country</TableHead>
-            <TableHead className="hidden md:table-cell">Aircraft Type</TableHead>
-            <TableHead>License Number</TableHead>
+            <TableHead>Approval Reference</TableHead>
             <TableHead className="hidden md:table-cell">Issue Date</TableHead>
             <TableHead className="hidden md:table-cell">Expiry Date</TableHead>
             <TableHead>Status</TableHead>
@@ -99,9 +96,8 @@ const ForeignAirlineDACLList: React.FC<ForeignAirlineDACLListProps> = ({ searchQ
             filteredData.map((item) => (
               <TableRow key={item.id}>
                 <TableCell>{item.airlineName}</TableCell>
-                <TableCell className="hidden md:table-cell">{item.countryOfOrigin}</TableCell>
-                <TableCell className="hidden md:table-cell">{item.aircraftType}</TableCell>
-                <TableCell>{item.licenseNumber}</TableCell>
+                <TableCell className="hidden md:table-cell">{item.country}</TableCell>
+                <TableCell>{item.approval}</TableCell>
                 <TableCell className="hidden md:table-cell">{item.issueDate}</TableCell>
                 <TableCell className="hidden md:table-cell">{item.expiryDate}</TableCell>
                 <TableCell>
@@ -109,7 +105,11 @@ const ForeignAirlineDACLList: React.FC<ForeignAirlineDACLListProps> = ({ searchQ
                 </TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => onEdit(item.id)}
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
                     <Button
@@ -125,8 +125,8 @@ const ForeignAirlineDACLList: React.FC<ForeignAirlineDACLListProps> = ({ searchQ
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={8} className="text-center py-4">
-                No DACL records found.
+              <TableCell colSpan={7} className="text-center py-4">
+                No Foreign Airline DACL records found.
               </TableCell>
             </TableRow>
           )}
