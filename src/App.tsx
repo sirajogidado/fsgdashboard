@@ -27,10 +27,6 @@ import LocalAMOPage from "./pages/AMO/Local/LocalAMOPage";
 import AircraftManufacturerPage from "./pages/Global/AircraftManufacturer/AircraftManufacturerPage";
 import AircraftTypePage from "./pages/Global/AircraftType/AircraftTypePage";
 
-// Global Operations Pages
-import ForeignRegistrationPage from "./pages/Global/ForeignRegistration/ForeignRegistrationPage";
-import GlobalForeignAMOPage from "./pages/Global/ForeignAMO/ForeignAMOPage";
-
 // Create QueryClient outside the component
 const queryClient = new QueryClient();
 
@@ -140,18 +136,8 @@ function App() {
                     <AircraftTypePage />
                   } 
                 />
-                <Route 
-                  path="global/foreign-registration" 
-                  element={
-                    <ForeignRegistrationPage />
-                  } 
-                />
-                <Route 
-                  path="global/foreign-amo" 
-                  element={
-                    <GlobalForeignAMOPage />
-                  } 
-                />
+                <Route path="global/foreign-registration" element={<div className="p-8">Foreign Registration Mark Page - Coming Soon</div>} />
+                <Route path="global/foreign-amo" element={<div className="p-8">Foreign AMO Page - Coming Soon</div>} />
                 <Route path="global/general-aviation" element={<div className="p-8">General Aviation Page - Coming Soon</div>} />
                 <Route path="global/operation-type" element={<div className="p-8">Operation Type Page - Coming Soon</div>} />
                 <Route path="global/state-registry" element={<div className="p-8">State of Registry Page - Coming Soon</div>} />
@@ -159,6 +145,7 @@ function App() {
                 <Route path="global/travel-agency" element={<div className="p-8">Travel Agency Page - Coming Soon</div>} />
                 <Route path="global/foreign-airline" element={<div className="p-8">Foreign Airline Page - Coming Soon</div>} />
                 <Route path="global/certificate-type" element={<div className="p-8">Certificate Type Page - Coming Soon</div>} />
+                <Route path="global/user-roles" element={<div className="p-8">User Roles Page - Coming Soon</div>} />
               </Route>
               
               <Route path="*" element={<NotFound />} />
