@@ -15,6 +15,8 @@ const MainLayout = () => {
   useEffect(() => {
     if (isMobile) {
       setSidebarOpen(false);
+    } else {
+      setSidebarOpen(true);
     }
   }, [isMobile]);
 
@@ -32,12 +34,16 @@ const MainLayout = () => {
         />
       )}
       
-      <div className={`fixed z-30 transition-all duration-300 ease-in-out ${
-        sidebarOpen ? "translate-x-0" : isMobile ? "-translate-x-full" : ""
-      }`}>
+      {/* Sidebar */}
+      <div 
+        className={`fixed h-full z-30 transition-all duration-300 ease-in-out ${
+          sidebarOpen ? "translate-x-0" : (isMobile ? "-translate-x-full" : "")
+        }`}
+      >
         <Sidebar isOpen={sidebarOpen} toggle={toggleSidebar} />
       </div>
       
+      {/* Main Content */}
       <div className={`flex flex-col flex-1 overflow-hidden transition-all duration-300 ${
         isMobile ? 'ml-0' : (sidebarOpen ? 'ml-64' : 'ml-16')
       }`}>
