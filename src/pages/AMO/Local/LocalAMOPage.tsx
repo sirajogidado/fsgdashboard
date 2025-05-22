@@ -1,6 +1,5 @@
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -11,6 +10,17 @@ import LocalAMOList from "./LocalAMOList";
 const LocalAMOPage = () => {
   const [activeTab, setActiveTab] = useState<string>("view");
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const handleEdit = (id: string) => {
+    setEditingId(id);
+    setActiveTab("add");
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setActiveTab("view");
+  };
 
   return (
     <div className="space-y-6">
@@ -22,7 +32,7 @@ const LocalAMOPage = () => {
         <div className="flex justify-between items-center mb-4">
           <TabsList>
             <TabsTrigger value="view">View Local AMO</TabsTrigger>
-            <TabsTrigger value="add">Add Local AMO</TabsTrigger>
+            <TabsTrigger value="add">{editingId ? "Edit Local AMO" : "Add Local AMO"}</TabsTrigger>
           </TabsList>
           
           {activeTab === "view" && (
@@ -44,7 +54,7 @@ const LocalAMOPage = () => {
               <CardTitle>Local AMO Records</CardTitle>
             </CardHeader>
             <CardContent>
-              <LocalAMOList searchQuery={searchQuery} />
+              <LocalAMOList searchQuery={searchQuery} onEdit={handleEdit} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -52,10 +62,10 @@ const LocalAMOPage = () => {
         <TabsContent value="add">
           <Card>
             <CardHeader>
-              <CardTitle>Add New Local AMO</CardTitle>
+              <CardTitle>{editingId ? "Edit Local AMO" : "Add New Local AMO"}</CardTitle>
             </CardHeader>
             <CardContent>
-              <LocalAMOForm />
+              <LocalAMOForm onCancel={handleCancel} editingId={editingId} />
             </CardContent>
           </Card>
         </TabsContent>

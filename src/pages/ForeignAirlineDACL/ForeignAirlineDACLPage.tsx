@@ -1,6 +1,5 @@
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -11,6 +10,17 @@ import ForeignAirlineDACLList from "./ForeignAirlineDACLList";
 const ForeignAirlineDACLPage = () => {
   const [activeTab, setActiveTab] = useState<string>("view");
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const handleEdit = (id: string) => {
+    setEditingId(id);
+    setActiveTab("add");
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setActiveTab("view");
+  };
 
   return (
     <div className="space-y-6">
@@ -22,7 +32,7 @@ const ForeignAirlineDACLPage = () => {
         <div className="flex justify-between items-center mb-4">
           <TabsList>
             <TabsTrigger value="view">View DACL</TabsTrigger>
-            <TabsTrigger value="add">Add DACL</TabsTrigger>
+            <TabsTrigger value="add">{editingId ? "Edit DACL" : "Add DACL"}</TabsTrigger>
           </TabsList>
           
           {activeTab === "view" && (
@@ -44,7 +54,7 @@ const ForeignAirlineDACLPage = () => {
               <CardTitle>Foreign Airline DACL Records</CardTitle>
             </CardHeader>
             <CardContent>
-              <ForeignAirlineDACLList searchQuery={searchQuery} />
+              <ForeignAirlineDACLList searchQuery={searchQuery} onEdit={handleEdit} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -52,10 +62,10 @@ const ForeignAirlineDACLPage = () => {
         <TabsContent value="add">
           <Card>
             <CardHeader>
-              <CardTitle>Add New Foreign Airline DACL</CardTitle>
+              <CardTitle>{editingId ? "Edit Foreign Airline DACL" : "Add New Foreign Airline DACL"}</CardTitle>
             </CardHeader>
             <CardContent>
-              <ForeignAirlineDACLForm />
+              <ForeignAirlineDACLForm onCancel={handleCancel} editingId={editingId} />
             </CardContent>
           </Card>
         </TabsContent>

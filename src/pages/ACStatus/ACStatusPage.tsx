@@ -1,6 +1,5 @@
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -11,6 +10,17 @@ import ACStatusList from "./ACStatusList";
 const ACStatusPage = () => {
   const [activeTab, setActiveTab] = useState<string>("view");
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const handleEdit = (id: string) => {
+    setEditingId(id);
+    setActiveTab("add");
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setActiveTab("view");
+  };
 
   return (
     <div className="space-y-6">
@@ -22,7 +32,7 @@ const ACStatusPage = () => {
         <div className="flex justify-between items-center mb-4">
           <TabsList>
             <TabsTrigger value="view">View Aircraft Status</TabsTrigger>
-            <TabsTrigger value="add">Add Aircraft Status</TabsTrigger>
+            <TabsTrigger value="add">{editingId ? "Edit Status" : "Add Status"}</TabsTrigger>
           </TabsList>
           
           {activeTab === "view" && (
@@ -44,7 +54,7 @@ const ACStatusPage = () => {
               <CardTitle>Aircraft Status Records</CardTitle>
             </CardHeader>
             <CardContent>
-              <ACStatusList searchQuery={searchQuery} />
+              <ACStatusList searchQuery={searchQuery} onEdit={handleEdit} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -52,10 +62,10 @@ const ACStatusPage = () => {
         <TabsContent value="add">
           <Card>
             <CardHeader>
-              <CardTitle>Add New Aircraft Status</CardTitle>
+              <CardTitle>{editingId ? "Edit Aircraft Status" : "Add New Aircraft Status"}</CardTitle>
             </CardHeader>
             <CardContent>
-              <ACStatusForm />
+              <ACStatusForm onCancel={handleCancel} editingId={editingId} />
             </CardContent>
           </Card>
         </TabsContent>

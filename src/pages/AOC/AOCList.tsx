@@ -14,6 +14,7 @@ import { FileText, Edit } from "lucide-react";
 
 interface AOCListProps {
   searchQuery: string;
+  onEdit: (id: string) => void;
 }
 
 // Mock data - in a real app this would come from an API
@@ -71,7 +72,7 @@ const getStatusColor = (validityDate: string) => {
   }
 };
 
-const AOCList = ({ searchQuery }: AOCListProps) => {
+const AOCList = ({ searchQuery, onEdit }: AOCListProps) => {
   // Filter data based on search query
   const filteredData = mockData.filter((item) =>
     Object.values(item).some((value) =>
@@ -126,7 +127,11 @@ const AOCList = ({ searchQuery }: AOCListProps) => {
                     <Button variant="ghost" size="icon">
                       <FileText className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon">
+                    <Button 
+                      variant="ghost" 
+                      size="icon"
+                      onClick={() => onEdit(aoc.id)}
+                    >
                       <Edit className="h-4 w-4" />
                     </Button>
                   </div>

@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -51,7 +51,52 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const ForeignAirlineDACLForm: React.FC = () => {
+// Sample DACL data for demonstration
+const sampleData = [
+  {
+    id: "1",
+    airlineName: "Emirates",
+    countryOfOrigin: "United Arab Emirates",
+    aircraftType: "Boeing 777",
+    licenseNumber: "DACL-001-2023",
+    issueDate: "2023-01-15",
+    expiryDate: "2024-01-15",
+    status: "Active",
+    remarks: "Regular flights to Lagos",
+  },
+  {
+    id: "2",
+    airlineName: "British Airways",
+    countryOfOrigin: "United Kingdom",
+    aircraftType: "Airbus A380",
+    licenseNumber: "DACL-002-2023",
+    issueDate: "2023-02-10",
+    expiryDate: "2024-02-10",
+    status: "Active",
+    remarks: "Weekly flights",
+  },
+  {
+    id: "3",
+    airlineName: "Air France",
+    countryOfOrigin: "France",
+    aircraftType: "Airbus A350",
+    licenseNumber: "DACL-003-2023",
+    issueDate: "2023-03-05",
+    expiryDate: "2023-04-05",
+    status: "Expired",
+    remarks: "Renewal pending",
+  }
+];
+
+interface ForeignAirlineDACLFormProps {
+  onCancel: () => void;
+  editingId: string | null;
+}
+
+const ForeignAirlineDACLForm: React.FC<ForeignAirlineDACLFormProps> = ({ 
+  onCancel,
+  editingId
+}) => {
   const { toast } = useToast();
 
   const form = useForm<FormValues>({
@@ -68,13 +113,44 @@ const ForeignAirlineDACLForm: React.FC = () => {
     },
   });
 
+  useEffect(() => {
+    if (editingId) {
+      const daclRecord = sampleData.find(item => item.id === editingId);
+      if (daclRecord) {
+        form.reset({
+          airlineName: daclRecord.airlineName,
+          countryOfOrigin: daclRecord.countryOfOrigin,
+          aircraftType: daclRecord.aircraftType,
+          licenseNumber: daclRecord.licenseNumber,
+          issueDate: daclRecord.issueDate,
+          expiryDate: daclRecord.expiryDate,
+          status: daclRecord.status,
+          remarks: daclRecord.remarks || "",
+        });
+      }
+    } else {
+      form.reset({
+        airlineName: "",
+        countryOfOrigin: "",
+        aircraftType: "",
+        licenseNumber: "",
+        issueDate: "",
+        expiryDate: "",
+        status: "Active",
+        remarks: "",
+      });
+    }
+  }, [editingId, form]);
+
   function onSubmit(values: FormValues) {
     console.log(values);
     toast({
-      title: "DACL Added",
-      description: "Foreign Airline DACL has been successfully added.",
+      title: editingId ? "DACL Updated" : "DACL Added",
+      description: editingId 
+        ? "Foreign Airline DACL has been successfully updated."
+        : "Foreign Airline DACL has been successfully added.",
     });
-    form.reset();
+    onCancel();
   }
 
   return (
@@ -174,6 +250,7 @@ const ForeignAirlineDACLForm: React.FC = () => {
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
+                  value={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>
@@ -211,9 +288,14 @@ const ForeignAirlineDACLForm: React.FC = () => {
           )}
         />
 
-        <Button type="submit" className="w-full md:w-auto">
-          Submit DACL
-        </Button>
+        <div className="flex justify-end space-x-3">
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit">
+            {editingId ? "Update" : "Submit"} DACL
+          </Button>
+        </div>
       </form>
     </Form>
   );

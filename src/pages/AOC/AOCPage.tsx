@@ -1,6 +1,5 @@
 
 import React, { useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -11,18 +10,29 @@ import AOCList from "./AOCList";
 const AOCPage = () => {
   const [activeTab, setActiveTab] = useState<string>("view");
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const handleEdit = (id: string) => {
+    setEditingId(id);
+    setActiveTab("add");
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setActiveTab("view");
+  };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight">Air Operator Certificate (AOC)</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Air Operator Certificate</h2>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="flex justify-between items-center mb-4">
           <TabsList>
             <TabsTrigger value="view">View AOC</TabsTrigger>
-            <TabsTrigger value="add">Add AOC</TabsTrigger>
+            <TabsTrigger value="add">{editingId ? "Edit AOC" : "Add AOC"}</TabsTrigger>
           </TabsList>
           
           {activeTab === "view" && (
@@ -44,7 +54,7 @@ const AOCPage = () => {
               <CardTitle>AOC Records</CardTitle>
             </CardHeader>
             <CardContent>
-              <AOCList searchQuery={searchQuery} />
+              <AOCList searchQuery={searchQuery} onEdit={handleEdit} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -52,10 +62,10 @@ const AOCPage = () => {
         <TabsContent value="add">
           <Card>
             <CardHeader>
-              <CardTitle>Add New AOC</CardTitle>
+              <CardTitle>{editingId ? "Edit Air Operator Certificate" : "Add New Air Operator Certificate"}</CardTitle>
             </CardHeader>
             <CardContent>
-              <AOCForm />
+              <AOCForm onCancel={handleCancel} editingId={editingId} />
             </CardContent>
           </Card>
         </TabsContent>

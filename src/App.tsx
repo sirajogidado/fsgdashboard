@@ -64,7 +64,7 @@ function App() {
                 <Route 
                   path="aoc" 
                   element={
-                    <ProtectedRoute requiredRole="Technical">
+                    <ProtectedRoute requiredDirectorate="AOC">
                       <AOCPage />
                     </ProtectedRoute>
                   } 
@@ -74,7 +74,7 @@ function App() {
                 <Route 
                   path="ato" 
                   element={
-                    <ProtectedRoute requiredRole="Technical">
+                    <ProtectedRoute requiredDirectorate="ATO">
                       <ATOPage />
                     </ProtectedRoute>
                   } 
@@ -84,7 +84,7 @@ function App() {
                 <Route 
                   path="ac-status" 
                   element={
-                    <ProtectedRoute requiredRole="Technical">
+                    <ProtectedRoute requiredDirectorate="AOC">
                       <ACStatusPage />
                     </ProtectedRoute>
                   } 
@@ -94,7 +94,7 @@ function App() {
                 <Route 
                   path="foreign-airline-dacl" 
                   element={
-                    <ProtectedRoute requiredRole="Technical">
+                    <ProtectedRoute requiredDirectorate="DACL">
                       <ForeignAirlineDACLPage />
                     </ProtectedRoute>
                   } 
@@ -104,7 +104,7 @@ function App() {
                 <Route 
                   path="amo/foreign" 
                   element={
-                    <ProtectedRoute requiredRole="Technical">
+                    <ProtectedRoute requiredDirectorate="AMO">
                       <ForeignAMOPage />
                     </ProtectedRoute>
                   } 
@@ -113,39 +113,66 @@ function App() {
                 <Route 
                   path="amo/local" 
                   element={
-                    <ProtectedRoute requiredRole="Technical">
+                    <ProtectedRoute requiredDirectorate="AMO">
                       <LocalAMOPage />
                     </ProtectedRoute>
                   } 
                 />
                 
-                <Route path="focc-mcc" element={<div className="p-8">FOCC/MCC Page - Coming Soon</div>} />
-                <Route path="acceptance-certificate" element={<div className="p-8">Type Acceptance Certificate Page - Coming Soon</div>} />
-                <Route path="settings" element={<div className="p-8">Settings Page - Coming Soon</div>} />
+                <Route 
+                  path="focc-mcc" 
+                  element={
+                    <ProtectedRoute requiredDirectorate="FOCC">
+                      <div className="p-8">FOCC/MCC Page - Coming Soon</div>
+                    </ProtectedRoute>
+                  } 
+                />
                 
-                {/* Global Operations routes */}
+                <Route 
+                  path="acceptance-certificate" 
+                  element={
+                    <ProtectedRoute requiredDirectorate="AOC">
+                      <div className="p-8">Type Acceptance Certificate Page - Coming Soon</div>
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                <Route 
+                  path="settings" 
+                  element={
+                    <ProtectedRoute>
+                      <div className="p-8">Settings Page - Coming Soon</div>
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* Global Operations routes - these should be accessible by all with proper role */}
                 <Route 
                   path="global/aircraft-manufacturer" 
                   element={
-                    <AircraftManufacturerPage />
+                    <ProtectedRoute requiredRole="Technical">
+                      <AircraftManufacturerPage />
+                    </ProtectedRoute>
                   } 
                 />
                 <Route 
                   path="global/aircraft-type" 
                   element={
-                    <AircraftTypePage />
+                    <ProtectedRoute requiredRole="Technical">
+                      <AircraftTypePage />
+                    </ProtectedRoute>
                   } 
                 />
-                <Route path="global/foreign-registration" element={<div className="p-8">Foreign Registration Mark Page - Coming Soon</div>} />
-                <Route path="global/foreign-amo" element={<div className="p-8">Foreign AMO Page - Coming Soon</div>} />
-                <Route path="global/general-aviation" element={<div className="p-8">General Aviation Page - Coming Soon</div>} />
-                <Route path="global/operation-type" element={<div className="p-8">Operation Type Page - Coming Soon</div>} />
-                <Route path="global/state-registry" element={<div className="p-8">State of Registry Page - Coming Soon</div>} />
-                <Route path="global/training-organization" element={<div className="p-8">Training Organization Page - Coming Soon</div>} />
-                <Route path="global/travel-agency" element={<div className="p-8">Travel Agency Page - Coming Soon</div>} />
-                <Route path="global/foreign-airline" element={<div className="p-8">Foreign Airline Page - Coming Soon</div>} />
-                <Route path="global/certificate-type" element={<div className="p-8">Certificate Type Page - Coming Soon</div>} />
-                <Route path="global/user-roles" element={<div className="p-8">User Roles Page - Coming Soon</div>} />
+                <Route path="global/foreign-registration" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Foreign Registration Mark Page - Coming Soon</div></ProtectedRoute>} />
+                <Route path="global/foreign-amo" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Foreign AMO Page - Coming Soon</div></ProtectedRoute>} />
+                <Route path="global/general-aviation" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">General Aviation Page - Coming Soon</div></ProtectedRoute>} />
+                <Route path="global/operation-type" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Operation Type Page - Coming Soon</div></ProtectedRoute>} />
+                <Route path="global/state-registry" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">State of Registry Page - Coming Soon</div></ProtectedRoute>} />
+                <Route path="global/training-organization" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Training Organization Page - Coming Soon</div></ProtectedRoute>} />
+                <Route path="global/travel-agency" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Travel Agency Page - Coming Soon</div></ProtectedRoute>} />
+                <Route path="global/foreign-airline" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Foreign Airline Page - Coming Soon</div></ProtectedRoute>} />
+                <Route path="global/certificate-type" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Certificate Type Page - Coming Soon</div></ProtectedRoute>} />
+                <Route path="global/user-roles" element={<ProtectedRoute requiredRole="Super User"><div className="p-8">User Roles Page - Coming Soon</div></ProtectedRoute>} />
               </Route>
               
               <Route path="*" element={<NotFound />} />

@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 
 const formSchema = z.object({
   aocHolder: z.string().min(1, "AOC holder is required"),
@@ -38,7 +38,58 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const AOCForm = () => {
+// Sample AOC data for demonstration
+const mockData = [
+  {
+    id: "1",
+    aocHolder: "Airline A",
+    aircraftType: "Boeing 737",
+    certificateNumber: "AOC-001-2023",
+    issueDate: "2023-01-15",
+    validityDate: "2024-01-15",
+    remarks: "Regular domestic operations",
+    operations: "Commercial",
+  },
+  {
+    id: "2",
+    aocHolder: "Airline B",
+    aircraftType: "Airbus A320",
+    certificateNumber: "AOC-002-2023",
+    issueDate: "2023-02-20",
+    validityDate: "2024-02-20",
+    remarks: "International routes only",
+    operations: "Commercial",
+  },
+  {
+    id: "3",
+    aocHolder: "Airline C",
+    aircraftType: "Embraer E190",
+    certificateNumber: "AOC-003-2023",
+    issueDate: "2023-03-10",
+    validityDate: "2023-05-10",
+    remarks: "Cargo operations between major hubs",
+    operations: "Cargo",
+  },
+  {
+    id: "4",
+    aocHolder: "Airline D",
+    aircraftType: "Boeing 777",
+    certificateNumber: "AOC-004-2023",
+    issueDate: "2023-04-05",
+    validityDate: "2023-06-30",
+    remarks: "VIP charter operations",
+    operations: "Private",
+  },
+];
+
+interface AOCFormProps {
+  onCancel: () => void;
+  editingId: string | null;
+}
+
+const AOCForm = ({ onCancel, editingId }: AOCFormProps) => {
+  const { toast } = useToast();
+  
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -52,14 +103,42 @@ const AOCForm = () => {
     },
   });
 
+  useEffect(() => {
+    if (editingId) {
+      const aoc = mockData.find(item => item.id === editingId);
+      if (aoc) {
+        form.reset({
+          aocHolder: aoc.aocHolder,
+          aircraftType: aoc.aircraftType,
+          certificateNumber: aoc.certificateNumber,
+          issueDate: aoc.issueDate,
+          validityDate: aoc.validityDate,
+          remarks: aoc.remarks || "",
+          operations: aoc.operations,
+        });
+      }
+    } else {
+      form.reset({
+        aocHolder: "",
+        aircraftType: "",
+        certificateNumber: "",
+        issueDate: "",
+        validityDate: "",
+        remarks: "",
+        operations: "",
+      });
+    }
+  }, [editingId, form]);
+
   const onSubmit = (data: FormValues) => {
-    // In a real application, this would send data to an API
     console.log("Form submitted:", data);
     toast({
-      title: "AOC Added",
-      description: "The AOC has been successfully added.",
+      title: editingId ? "AOC Updated" : "AOC Added",
+      description: editingId 
+        ? "The AOC has been successfully updated."
+        : "The AOC has been successfully added.",
     });
-    form.reset();
+    onCancel();
   };
 
   // Mock data for dropdowns - in a real app these would come from an API
@@ -77,7 +156,7 @@ const AOCForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>AOC Holder</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select AOC holder" />
@@ -102,7 +181,7 @@ const AOCForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Aircraft Type</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select aircraft type" />
@@ -223,7 +302,7 @@ const AOCForm = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Operations</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <Select onValueChange={field.onChange} value={field.value}>
                   <FormControl>
                     <SelectTrigger>
                       <SelectValue placeholder="Select operation type" />
@@ -262,10 +341,10 @@ const AOCForm = () => {
         </div>
 
         <div className="flex justify-end space-x-2">
-          <Button variant="outline" type="button" onClick={() => form.reset()}>
+          <Button variant="outline" type="button" onClick={onCancel}>
             Cancel
           </Button>
-          <Button type="submit">Save</Button>
+          <Button type="submit">{editingId ? "Update" : "Save"}</Button>
         </div>
       </form>
     </Form>
