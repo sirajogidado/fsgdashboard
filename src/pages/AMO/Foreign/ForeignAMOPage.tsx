@@ -7,6 +7,11 @@ import { Search } from "lucide-react";
 import ForeignAMOForm from "./ForeignAMOForm";
 import ForeignAMOList from "./ForeignAMOList";
 
+interface ForeignAMOListProps {
+  searchQuery: string;
+  onEdit: (id: string) => void;
+}
+
 const ForeignAMOPage = () => {
   const [activeTab, setActiveTab] = useState<string>("view");
   const [searchQuery, setSearchQuery] = useState("");

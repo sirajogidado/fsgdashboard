@@ -26,6 +26,8 @@ import ForeignAMOPage from "./pages/AMO/Foreign/ForeignAMOPage";
 import LocalAMOPage from "./pages/AMO/Local/LocalAMOPage";
 import AircraftManufacturerPage from "./pages/Global/AircraftManufacturer/AircraftManufacturerPage";
 import AircraftTypePage from "./pages/Global/AircraftType/AircraftTypePage";
+import FOCCMCCPage from "./pages/FOCC/FOCCMCCPage";
+import AcceptanceCertificatePage from "./pages/AcceptanceCertificate/AcceptanceCertificatePage";
 
 // Create QueryClient outside the component
 const queryClient = new QueryClient();
@@ -119,20 +121,22 @@ function App() {
                   } 
                 />
                 
+                {/* FOCC/MCC Route */}
                 <Route 
                   path="focc-mcc" 
                   element={
                     <ProtectedRoute requiredDirectorate="FOCC">
-                      <div className="p-8">FOCC/MCC Page - Coming Soon</div>
+                      <FOCCMCCPage />
                     </ProtectedRoute>
                   } 
                 />
                 
+                {/* Acceptance Certificate Route */}
                 <Route 
                   path="acceptance-certificate" 
                   element={
                     <ProtectedRoute requiredDirectorate="AOC">
-                      <div className="p-8">Type Acceptance Certificate Page - Coming Soon</div>
+                      <AcceptanceCertificatePage />
                     </ProtectedRoute>
                   } 
                 />

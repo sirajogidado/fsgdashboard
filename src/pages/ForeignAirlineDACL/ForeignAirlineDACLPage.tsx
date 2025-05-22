@@ -7,6 +7,11 @@ import { Search } from "lucide-react";
 import ForeignAirlineDACLForm from "./ForeignAirlineDACLForm";
 import ForeignAirlineDACLList from "./ForeignAirlineDACLList";
 
+export interface ForeignAirlineDACLListProps {
+  searchQuery: string;
+  onEdit: (id: string) => void;
+}
+
 const ForeignAirlineDACLPage = () => {
   const [activeTab, setActiveTab] = useState<string>("view");
   const [searchQuery, setSearchQuery] = useState("");
@@ -62,7 +67,7 @@ const ForeignAirlineDACLPage = () => {
         <TabsContent value="add">
           <Card>
             <CardHeader>
-              <CardTitle>{editingId ? "Edit Foreign Airline DACL" : "Add New Foreign Airline DACL"}</CardTitle>
+              <CardTitle>{editingId ? "Edit DACL" : "Add New DACL"}</CardTitle>
             </CardHeader>
             <CardContent>
               <ForeignAirlineDACLForm onCancel={handleCancel} editingId={editingId} />

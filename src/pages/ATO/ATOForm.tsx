@@ -20,21 +20,16 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   name: z.string().min(1, "Operator name is required"),
   licenseNumber: z.string().min(1, "License number is required"),
   licenseFile: z.any(),
+  operationType: z.string().min(1, "Operation type is required"),
+  initialDate: z.string().min(1, "Initial date is required"),
   issueDate: z.string().min(1, "Issue date is required"),
   validityDate: z.string().min(1, "Validity date is required"),
-  operationType: z.string().min(1, "Operation type is required"),
-  address: z.string().min(1, "Address is required"),
-  contactPerson: z.string().min(1, "Contact person is required"),
-  email: z.string().email("Invalid email address"),
-  phoneNumber: z.string().min(1, "Phone number is required"),
-  remarks: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -45,14 +40,10 @@ const ATOForm = () => {
     defaultValues: {
       name: "",
       licenseNumber: "",
+      initialDate: "",
       issueDate: "",
       validityDate: "",
       operationType: "",
-      address: "",
-      contactPerson: "",
-      email: "",
-      phoneNumber: "",
-      remarks: "",
     },
   });
 
@@ -145,6 +136,20 @@ const ATOForm = () => {
 
           <FormField
             control={form.control}
+            name="initialDate"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Initial Date</FormLabel>
+                <FormControl>
+                  <Input type="date" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="issueDate"
             render={({ field }) => (
               <FormItem>
@@ -165,80 +170,6 @@ const ATOForm = () => {
                 <FormLabel>Validity Date</FormLabel>
                 <FormControl>
                   <Input type="date" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="address"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Address</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Enter address" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="contactPerson"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Contact Person</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Enter contact person name" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="email"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Enter email address" type="email" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="phoneNumber"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Phone Number</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Enter phone number" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="remarks"
-            render={({ field }) => (
-              <FormItem className="md:col-span-2">
-                <FormLabel>Remarks</FormLabel>
-                <FormControl>
-                  <Textarea 
-                    {...field} 
-                    placeholder="Enter any additional remarks" 
-                    className="min-h-[100px]"
-                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

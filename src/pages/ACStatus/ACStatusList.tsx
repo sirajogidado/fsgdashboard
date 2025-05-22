@@ -9,146 +9,117 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { FileText, Edit } from "lucide-react";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from "@/components/ui/dropdown-menu";
+import { CircleEllipsis } from "lucide-react";
+
+// Mock data for demonstration
+const mockData = [
+  {
+    id: "1",
+    aocHolder: "Ethiopian Airlines",
+    registrationMark: "ET-AOP",
+    aircraftType: "Boeing 737-800",
+    serialNumber: "SN12345",
+    cofaStatus: "2023-12-31", // Date string to represent C of A status
+    registeredOwner: "Ethiopian Airlines Group"
+  },
+  {
+    id: "2",
+    aocHolder: "Ethiopian Airlines",
+    registrationMark: "ET-AOR",
+    aircraftType: "Boeing 777-300ER",
+    serialNumber: "SN67890",
+    cofaStatus: "2024-06-15", // Date string to represent C of A status
+    registeredOwner: "Ethiopian Airlines Group"
+  },
+];
 
 export interface ACStatusListProps {
   searchQuery: string;
   onEdit: (id: string) => void;
 }
 
-// Mock data - in a real app this would come from an API
-const mockData = [
-  {
-    id: "1",
-    aircraftType: "Boeing 737",
-    registrationMark: "5N-ABC",
-    serialNumber: "12345",
-    operator: "Airline A",
-    lastMaintenanceDate: "2023-01-15",
-    nextMaintenanceDate: "2023-07-15",
-    currentStatus: "Active",
-    isInService: true,
-  },
-  {
-    id: "2",
-    aircraftType: "Airbus A320",
-    registrationMark: "5N-XYZ",
-    serialNumber: "67890",
-    operator: "Airline B",
-    lastMaintenanceDate: "2023-02-20",
-    nextMaintenanceDate: "2023-08-20",
-    currentStatus: "Active",
-    isInService: true,
-  },
-  {
-    id: "3",
-    aircraftType: "Embraer E190",
-    registrationMark: "5N-DEF",
-    serialNumber: "54321",
-    operator: "Airline C",
-    lastMaintenanceDate: "2023-03-10",
-    nextMaintenanceDate: "2023-04-10",
-    currentStatus: "Maintenance",
-    isInService: false,
-  },
-  {
-    id: "4",
-    aircraftType: "Boeing 777",
-    registrationMark: "5N-GHI",
-    serialNumber: "98765",
-    operator: "Airline A",
-    lastMaintenanceDate: "2023-04-05",
-    nextMaintenanceDate: "2023-05-05",
-    currentStatus: "Grounded",
-    isInService: false,
-  },
-];
-
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "Active":
-      return "green";
-    case "Maintenance":
-      return "yellow";
-    case "Grounded":
-      return "red";
-    case "Storage":
-      return "blue";
-    default:
-      return "gray";
-  }
-};
-
-const ACStatusList = ({ searchQuery, onEdit }: ACStatusListProps) => {
-  // Filter data based on search query
-  const filteredData = mockData.filter((item) =>
-    Object.values(item).some((value) =>
-      value.toString().toLowerCase().includes(searchQuery.toLowerCase())
-    )
+const ACStatusList: React.FC<ACStatusListProps> = ({ searchQuery, onEdit }) => {
+  const filteredData = mockData.filter(item => 
+    item.aocHolder.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    item.registrationMark.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.aircraftType.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Function to determine if C of A is expired, active, or expiring soon
+  const getCofAStatus = (dateString: string) => {
+    const today = new Date();
+    const cofaDate = new Date(dateString);
+    const daysDiff = Math.floor((cofaDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    
+    if (daysDiff < 0) return { status: "Expired", color: "text-red-500" };
+    if (daysDiff < 30) return { status: "Expiring Soon", color: "text-yellow-500" };
+    return { status: "Active", color: "text-green-500" };
+  };
 
   return (
     <div>
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Aircraft Type</TableHead>
-            <TableHead>Registration Mark</TableHead>
-            <TableHead>Serial Number</TableHead>
-            <TableHead>Operator</TableHead>
-            <TableHead className="hidden md:table-cell">Last Maintenance</TableHead>
-            <TableHead className="hidden md:table-cell">Next Maintenance</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {filteredData.length > 0 ? (
-            filteredData.map((aircraft) => (
-              <TableRow key={aircraft.id}>
-                <TableCell>{aircraft.aircraftType}</TableCell>
-                <TableCell>{aircraft.registrationMark}</TableCell>
-                <TableCell>{aircraft.serialNumber}</TableCell>
-                <TableCell>{aircraft.operator}</TableCell>
-                <TableCell className="hidden md:table-cell">{new Date(aircraft.lastMaintenanceDate).toLocaleDateString()}</TableCell>
-                <TableCell className="hidden md:table-cell">{new Date(aircraft.nextMaintenanceDate).toLocaleDateString()}</TableCell>
-                <TableCell>
-                  <Badge
-                    className={`${
-                      getStatusColor(aircraft.currentStatus) === "red"
-                        ? "bg-red-500"
-                        : getStatusColor(aircraft.currentStatus) === "yellow"
-                        ? "bg-yellow-500"
-                        : getStatusColor(aircraft.currentStatus) === "blue"
-                        ? "bg-blue-500"
-                        : "bg-green-500"
-                    } text-white`}
-                  >
-                    {aircraft.currentStatus}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex space-x-2">
-                    <Button variant="ghost" size="icon">
-                      <FileText className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => onEdit(aircraft.id)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
+      {filteredData.length === 0 ? (
+        <div className="text-center py-10">
+          <p className="text-muted-foreground">No aircraft status records found</p>
+        </div>
+      ) : (
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>AOC Holder</TableHead>
+                <TableHead>Registration Mark</TableHead>
+                <TableHead>Aircraft Type</TableHead>
+                <TableHead>Serial Number</TableHead>
+                <TableHead>C of A Status</TableHead>
+                <TableHead>Registered Owner</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
               </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={8} className="text-center py-4">
-                No aircraft records found
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
+            </TableHeader>
+            <TableBody>
+              {filteredData.map((item) => {
+                const cofaStatus = getCofAStatus(item.cofaStatus);
+                return (
+                  <TableRow key={item.id}>
+                    <TableCell>{item.aocHolder}</TableCell>
+                    <TableCell>{item.registrationMark}</TableCell>
+                    <TableCell>{item.aircraftType}</TableCell>
+                    <TableCell>{item.serialNumber}</TableCell>
+                    <TableCell className={cofaStatus.color}>
+                      {cofaStatus.status} ({item.cofaStatus})
+                    </TableCell>
+                    <TableCell>{item.registeredOwner}</TableCell>
+                    <TableCell className="text-right">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <CircleEllipsis className="h-5 w-5" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => onEdit(item.id)}>
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>View Details</DropdownMenuItem>
+                          <DropdownMenuItem className="text-destructive">
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        </div>
+      )}
     </div>
   );
 };

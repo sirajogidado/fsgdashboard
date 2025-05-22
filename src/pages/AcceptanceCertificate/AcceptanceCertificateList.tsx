@@ -21,61 +21,61 @@ import { CircleEllipsis } from "lucide-react";
 const mockData = [
   {
     id: "1",
-    amoHolder: "Emirates",
-    country: "United Arab Emirates",
-    amoNumber: "UAE-AMO-2023-001",
-    ratings: "A1, B1, C1",
-    expireDate: "2024-12-31"
+    certificateNumber: "TAC-2023-001",
+    aircraftManufacturer: "Boeing",
+    aircraftType: "737-800",
+    engineType: "CFM56-7B",
+    issueDate: "2023-01-15"
   },
   {
     id: "2",
-    amoHolder: "Qatar Airways",
-    country: "Qatar",
-    amoNumber: "QTR-AMO-2023-002",
-    ratings: "A1, A2, B3, D1",
-    expireDate: "2025-06-15"
+    certificateNumber: "TAC-2023-002",
+    aircraftManufacturer: "Airbus",
+    aircraftType: "A350-900",
+    engineType: "Rolls-Royce Trent XWB",
+    issueDate: "2023-05-22"
   },
 ];
 
-export interface ForeignAMOListProps {
+interface AcceptanceCertificateListProps {
   searchQuery: string;
   onEdit: (id: string) => void;
 }
 
-const ForeignAMOList: React.FC<ForeignAMOListProps> = ({ searchQuery, onEdit }) => {
+const AcceptanceCertificateList: React.FC<AcceptanceCertificateListProps> = ({ searchQuery, onEdit }) => {
   const filteredData = mockData.filter(item => 
-    item.amoHolder.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    item.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.amoNumber.toLowerCase().includes(searchQuery.toLowerCase())
+    item.certificateNumber.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    item.aircraftManufacturer.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.aircraftType.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div>
       {filteredData.length === 0 ? (
         <div className="text-center py-10">
-          <p className="text-muted-foreground">No foreign AMO records found</p>
+          <p className="text-muted-foreground">No type acceptance certificate records found</p>
         </div>
       ) : (
         <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>AMO Holder</TableHead>
-                <TableHead>Country</TableHead>
-                <TableHead>AMO Number</TableHead>
-                <TableHead>Ratings</TableHead>
-                <TableHead>Expire Date</TableHead>
+                <TableHead>Certificate Number</TableHead>
+                <TableHead>Aircraft Manufacturer</TableHead>
+                <TableHead>Aircraft Type</TableHead>
+                <TableHead>Engine Type</TableHead>
+                <TableHead>Issue Date</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredData.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{item.amoHolder}</TableCell>
-                  <TableCell>{item.country}</TableCell>
-                  <TableCell>{item.amoNumber}</TableCell>
-                  <TableCell>{item.ratings}</TableCell>
-                  <TableCell>{item.expireDate}</TableCell>
+                  <TableCell>{item.certificateNumber}</TableCell>
+                  <TableCell>{item.aircraftManufacturer}</TableCell>
+                  <TableCell>{item.aircraftType}</TableCell>
+                  <TableCell>{item.engineType}</TableCell>
+                  <TableCell>{item.issueDate}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -104,4 +104,4 @@ const ForeignAMOList: React.FC<ForeignAMOListProps> = ({ searchQuery, onEdit }) 
   );
 };
 
-export default ForeignAMOList;
+export default AcceptanceCertificateList;

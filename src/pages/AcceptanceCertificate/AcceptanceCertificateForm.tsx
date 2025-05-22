@@ -22,38 +22,39 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
-  amoHolder: z.string().min(1, "AMO holder is required"),
-  country: z.string().min(1, "Country is required"),
-  moeRef: z.string().min(1, "MOE ref is required"),
-  approvals: z.string().min(1, "Approvals is required"),
-  ratings: z.string().min(1, "Ratings/capabilities is required"),
-  amoNumber: z.string().min(1, "AMO Number is required"),
-  amoFile: z.any(),
-  expireDate: z.string().min(1, "Expire Date is required"),
+  certificateNumber: z.string().min(1, "Certificate number is required"),
+  aircraftManufacturer: z.string().min(1, "Aircraft manufacturer is required"),
+  aircraftType: z.string().min(1, "Aircraft type is required"),
+  engineType: z.string().min(1, "Engine type is required"),
+  engineManufacturer: z.string().min(1, "Engine manufacturer is required"),
+  issueDate: z.string().min(1, "Issue date is required"),
+  remarks: z.string().optional(),
+  certificateFile: z.any(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface ForeignAMOFormProps {
+interface AcceptanceCertificateFormProps {
   onCancel: () => void;
   editingId: string | null;
 }
 
-const ForeignAMOForm: React.FC<ForeignAMOFormProps> = ({ onCancel, editingId }) => {
+const AcceptanceCertificateForm: React.FC<AcceptanceCertificateFormProps> = ({ onCancel, editingId }) => {
   const { toast } = useToast();
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      amoHolder: "",
-      country: "",
-      moeRef: "",
-      approvals: "",
-      ratings: "",
-      amoNumber: "",
-      expireDate: "",
+      certificateNumber: "",
+      aircraftManufacturer: "",
+      aircraftType: "",
+      engineType: "",
+      engineManufacturer: "",
+      issueDate: "",
+      remarks: "",
     },
   });
 
@@ -61,16 +62,17 @@ const ForeignAMOForm: React.FC<ForeignAMOFormProps> = ({ onCancel, editingId }) 
     console.log("Form submitted:", data);
     
     toast({
-      title: editingId ? "AMO Updated" : "AMO Added",
-      description: `Foreign AMO has been ${editingId ? "updated" : "added"} successfully.`,
+      title: editingId ? "Certificate Updated" : "Certificate Added",
+      description: `Type Acceptance Certificate has been ${editingId ? "updated" : "added"} successfully.`,
     });
     
     onCancel();
   };
 
   // Mock data for dropdowns
-  const amoHolders = ["Ethiopian Airlines", "Kenya Airways", "Emirates", "Qatar Airways"];
-  const countries = ["Ethiopia", "Kenya", "United Arab Emirates", "Qatar", "United States", "United Kingdom"];
+  const manufacturers = ["Boeing", "Airbus", "Bombardier", "Embraer"];
+  const aircraftTypes = ["737-800", "A350-900", "Q400", "E190"];
+  const engineManufacturers = ["CFM International", "Pratt & Whitney", "Rolls-Royce", "General Electric"];
 
   return (
     <Card className="p-6 bg-white shadow-md">
@@ -79,20 +81,34 @@ const ForeignAMOForm: React.FC<ForeignAMOFormProps> = ({ onCancel, editingId }) 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <FormField
               control={form.control}
-              name="amoHolder"
+              name="certificateNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>AMO Holder</FormLabel>
+                  <FormLabel>Certificate Number</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter certificate number" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="aircraftManufacturer"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Aircraft Manufacturer</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select AMO holder" />
+                        <SelectValue placeholder="Select aircraft manufacturer" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {amoHolders.map((holder) => (
-                        <SelectItem key={holder} value={holder}>
-                          {holder}
+                      {manufacturers.map((manufacturer) => (
+                        <SelectItem key={manufacturer} value={manufacturer}>
+                          {manufacturer}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -104,20 +120,20 @@ const ForeignAMOForm: React.FC<ForeignAMOFormProps> = ({ onCancel, editingId }) 
 
             <FormField
               control={form.control}
-              name="country"
+              name="aircraftType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Country</FormLabel>
+                  <FormLabel>Aircraft Type</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
-                        <SelectValue placeholder="Select country" />
+                        <SelectValue placeholder="Select aircraft type" />
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {countries.map((country) => (
-                        <SelectItem key={country} value={country}>
-                          {country}
+                      {aircraftTypes.map((type) => (
+                        <SelectItem key={type} value={type}>
+                          {type}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -129,12 +145,12 @@ const ForeignAMOForm: React.FC<ForeignAMOFormProps> = ({ onCancel, editingId }) 
 
             <FormField
               control={form.control}
-              name="moeRef"
+              name="engineType"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>MOE Ref</FormLabel>
+                  <FormLabel>Engine Type</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Enter MOE reference" />
+                    <Input {...field} placeholder="Enter engine type" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -143,12 +159,37 @@ const ForeignAMOForm: React.FC<ForeignAMOFormProps> = ({ onCancel, editingId }) 
 
             <FormField
               control={form.control}
-              name="approvals"
+              name="engineManufacturer"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Approvals</FormLabel>
+                  <FormLabel>Engine Manufacturer</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select engine manufacturer" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {engineManufacturers.map((manufacturer) => (
+                        <SelectItem key={manufacturer} value={manufacturer}>
+                          {manufacturer}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="issueDate"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Issue Date</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Enter approvals" />
+                    <Input type="date" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -157,38 +198,10 @@ const ForeignAMOForm: React.FC<ForeignAMOFormProps> = ({ onCancel, editingId }) 
 
             <FormField
               control={form.control}
-              name="ratings"
+              name="certificateFile"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Ratings/capabilities</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Enter ratings/capabilities" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="amoNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>AMO Number</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Enter AMO number" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="amoFile"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Upload AMO</FormLabel>
+                  <FormLabel>Upload Certificate</FormLabel>
                   <FormControl>
                     <Input 
                       type="file" 
@@ -203,12 +216,16 @@ const ForeignAMOForm: React.FC<ForeignAMOFormProps> = ({ onCancel, editingId }) 
 
             <FormField
               control={form.control}
-              name="expireDate"
+              name="remarks"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Expire Date</FormLabel>
+                <FormItem className="md:col-span-2">
+                  <FormLabel>Remarks</FormLabel>
                   <FormControl>
-                    <Input type="date" {...field} />
+                    <Textarea 
+                      {...field} 
+                      placeholder="Enter any additional remarks" 
+                      className="min-h-[100px]"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -234,4 +251,4 @@ const ForeignAMOForm: React.FC<ForeignAMOFormProps> = ({ onCancel, editingId }) 
   );
 };
 
-export default ForeignAMOForm;
+export default AcceptanceCertificateForm;

@@ -21,61 +21,66 @@ import { CircleEllipsis } from "lucide-react";
 const mockData = [
   {
     id: "1",
-    amoHolder: "Emirates",
-    country: "United Arab Emirates",
-    amoNumber: "UAE-AMO-2023-001",
-    ratings: "A1, B1, C1",
-    expireDate: "2024-12-31"
+    operatorType: "Existing AOC",
+    foccNumber: "FOCC-2023-001",
+    mccNumber: "MCC-2023-001",
+    aircraftType: "Boeing 737-800",
+    aircraftRegNumber: "ET-AOP",
+    validityDate: "2024-12-31"
   },
   {
     id: "2",
-    amoHolder: "Qatar Airways",
-    country: "Qatar",
-    amoNumber: "QTR-AMO-2023-002",
-    ratings: "A1, A2, B3, D1",
-    expireDate: "2025-06-15"
+    operatorType: "General Aviation",
+    foccNumber: "FOCC-2023-002",
+    mccNumber: "MCC-2023-002",
+    aircraftType: "Cessna 172",
+    aircraftRegNumber: "ET-ABC",
+    validityDate: "2025-06-15"
   },
 ];
 
-export interface ForeignAMOListProps {
+interface FOCCMCCListProps {
   searchQuery: string;
   onEdit: (id: string) => void;
 }
 
-const ForeignAMOList: React.FC<ForeignAMOListProps> = ({ searchQuery, onEdit }) => {
+const FOCCMCCList: React.FC<FOCCMCCListProps> = ({ searchQuery, onEdit }) => {
   const filteredData = mockData.filter(item => 
-    item.amoHolder.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    item.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.amoNumber.toLowerCase().includes(searchQuery.toLowerCase())
+    item.foccNumber.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    item.mccNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.aircraftType.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    item.aircraftRegNumber.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <div>
       {filteredData.length === 0 ? (
         <div className="text-center py-10">
-          <p className="text-muted-foreground">No foreign AMO records found</p>
+          <p className="text-muted-foreground">No FOCC/MCC records found</p>
         </div>
       ) : (
         <div className="rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>AMO Holder</TableHead>
-                <TableHead>Country</TableHead>
-                <TableHead>AMO Number</TableHead>
-                <TableHead>Ratings</TableHead>
-                <TableHead>Expire Date</TableHead>
+                <TableHead>Operator Type</TableHead>
+                <TableHead>FOCC No.</TableHead>
+                <TableHead>MCC No.</TableHead>
+                <TableHead>Aircraft Type</TableHead>
+                <TableHead>Registration Mark</TableHead>
+                <TableHead>Validity Date</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredData.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{item.amoHolder}</TableCell>
-                  <TableCell>{item.country}</TableCell>
-                  <TableCell>{item.amoNumber}</TableCell>
-                  <TableCell>{item.ratings}</TableCell>
-                  <TableCell>{item.expireDate}</TableCell>
+                  <TableCell>{item.operatorType}</TableCell>
+                  <TableCell>{item.foccNumber}</TableCell>
+                  <TableCell>{item.mccNumber}</TableCell>
+                  <TableCell>{item.aircraftType}</TableCell>
+                  <TableCell>{item.aircraftRegNumber}</TableCell>
+                  <TableCell>{item.validityDate}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
@@ -104,4 +109,4 @@ const ForeignAMOList: React.FC<ForeignAMOListProps> = ({ searchQuery, onEdit }) 
   );
 };
 
-export default ForeignAMOList;
+export default FOCCMCCList;
