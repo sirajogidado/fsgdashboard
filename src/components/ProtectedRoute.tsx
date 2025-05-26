@@ -8,13 +8,15 @@ interface ProtectedRouteProps {
   requiredRole?: "Super User" | "Technical" | "Read and View";
   requiredDirectorate?: Directorate;
   allowReadOnly?: boolean;
+  excludeDirectorates?: Directorate[];
 }
 
 const ProtectedRoute = ({ 
   children,
   requiredRole,
   requiredDirectorate,
-  allowReadOnly = true
+  allowReadOnly = true,
+  excludeDirectorates = []
 }: ProtectedRouteProps) => {
   const { user, isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
@@ -28,7 +30,6 @@ const ProtectedRoute = ({
   }
 
   if (!isAuthenticated) {
-    // Redirect to login and save the intended destination
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
@@ -44,11 +45,18 @@ const ProtectedRoute = ({
     }
   }
 
+  // Check for excluded directorates
+  if (excludeDirectorates.length > 0 && 
+      excludeDirectorates.includes(user.directorate) && 
+      user.role !== "Super User") {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
   // Check for required directorate
   if (requiredDirectorate && 
       user.directorate !== requiredDirectorate && 
-      user.directorate !== "ICT" && // ICT can access all areas
-      user.role !== "Super User") {  // Super Users can access all areas
+      user.directorate !== "ICT" && 
+      user.role !== "Super User") {
     return <Navigate to="/unauthorized" replace />;
   }
 

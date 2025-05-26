@@ -16,6 +16,7 @@ import NotFound from "./pages/NotFound";
 import Dashboard from "./pages/Dashboard";
 import Unauthorized from "./pages/Unauthorized";
 import UsersPage from "./pages/UsersPage";
+import ProfilePage from "./pages/ProfilePage";
 import AOCPage from "./pages/AOC/AOCPage";
 import ATOPage from "./pages/ATO/ATOPage";
 import ACStatusPage from "./pages/ACStatus/ACStatusPage";
@@ -64,6 +65,9 @@ function App() {
               >
                 <Route index element={<Dashboard />} />
                 
+                {/* Profile Page - All authenticated users */}
+                <Route path="profile" element={<ProfilePage />} />
+                
                 {/* Users Management */}
                 <Route 
                   path="users" 
@@ -74,7 +78,7 @@ function App() {
                   } 
                 />
                 
-                {/* AOC Management */}
+                {/* AOC Management - DAWS only, excluding DOLTS */}
                 <Route 
                   path="aoc" 
                   element={
@@ -84,7 +88,7 @@ function App() {
                   } 
                 />
                 
-                {/* ATO Management */}
+                {/* ATO Management - DAAS only */}
                 <Route 
                   path="ato" 
                   element={
@@ -94,17 +98,17 @@ function App() {
                   } 
                 />
                 
-                {/* Aircraft Status */}
+                {/* Aircraft Status - DAWS only, excluding DOLTS */}
                 <Route 
                   path="ac-status" 
                   element={
-                    <ProtectedRoute requiredDirectorate="DAWS">
+                    <ProtectedRoute requiredDirectorate="DAWS" excludeDirectorates={["DOLTS"]}>
                       <ACStatusPage />
                     </ProtectedRoute>
                   } 
                 />
                 
-                {/* Foreign Airline DACL */}
+                {/* Foreign Airline DACL - DOLTS access */}
                 <Route 
                   path="foreign-airline-dacl" 
                   element={
@@ -114,11 +118,11 @@ function App() {
                   } 
                 />
                 
-                {/* AMO Routes */}
+                {/* AMO Routes - DAWS only, excluding DOLTS */}
                 <Route 
                   path="amo/foreign" 
                   element={
-                    <ProtectedRoute requiredDirectorate="DAWS">
+                    <ProtectedRoute requiredDirectorate="DAWS" excludeDirectorates={["DOLTS"]}>
                       <ForeignAMOPage />
                     </ProtectedRoute>
                   } 
@@ -127,13 +131,13 @@ function App() {
                 <Route 
                   path="amo/local" 
                   element={
-                    <ProtectedRoute requiredDirectorate="DAWS">
+                    <ProtectedRoute requiredDirectorate="DAWS" excludeDirectorates={["DOLTS"]}>
                       <LocalAMOPage />
                     </ProtectedRoute>
                   } 
                 />
                 
-                {/* FOCC/MCC Route */}
+                {/* FOCC/MCC Route - DAWS only */}
                 <Route 
                   path="focc-mcc" 
                   element={
@@ -143,7 +147,7 @@ function App() {
                   } 
                 />
                 
-                {/* Acceptance Certificate Route */}
+                {/* Acceptance Certificate Route - DAWS only */}
                 <Route 
                   path="acceptance-certificate" 
                   element={

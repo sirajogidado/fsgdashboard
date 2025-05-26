@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -15,6 +14,7 @@ import {
   Wrench,
   Users,
   Shield,
+  User,
 } from "lucide-react";
 import {
   Collapsible,
@@ -45,11 +45,16 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
   };
 
   // Function to determine if user has access to a specific section
-  const hasAccess = (directorate: string | null = null) => {
+  const hasAccess = (directorate: string | null = null, excludeDirectorates: string[] = []) => {
     if (!user) return false;
     
     if (user.role === "Super User" || user.directorate === "ICT") {
       return true;
+    }
+    
+    // Check if user's directorate is excluded
+    if (excludeDirectorates.includes(user.directorate)) {
+      return false;
     }
     
     if (!directorate) {
@@ -136,39 +141,50 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                   to="/foreign-airline-dacl"
                   className={cn(
                     "flex items-center justify-center p-2 rounded-md hover:bg-white/10",
-                    isActive("/foreign-airline-dacl") && "bg-white/20"
+                    isActive("/foreign-airline-dacl") && "bg-white/10"
                   )}
                 >
                   <Globe className="h-6 w-6" />
                 </Link>
               </li>
             )}
-            {hasAccess("DAWS") && (
-              <li>
-                <Link
-                  to="/ac-status"
-                  className={cn(
-                    "flex items-center justify-center p-2 rounded-md hover:bg-white/10",
-                    isActive("/ac-status") && "bg-white/20"
-                  )}
-                >
-                  <Plane className="h-6 w-6" />
-                </Link>
-              </li>
+            {hasAccess("DAWS", ["DOLTS"]) && (
+              <>
+                <li>
+                  <Link
+                    to="/ac-status"
+                    className={cn(
+                      "flex items-center justify-center p-2 rounded-md hover:bg-white/10",
+                      isActive("/ac-status") && "bg-white/20"
+                    )}
+                  >
+                    <Plane className="h-6 w-6" />
+                  </Link>
+                </li>
+                <li>
+                  <button
+                    onClick={() => toggleMenu("amo")}
+                    className={cn(
+                      "flex items-center justify-center p-2 rounded-md hover:bg-white/10 w-full",
+                      openMenus.amo && "bg-white/20"
+                    )}
+                  >
+                    <Wrench className="h-6 w-6" />
+                  </button>
+                </li>
+              </>
             )}
-            {hasAccess("DAWS") && (
-              <li>
-                <button
-                  onClick={() => toggleMenu("amo")}
-                  className={cn(
-                    "flex items-center justify-center p-2 rounded-md hover:bg-white/10 w-full",
-                    openMenus.amo && "bg-white/20"
-                  )}
-                >
-                  <Wrench className="h-6 w-6" />
-                </button>
-              </li>
-            )}
+            <li>
+              <Link
+                to="/profile"
+                className={cn(
+                  "flex items-center justify-center p-2 rounded-md hover:bg-white/10",
+                  isActive("/profile") && "bg-white/20"
+                )}
+              >
+                <User className="h-6 w-6" />
+              </Link>
+            </li>
             {user?.role === "Super User" && (
               <li>
                 <Link
@@ -387,7 +403,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                 to="/foreign-airline-dacl"
                 className={cn(
                   "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
-                  isActive("/foreign-airline-dacl") && "bg-white/20"
+                  isActive("/foreign-airline-dacl") && "bg-white/10"
                 )}
               >
                 <Briefcase className="h-5 w-5 mr-3" />
@@ -396,98 +412,107 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
             </li>
           )}
 
-          {hasAccess("DAWS") && (
-            <li>
-              <Link
-                to="/ac-status"
-                className={cn(
-                  "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
-                  isActive("/ac-status") && "bg-white/20"
-                )}
-              >
-                <Plane className="h-5 w-5 mr-3" />
-                <span>A/C Status</span>
-              </Link>
-            </li>
-          )}
-
-          {hasAccess("DAWS") && (
-            <li>
-              <Collapsible
-                open={openMenus.amo}
-                onOpenChange={() => toggleMenu("amo")}
-                className="w-full"
-              >
-                <CollapsibleTrigger
+          {hasAccess("DAWS", ["DOLTS"]) && (
+            <>
+              <li>
+                <Link
+                  to="/ac-status"
                   className={cn(
-                    "flex items-center justify-between px-3 py-2 w-full rounded-md hover:bg-white/10 transition-colors",
-                    openMenus.amo && "bg-white/20"
+                    "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
+                    isActive("/ac-status") && "bg-white/20"
                   )}
                 >
-                  <div className="flex items-center">
-                    <Wrench className="h-5 w-5 mr-3" />
-                    <span>AMO</span>
-                  </div>
-                  <ChevronDown
+                  <Plane className="h-5 w-5 mr-3" />
+                  <span>A/C Status</span>
+                </Link>
+              </li>
+
+              <li>
+                <Collapsible
+                  open={openMenus.amo}
+                  onOpenChange={() => toggleMenu("amo")}
+                  className="w-full"
+                >
+                  <CollapsibleTrigger
                     className={cn(
-                      "h-4 w-4 transition-transform",
-                      openMenus.amo && "transform rotate-180"
-                    )}
-                  />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="pl-10 space-y-1 mt-1">
-                  <Link
-                    to="/amo/foreign"
-                    className={cn(
-                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
-                      isActive("/amo/foreign") && "bg-white/10"
+                      "flex items-center justify-between px-3 py-2 w-full rounded-md hover:bg-white/10 transition-colors",
+                      openMenus.amo && "bg-white/20"
                     )}
                   >
-                    Foreign AMO
-                  </Link>
-                  <Link
-                    to="/amo/local"
-                    className={cn(
-                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
-                      isActive("/amo/local") && "bg-white/10"
-                    )}
-                  >
-                    Local AMO
-                  </Link>
-                </CollapsibleContent>
-              </Collapsible>
-            </li>
+                    <div className="flex items-center">
+                      <Wrench className="h-5 w-5 mr-3" />
+                      <span>AMO</span>
+                    </div>
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 transition-transform",
+                        openMenus.amo && "transform rotate-180"
+                      )}
+                    />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="pl-10 space-y-1 mt-1">
+                    <Link
+                      to="/amo/foreign"
+                      className={cn(
+                        "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                        isActive("/amo/foreign") && "bg-white/10"
+                      )}
+                    >
+                      Foreign AMO
+                    </Link>
+                    <Link
+                      to="/amo/local"
+                      className={cn(
+                        "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                        isActive("/amo/local") && "bg-white/10"
+                      )}
+                    >
+                      Local AMO
+                    </Link>
+                  </CollapsibleContent>
+                </Collapsible>
+              </li>
+
+              <li>
+                <Link
+                  to="/focc-mcc"
+                  className={cn(
+                    "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
+                    isActive("/focc-mcc") && "bg-white/20"
+                  )}
+                >
+                  <FileText className="h-5 w-5 mr-3" />
+                  <span>FOCC/MCC</span>
+                </Link>
+              </li>
+
+              <li>
+                <Link
+                  to="/acceptance-certificate"
+                  className={cn(
+                    "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
+                    isActive("/acceptance-certificate") && "bg-white/20"
+                  )}
+                >
+                  <FileText className="h-5 w-5 mr-3" />
+                  <span>Type Acceptance Certificate</span>
+                </Link>
+              </li>
+            </>
           )}
 
-          {hasAccess("DAWS") && (
-            <li>
-              <Link
-                to="/focc-mcc"
-                className={cn(
-                  "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
-                  isActive("/focc-mcc") && "bg-white/20"
-                )}
-              >
-                <FileText className="h-5 w-5 mr-3" />
-                <span>FOCC/MCC</span>
-              </Link>
-            </li>
-          )}
-
-          {hasAccess("DAWS") && (
-            <li>
-              <Link
-                to="/acceptance-certificate"
-                className={cn(
-                  "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
-                  isActive("/acceptance-certificate") && "bg-white/20"
-                )}
-              >
-                <FileText className="h-5 w-5 mr-3" />
-                <span>Type Acceptance Certificate</span>
-              </Link>
-            </li>
-          )}
+          <li>
+            <Link
+              to="/profile"
+              className={cn(
+                "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
+                isActive("/profile") && "bg-white/20"
+              )}
+            >
+              <User className="h-5 w-5 mr-3" />
+              <span>Profile</span>
+            </Link>
+          </li>
           
           {user?.role === "Super User" && (
             <li>

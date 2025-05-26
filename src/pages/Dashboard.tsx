@@ -1,6 +1,9 @@
 
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { 
   BarChart, 
   Bar, 
@@ -14,8 +17,21 @@ import {
   Cell,
   Legend
 } from 'recharts';
+import {
+  Shield,
+  GraduationCap,
+  Plane,
+  Briefcase,
+  Wrench,
+  FileText,
+  Users,
+  Activity
+} from "lucide-react";
 
 const Dashboard = () => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   // Mock data for charts
   const statusData = [
     { name: "AOC", active: 12, expired: 3, pending: 2 },
@@ -40,6 +56,83 @@ const Dashboard = () => {
     { name: "Beyond 6 Months", count: 45 },
   ];
 
+  // Mock recent audit trail data for Super Users
+  const recentAuditTrail = [
+    { id: "1", userName: "DAWS User", action: "Added", entity: "AOC", entityName: "Air Peace", timestamp: "2024-01-15 14:30:00" },
+    { id: "2", userName: "Admin User", action: "Edited", entity: "Aircraft Type", entityName: "Boeing 737", timestamp: "2024-01-15 13:45:00" },
+    { id: "3", userName: "DAAS User", action: "Added", entity: "ATO", entityName: "Flight Academy", timestamp: "2024-01-15 12:20:00" },
+  ];
+
+  // Navigation cards data
+  const navigationCards = [
+    {
+      title: "AOC Management",
+      description: "Air Operator Certificates",
+      icon: Shield,
+      path: "/aoc",
+      count: 17,
+      canAccess: user?.directorate === "DAWS" || user?.role === "Super User" || user?.directorate === "ICT"
+    },
+    {
+      title: "ATO Management", 
+      description: "Air Training Organizations",
+      icon: GraduationCap,
+      path: "/ato",
+      count: 14,
+      canAccess: user?.directorate === "DAAS" || user?.role === "Super User" || user?.directorate === "ICT"
+    },
+    {
+      title: "Aircraft Status",
+      description: "Aircraft Registrations & Status",
+      icon: Plane,
+      path: "/ac-status",
+      count: 36,
+      canAccess: user?.directorate === "DAWS" || user?.role === "Super User" || user?.directorate === "ICT"
+    },
+    {
+      title: "Foreign DACL",
+      description: "Designated Aviation Consultant License",
+      icon: Briefcase,
+      path: "/foreign-airline-dacl",
+      count: 15,
+      canAccess: user?.directorate === "DOLTS" || user?.role === "Super User" || user?.directorate === "ICT"
+    },
+    {
+      title: "Foreign AMO",
+      description: "Foreign Aircraft Maintenance Org",
+      icon: Wrench,
+      path: "/amo/foreign",
+      count: 8,
+      canAccess: user?.directorate === "DAWS" || user?.role === "Super User" || user?.directorate === "ICT"
+    },
+    {
+      title: "Local AMO",
+      description: "Local Aircraft Maintenance Org",
+      icon: Wrench,
+      path: "/amo/local",
+      count: 12,
+      canAccess: user?.directorate === "DAWS" || user?.role === "Super User" || user?.directorate === "ICT"
+    },
+    {
+      title: "FOCC/MCC",
+      description: "Flight Operations Control Center",
+      icon: FileText,
+      path: "/focc-mcc",
+      count: 6,
+      canAccess: user?.directorate === "DAWS" || user?.role === "Super User" || user?.directorate === "ICT"
+    },
+    {
+      title: "Type Acceptance",
+      description: "Type Acceptance Certificates",
+      icon: FileText,
+      path: "/acceptance-certificate",
+      count: 24,
+      canAccess: user?.directorate === "DAWS" || user?.role === "Super User" || user?.directorate === "ICT"
+    }
+  ];
+
+  const accessibleCards = navigationCards.filter(card => card.canAccess);
+
   return (
     <div className="space-y-6">
       <div>
@@ -49,51 +142,51 @@ const Dashboard = () => {
         </p>
       </div>
 
+      {/* Quick Access Navigation Cards */}
+      <div>
+        <h2 className="text-lg font-semibold mb-4">Quick Access</h2>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          {accessibleCards.map((card) => (
+            <Card 
+              key={card.path}
+              className="cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => navigate(card.path)}
+            >
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{card.title}</CardTitle>
+                <card.icon className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{card.count}</div>
+                <p className="text-xs text-muted-foreground">{card.description}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Summary Statistics */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total AOCs</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            </svg>
+            <CardTitle className="text-sm font-medium">Total Certificates</CardTitle>
+            <Shield className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">17</div>
+            <div className="text-2xl font-bold">132</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-green-500">+2</span> since last month
+              <span className="text-green-500">+5</span> since last month
             </p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Aircraft Registered</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
+            <CardTitle className="text-sm font-medium">Active Operations</CardTitle>
+            <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">36</div>
+            <div className="text-2xl font-bold">89</div>
             <p className="text-xs text-muted-foreground">
               <span className="text-green-500">+3</span> since last month
             </p>
@@ -102,25 +195,13 @@ const Dashboard = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Foreign DACLs</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <rect width="20" height="14" x="2" y="5" rx="2" />
-              <path d="M2 10h20" />
-            </svg>
+            <CardTitle className="text-sm font-medium">Pending Renewals</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">15</div>
+            <div className="text-2xl font-bold">23</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-red-500">-1</span> since last month
+              <span className="text-amber-500">Requires attention</span>
             </p>
           </CardContent>
         </Card>
@@ -128,28 +209,54 @@ const Dashboard = () => {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Expiring This Month</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-            </svg>
+            <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">5</div>
             <p className="text-xs text-muted-foreground">
-              <span className="text-amber-500">Requires attention</span>
+              <span className="text-red-500">Urgent</span>
             </p>
           </CardContent>
         </Card>
       </div>
 
+      {/* Audit Trail for Super Users */}
+      {user?.role === "Super User" && (
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Recent Audit Trail</CardTitle>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate("/global/user-roles")}
+            >
+              View Full Audit Trail
+            </Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {recentAuditTrail.map((audit) => (
+                <div key={audit.id} className="flex items-center justify-between p-3 border rounded-lg">
+                  <div className="flex items-center space-x-3">
+                    <div className={`w-2 h-2 rounded-full ${
+                      audit.action === "Added" ? "bg-green-500" :
+                      audit.action === "Edited" ? "bg-blue-500" : "bg-red-500"
+                    }`} />
+                    <div>
+                      <p className="text-sm font-medium">
+                        <span className="text-blue-600">{audit.userName}</span> {audit.action.toLowerCase()} {audit.entity}: {audit.entityName}
+                      </p>
+                      <p className="text-xs text-gray-500">{audit.timestamp}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Charts */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4">
           <CardHeader>
