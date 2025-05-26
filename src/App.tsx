@@ -29,6 +29,12 @@ import AircraftTypePage from "./pages/Global/AircraftType/AircraftTypePage";
 import FOCCMCCPage from "./pages/FOCC/FOCCMCCPage";
 import AcceptanceCertificatePage from "./pages/AcceptanceCertificate/AcceptanceCertificatePage";
 
+// Global Operations Pages
+import ForeignRegistrationMarkPage from "./pages/Global/ForeignRegistrationMark/ForeignRegistrationMarkPage";
+import GeneralAviationPage from "./pages/Global/GeneralAviation/GeneralAviationPage";
+import OperationTypePage from "./pages/Global/OperationType/OperationTypePage";
+import UserRolesPage from "./pages/Global/UserRoles/UserRolesPage";
+
 // Create QueryClient outside the component
 const queryClient = new QueryClient();
 
@@ -167,16 +173,46 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
-                <Route path="global/foreign-registration" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Foreign Registration Mark Page - Coming Soon</div></ProtectedRoute>} />
+                <Route 
+                  path="global/foreign-registration" 
+                  element={
+                    <ProtectedRoute requiredRole="Technical">
+                      <ForeignRegistrationMarkPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="global/general-aviation" 
+                  element={
+                    <ProtectedRoute requiredRole="Technical">
+                      <GeneralAviationPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="global/operation-type" 
+                  element={
+                    <ProtectedRoute requiredRole="Technical">
+                      <OperationTypePage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="global/user-roles" 
+                  element={
+                    <ProtectedRoute requiredRole="Super User">
+                      <UserRolesPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* Placeholder routes for remaining global operations */}
                 <Route path="global/foreign-amo" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Foreign AMO Page - Coming Soon</div></ProtectedRoute>} />
-                <Route path="global/general-aviation" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">General Aviation Page - Coming Soon</div></ProtectedRoute>} />
-                <Route path="global/operation-type" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Operation Type Page - Coming Soon</div></ProtectedRoute>} />
                 <Route path="global/state-registry" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">State of Registry Page - Coming Soon</div></ProtectedRoute>} />
                 <Route path="global/training-organization" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Training Organization Page - Coming Soon</div></ProtectedRoute>} />
                 <Route path="global/travel-agency" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Travel Agency Page - Coming Soon</div></ProtectedRoute>} />
                 <Route path="global/foreign-airline" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Foreign Airline Page - Coming Soon</div></ProtectedRoute>} />
                 <Route path="global/certificate-type" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Certificate Type Page - Coming Soon</div></ProtectedRoute>} />
-                <Route path="global/user-roles" element={<ProtectedRoute requiredRole="Super User"><div className="p-8">User Roles Page - Coming Soon</div></ProtectedRoute>} />
               </Route>
               
               <Route path="*" element={<NotFound />} />
