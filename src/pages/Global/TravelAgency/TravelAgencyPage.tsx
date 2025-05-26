@@ -4,13 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
-import UserRolesForm from "./UserRolesForm";
-import UserRolesTable from "./UserRolesTable";
-import AuditTrailTable from "./AuditTrailTable";
+import TravelAgencyForm from "./TravelAgencyForm";
+import TravelAgencyTable from "./TravelAgencyTable";
 
-const UserRolesPage = () => {
-  const { user } = useAuth();
+const TravelAgencyPage = () => {
   const [activeTab, setActiveTab] = useState<string>("view");
   const [searchQuery, setSearchQuery] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -25,28 +22,24 @@ const UserRolesPage = () => {
     setActiveTab("view");
   };
 
-  // Check if user is Super User
-  const isSuperUser = user?.role === "Super User";
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight">User Roles Management</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Travel Agency</h2>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="flex justify-between items-center mb-4">
           <TabsList>
-            <TabsTrigger value="view">View User Roles</TabsTrigger>
-            <TabsTrigger value="add">{editingId ? "Edit User Role" : "Add User Role"}</TabsTrigger>
-            {isSuperUser && <TabsTrigger value="audit">Audit Trail</TabsTrigger>}
+            <TabsTrigger value="view">View Travel Agencies</TabsTrigger>
+            <TabsTrigger value="add">{editingId ? "Edit Travel Agency" : "Add Travel Agency"}</TabsTrigger>
           </TabsList>
           
-          {(activeTab === "view" || (activeTab === "audit" && isSuperUser)) && (
+          {activeTab === "view" && (
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder={activeTab === "audit" ? "Search audit trail..." : "Search users..."}
+                placeholder="Search travel agencies..."
                 className="pl-8 w-[250px]"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -58,10 +51,10 @@ const UserRolesPage = () => {
         <TabsContent value="view">
           <Card>
             <CardHeader>
-              <CardTitle>User Roles Records</CardTitle>
+              <CardTitle>Travel Agency Records</CardTitle>
             </CardHeader>
             <CardContent>
-              <UserRolesTable searchQuery={searchQuery} onEdit={handleEdit} />
+              <TravelAgencyTable searchQuery={searchQuery} onEdit={handleEdit} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -69,29 +62,16 @@ const UserRolesPage = () => {
         <TabsContent value="add">
           <Card>
             <CardHeader>
-              <CardTitle>{editingId ? "Edit User Role" : "Add New User Role"}</CardTitle>
+              <CardTitle>{editingId ? "Edit Travel Agency" : "Add New Travel Agency"}</CardTitle>
             </CardHeader>
             <CardContent>
-              <UserRolesForm onCancel={handleCancel} editingId={editingId} />
+              <TravelAgencyForm onCancel={handleCancel} editingId={editingId} />
             </CardContent>
           </Card>
         </TabsContent>
-
-        {isSuperUser && (
-          <TabsContent value="audit">
-            <Card>
-              <CardHeader>
-                <CardTitle>Audit Trail</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <AuditTrailTable searchQuery={searchQuery} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        )}
       </Tabs>
     </div>
   );
 };
 
-export default UserRolesPage;
+export default TravelAgencyPage;

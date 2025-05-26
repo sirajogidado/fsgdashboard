@@ -4,13 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
-import UserRolesForm from "./UserRolesForm";
-import UserRolesTable from "./UserRolesTable";
-import AuditTrailTable from "./AuditTrailTable";
+import StateOfRegistryForm from "./StateOfRegistryForm";
+import StateOfRegistryTable from "./StateOfRegistryTable";
 
-const UserRolesPage = () => {
-  const { user } = useAuth();
+const StateOfRegistryPage = () => {
   const [activeTab, setActiveTab] = useState<string>("view");
   const [searchQuery, setSearchQuery] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -25,28 +22,24 @@ const UserRolesPage = () => {
     setActiveTab("view");
   };
 
-  // Check if user is Super User
-  const isSuperUser = user?.role === "Super User";
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight">User Roles Management</h2>
+        <h2 className="text-3xl font-bold tracking-tight">State of Registry</h2>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <div className="flex justify-between items-center mb-4">
           <TabsList>
-            <TabsTrigger value="view">View User Roles</TabsTrigger>
-            <TabsTrigger value="add">{editingId ? "Edit User Role" : "Add User Role"}</TabsTrigger>
-            {isSuperUser && <TabsTrigger value="audit">Audit Trail</TabsTrigger>}
+            <TabsTrigger value="view">View State of Registry</TabsTrigger>
+            <TabsTrigger value="add">{editingId ? "Edit State of Registry" : "Add State of Registry"}</TabsTrigger>
           </TabsList>
           
-          {(activeTab === "view" || (activeTab === "audit" && isSuperUser)) && (
+          {activeTab === "view" && (
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder={activeTab === "audit" ? "Search audit trail..." : "Search users..."}
+                placeholder="Search state..."
                 className="pl-8 w-[250px]"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -58,10 +51,10 @@ const UserRolesPage = () => {
         <TabsContent value="view">
           <Card>
             <CardHeader>
-              <CardTitle>User Roles Records</CardTitle>
+              <CardTitle>State of Registry Records</CardTitle>
             </CardHeader>
             <CardContent>
-              <UserRolesTable searchQuery={searchQuery} onEdit={handleEdit} />
+              <StateOfRegistryTable searchQuery={searchQuery} onEdit={handleEdit} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -69,29 +62,16 @@ const UserRolesPage = () => {
         <TabsContent value="add">
           <Card>
             <CardHeader>
-              <CardTitle>{editingId ? "Edit User Role" : "Add New User Role"}</CardTitle>
+              <CardTitle>{editingId ? "Edit State of Registry" : "Add New State of Registry"}</CardTitle>
             </CardHeader>
             <CardContent>
-              <UserRolesForm onCancel={handleCancel} editingId={editingId} />
+              <StateOfRegistryForm onCancel={handleCancel} editingId={editingId} />
             </CardContent>
           </Card>
         </TabsContent>
-
-        {isSuperUser && (
-          <TabsContent value="audit">
-            <Card>
-              <CardHeader>
-                <CardTitle>Audit Trail</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <AuditTrailTable searchQuery={searchQuery} />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        )}
       </Tabs>
     </div>
   );
 };
 
-export default UserRolesPage;
+export default StateOfRegistryPage;

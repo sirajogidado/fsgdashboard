@@ -34,6 +34,12 @@ import ForeignRegistrationMarkPage from "./pages/Global/ForeignRegistrationMark/
 import GeneralAviationPage from "./pages/Global/GeneralAviation/GeneralAviationPage";
 import OperationTypePage from "./pages/Global/OperationType/OperationTypePage";
 import UserRolesPage from "./pages/Global/UserRoles/UserRolesPage";
+import GlobalForeignAMOPage from "./pages/Global/ForeignAMO/ForeignAMOPage";
+import StateOfRegistryPage from "./pages/Global/StateOfRegistry/StateOfRegistryPage";
+import TrainingOrganizationPage from "./pages/Global/TrainingOrganization/TrainingOrganizationPage";
+import TravelAgencyPage from "./pages/Global/TravelAgency/TravelAgencyPage";
+import ForeignAirlinePage from "./pages/Global/ForeignAirline/ForeignAirlinePage";
+import CertificateTypePage from "./pages/Global/CertificateType/CertificateTypePage";
 
 // Create QueryClient outside the component
 const queryClient = new QueryClient();
@@ -72,7 +78,7 @@ function App() {
                 <Route 
                   path="aoc" 
                   element={
-                    <ProtectedRoute requiredDirectorate="AOC">
+                    <ProtectedRoute requiredDirectorate="DAWS">
                       <AOCPage />
                     </ProtectedRoute>
                   } 
@@ -82,7 +88,7 @@ function App() {
                 <Route 
                   path="ato" 
                   element={
-                    <ProtectedRoute requiredDirectorate="ATO">
+                    <ProtectedRoute requiredDirectorate="DAAS">
                       <ATOPage />
                     </ProtectedRoute>
                   } 
@@ -92,7 +98,7 @@ function App() {
                 <Route 
                   path="ac-status" 
                   element={
-                    <ProtectedRoute requiredDirectorate="AOC">
+                    <ProtectedRoute requiredDirectorate="DAWS">
                       <ACStatusPage />
                     </ProtectedRoute>
                   } 
@@ -102,7 +108,7 @@ function App() {
                 <Route 
                   path="foreign-airline-dacl" 
                   element={
-                    <ProtectedRoute requiredDirectorate="DACL">
+                    <ProtectedRoute requiredDirectorate="DOLTS">
                       <ForeignAirlineDACLPage />
                     </ProtectedRoute>
                   } 
@@ -112,7 +118,7 @@ function App() {
                 <Route 
                   path="amo/foreign" 
                   element={
-                    <ProtectedRoute requiredDirectorate="AMO">
+                    <ProtectedRoute requiredDirectorate="DAWS">
                       <ForeignAMOPage />
                     </ProtectedRoute>
                   } 
@@ -121,7 +127,7 @@ function App() {
                 <Route 
                   path="amo/local" 
                   element={
-                    <ProtectedRoute requiredDirectorate="AMO">
+                    <ProtectedRoute requiredDirectorate="DAWS">
                       <LocalAMOPage />
                     </ProtectedRoute>
                   } 
@@ -131,7 +137,7 @@ function App() {
                 <Route 
                   path="focc-mcc" 
                   element={
-                    <ProtectedRoute requiredDirectorate="FOCC">
+                    <ProtectedRoute requiredDirectorate="DAWS">
                       <FOCCMCCPage />
                     </ProtectedRoute>
                   } 
@@ -141,7 +147,7 @@ function App() {
                 <Route 
                   path="acceptance-certificate" 
                   element={
-                    <ProtectedRoute requiredDirectorate="AOC">
+                    <ProtectedRoute requiredDirectorate="DAWS">
                       <AcceptanceCertificatePage />
                     </ProtectedRoute>
                   } 
@@ -156,11 +162,11 @@ function App() {
                   } 
                 />
                 
-                {/* Global Operations routes - these should be accessible by all with proper role */}
+                {/* Global Operations routes - only Super Users can access */}
                 <Route 
                   path="global/aircraft-manufacturer" 
                   element={
-                    <ProtectedRoute requiredRole="Technical">
+                    <ProtectedRoute requiredRole="Super User">
                       <AircraftManufacturerPage />
                     </ProtectedRoute>
                   } 
@@ -168,7 +174,7 @@ function App() {
                 <Route 
                   path="global/aircraft-type" 
                   element={
-                    <ProtectedRoute requiredRole="Technical">
+                    <ProtectedRoute requiredRole="Super User">
                       <AircraftTypePage />
                     </ProtectedRoute>
                   } 
@@ -176,7 +182,7 @@ function App() {
                 <Route 
                   path="global/foreign-registration" 
                   element={
-                    <ProtectedRoute requiredRole="Technical">
+                    <ProtectedRoute requiredRole="Super User">
                       <ForeignRegistrationMarkPage />
                     </ProtectedRoute>
                   } 
@@ -184,7 +190,7 @@ function App() {
                 <Route 
                   path="global/general-aviation" 
                   element={
-                    <ProtectedRoute requiredRole="Technical">
+                    <ProtectedRoute requiredRole="Super User">
                       <GeneralAviationPage />
                     </ProtectedRoute>
                   } 
@@ -192,7 +198,7 @@ function App() {
                 <Route 
                   path="global/operation-type" 
                   element={
-                    <ProtectedRoute requiredRole="Technical">
+                    <ProtectedRoute requiredRole="Super User">
                       <OperationTypePage />
                     </ProtectedRoute>
                   } 
@@ -205,14 +211,54 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
-                
-                {/* Placeholder routes for remaining global operations */}
-                <Route path="global/foreign-amo" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Foreign AMO Page - Coming Soon</div></ProtectedRoute>} />
-                <Route path="global/state-registry" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">State of Registry Page - Coming Soon</div></ProtectedRoute>} />
-                <Route path="global/training-organization" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Training Organization Page - Coming Soon</div></ProtectedRoute>} />
-                <Route path="global/travel-agency" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Travel Agency Page - Coming Soon</div></ProtectedRoute>} />
-                <Route path="global/foreign-airline" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Foreign Airline Page - Coming Soon</div></ProtectedRoute>} />
-                <Route path="global/certificate-type" element={<ProtectedRoute requiredRole="Technical"><div className="p-8">Certificate Type Page - Coming Soon</div></ProtectedRoute>} />
+                <Route 
+                  path="global/foreign-amo" 
+                  element={
+                    <ProtectedRoute requiredRole="Super User">
+                      <GlobalForeignAMOPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="global/state-registry" 
+                  element={
+                    <ProtectedRoute requiredRole="Super User">
+                      <StateOfRegistryPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="global/training-organization" 
+                  element={
+                    <ProtectedRoute requiredRole="Super User">
+                      <TrainingOrganizationPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="global/travel-agency" 
+                  element={
+                    <ProtectedRoute requiredRole="Super User">
+                      <TravelAgencyPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="global/foreign-airline" 
+                  element={
+                    <ProtectedRoute requiredRole="Super User">
+                      <ForeignAirlinePage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="global/certificate-type" 
+                  element={
+                    <ProtectedRoute requiredRole="Super User">
+                      <CertificateTypePage />
+                    </ProtectedRoute>
+                  } 
+                />
               </Route>
               
               <Route path="*" element={<NotFound />} />
