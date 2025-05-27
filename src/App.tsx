@@ -33,6 +33,7 @@ import OperationsPage from "./pages/OperationsPage";
 import AerodromesPage from "./pages/AerodromesPage";
 import OrganizationsPage from "./pages/OrganizationsPage";
 import AuditTrailPage from "./pages/AuditTrailPage";
+import PendingRegistrationsPage from "./pages/PendingRegistrationsPage";
 
 const queryClient = new QueryClient();
 
@@ -69,6 +70,11 @@ function App() {
                 <Route path="users" element={
                   <ProtectedRoute requiredRole="Super User">
                     <UsersPage />
+                  </ProtectedRoute>
+                } />
+                <Route path="pending-registrations" element={
+                  <ProtectedRoute requiredRole="Super User">
+                    <PendingRegistrationsPage />
                   </ProtectedRoute>
                 } />
                 <Route path="settings" element={

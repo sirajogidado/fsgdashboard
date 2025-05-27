@@ -214,6 +214,48 @@ export type Database = {
         }
         Relationships: []
       }
+      pending_registrations: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          phone_number: string | null
+          rejection_reason: string | null
+          requested_directorate: string
+          requested_role: string
+          status: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          phone_number?: string | null
+          rejection_reason?: string | null
+          requested_directorate: string
+          requested_role: string
+          status?: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          phone_number?: string | null
+          rejection_reason?: string | null
+          requested_directorate?: string
+          requested_role?: string
+          status?: string
+        }
+        Relationships: []
+      }
       predictive_analytics: {
         Row: {
           analysis_type: string
