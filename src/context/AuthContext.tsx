@@ -1,117 +1,97 @@
 
 import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
+import { User as SupabaseUser, Session } from '@supabase/supabase-js';
+import { supabase } from "@/integrations/supabase/client";
 import { User, AuthState } from "../types/auth";
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
+  session: Session | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demonstration
-const mockUsers: User[] = [
-  {
-    id: "1",
-    name: "Admin User",
-    email: "admin@ncaa.gov.ng",
-    phoneNumber: "08012345678",
-    directorate: "ICT",
-    role: "Super User",
-    profileImage: "/placeholder.svg"
-  },
-  {
-    id: "2",
-    name: "DAWS User",
-    email: "daws@ncaa.gov.ng",
-    phoneNumber: "08023456789",
-    directorate: "DAWS",
-    role: "Technical",
-    profileImage: "/placeholder.svg"
-  },
-  {
-    id: "3",
-    name: "DAAS User",
-    email: "daas@ncaa.gov.ng",
-    phoneNumber: "08034567890",
-    directorate: "DAAS",
-    role: "Technical",
-    profileImage: "/placeholder.svg"
-  },
-  {
-    id: "4",
-    name: "View Only",
-    email: "view@ncaa.gov.ng",
-    phoneNumber: "08045678901",
-    directorate: "DOLTS",
-    role: "Read and View",
-    profileImage: "/placeholder.svg"
-  },
-];
-
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [state, setState] = useState<AuthState>({
+  const [state, setState] = useState<AuthState & { session: Session | null }>({
     user: null,
     isAuthenticated: false,
-    isLoading: true
+    isLoading: true,
+    session: null
   });
 
   useEffect(() => {
-    // Check for stored user on mount
-    const storedUser = localStorage.getItem("ncaa_user");
-    if (storedUser) {
-      try {
-        const user = JSON.parse(storedUser);
-        setState({
-          user,
-          isAuthenticated: true,
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setState(prev => ({
+        ...prev,
+        session,
+        user: session?.user ? mapSupabaseUserToUser(session.user) : null,
+        isAuthenticated: !!session,
+        isLoading: false
+      }));
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setState(prev => ({
+          ...prev,
+          session,
+          user: session?.user ? mapSupabaseUserToUser(session.user) : null,
+          isAuthenticated: !!session,
           isLoading: false
-        });
-      } catch (error) {
-        console.error("Failed to parse stored user", error);
-        localStorage.removeItem("ncaa_user");
-        setState({
-          user: null,
-          isAuthenticated: false,
-          isLoading: false
-        });
+        }));
       }
-    } else {
-      setState(prev => ({ ...prev, isLoading: false }));
-    }
+    );
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
-    // In a real app, you would make an API call here
-    setState(prev => ({ ...prev, isLoading: true }));
+  const mapSupabaseUserToUser = (supabaseUser: SupabaseUser): User => {
+    // Determine role and directorate based on email
+    let role: User['role'] = "Read and View";
+    let directorate: User['directorate'] = "ICT";
     
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const user = mockUsers.find(u => u.email === email);
-        
-        if (user && password === "password") { // Mock password check
-          setState({
-            user,
-            isAuthenticated: true,
-            isLoading: false
-          });
-          localStorage.setItem("ncaa_user", JSON.stringify(user));
-          resolve(true);
-        } else {
-          setState(prev => ({ ...prev, isLoading: false }));
-          resolve(false);
-        }
-      }, 1000);
-    });
+    if (supabaseUser.email === "sirajo.gidado@ncaa.gov.ng") {
+      role = "Super User";
+      directorate = "ICT";
+    }
+
+    return {
+      id: supabaseUser.id,
+      name: supabaseUser.user_metadata?.full_name || supabaseUser.email?.split('@')[0] || "User",
+      email: supabaseUser.email || "",
+      phoneNumber: supabaseUser.user_metadata?.phone || undefined,
+      profileImage: supabaseUser.user_metadata?.avatar_url || "/placeholder.svg",
+      role,
+      directorate
+    };
   };
 
-  const logout = () => {
-    setState({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false
-    });
-    localStorage.removeItem("ncaa_user");
+  const login = async (email: string, password: string): Promise<boolean> => {
+    setState(prev => ({ ...prev, isLoading: true }));
+    
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      });
+
+      if (error) {
+        setState(prev => ({ ...prev, isLoading: false }));
+        return false;
+      }
+
+      return true;
+    } catch (error) {
+      setState(prev => ({ ...prev, isLoading: false }));
+      return false;
+    }
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
   };
 
   return (
