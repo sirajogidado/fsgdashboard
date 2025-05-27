@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
 import { User as SupabaseUser, Session } from '@supabase/supabase-js';
 import { supabase } from "@/integrations/supabase/client";
@@ -53,6 +52,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     let role: User['role'] = "Read and View";
     let directorate: User['directorate'] = "ICT";
     
+    // Check for super users
     if (supabaseUser.email === "sirajo.gidado@ncaa.gov.ng") {
       role = "Super User";
       directorate = "ICT";
