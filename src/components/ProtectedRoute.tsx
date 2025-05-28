@@ -9,6 +9,7 @@ interface ProtectedRouteProps {
   requiredDirectorate?: Directorate;
   allowReadOnly?: boolean;
   excludeDirectorates?: Directorate[];
+  requireAIAccess?: boolean;
 }
 
 const ProtectedRoute = ({ 
@@ -16,7 +17,8 @@ const ProtectedRoute = ({
   requiredRole,
   requiredDirectorate,
   allowReadOnly = true,
-  excludeDirectorates = []
+  excludeDirectorates = [],
+  requireAIAccess = false
 }: ProtectedRouteProps) => {
   const { user, isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
@@ -35,6 +37,11 @@ const ProtectedRoute = ({
 
   if (!user) {
     return <Navigate to="/login" replace />;
+  }
+
+  // Check AI access requirement
+  if (requireAIAccess && user.role === "Read and View") {
+    return <Navigate to="/unauthorized" replace />;
   }
 
   // Check for required role

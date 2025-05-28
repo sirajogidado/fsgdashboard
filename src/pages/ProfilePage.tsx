@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/components/ui/use-toast";
-import { Camera } from "lucide-react";
+import { Camera, User } from "lucide-react";
 
 const ProfilePage = () => {
   const { user } = useAuth();
@@ -19,7 +19,7 @@ const ProfilePage = () => {
     profileImage: user?.profileImage || "/placeholder.svg"
   });
 
-  const canEditDetails = user?.role === "Super User";
+  const isSuperUser = user?.role === "Super User";
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -29,12 +29,25 @@ const ProfilePage = () => {
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        toast({
+          title: "File too large",
+          description: "Please select an image smaller than 5MB.",
+          variant: "destructive",
+        });
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (event) => {
         setProfileData(prev => ({ 
           ...prev, 
           profileImage: event.target?.result as string 
         }));
+        toast({
+          title: "Image uploaded",
+          description: "Your profile image has been updated.",
+        });
       };
       reader.readAsDataURL(file);
     }
@@ -59,7 +72,11 @@ const ProfilePage = () => {
   };
 
   if (!user) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-ncaa-primary"></div>
+      </div>
+    );
   }
 
   return (
@@ -79,12 +96,18 @@ const ProfilePage = () => {
           {/* Profile Image */}
           <div className="flex flex-col items-center space-y-4">
             <div className="relative">
-              <img
-                src={profileData.profileImage}
-                alt="Profile"
-                className="w-24 h-24 rounded-full object-cover border-4 border-gray-200"
-              />
-              <label className="absolute bottom-0 right-0 bg-ncaa-primary text-white rounded-full p-2 cursor-pointer hover:bg-ncaa-primary/80">
+              {profileData.profileImage && profileData.profileImage !== "/placeholder.svg" ? (
+                <img
+                  src={profileData.profileImage}
+                  alt="Profile"
+                  className="w-24 h-24 rounded-full object-cover border-4 border-gray-200"
+                />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-gray-200 border-4 border-gray-300 flex items-center justify-center">
+                  <User className="w-12 h-12 text-gray-400" />
+                </div>
+              )}
+              <label className="absolute bottom-0 right-0 bg-ncaa-primary text-white rounded-full p-2 cursor-pointer hover:bg-ncaa-primary/80 transition-colors">
                 <Camera className="w-4 h-4" />
                 <input
                   type="file"
@@ -94,7 +117,11 @@ const ProfilePage = () => {
                 />
               </label>
             </div>
-            <p className="text-sm text-gray-600">Click the camera icon to change your profile picture</p>
+            <p className="text-sm text-gray-600 text-center">
+              Click the camera icon to upload your profile picture
+              <br />
+              <span className="text-xs text-gray-500">Maximum file size: 5MB</span>
+            </p>
           </div>
 
           {/* Form Fields */}
@@ -106,10 +133,10 @@ const ProfilePage = () => {
                 name="name"
                 value={profileData.name}
                 onChange={handleInputChange}
-                disabled={!isEditing || !canEditDetails}
-                className={!canEditDetails ? "bg-gray-100" : ""}
+                disabled={!isEditing || !isSuperUser}
+                className={!isSuperUser ? "bg-gray-100" : ""}
               />
-              {!canEditDetails && (
+              {!isSuperUser && (
                 <p className="text-xs text-gray-500">Only Super Users can edit name</p>
               )}
             </div>
@@ -122,10 +149,10 @@ const ProfilePage = () => {
                 type="email"
                 value={profileData.email}
                 onChange={handleInputChange}
-                disabled={!isEditing || !canEditDetails}
-                className={!canEditDetails ? "bg-gray-100" : ""}
+                disabled={!isEditing || !isSuperUser}
+                className={!isSuperUser ? "bg-gray-100" : ""}
               />
-              {!canEditDetails && (
+              {!isSuperUser && (
                 <p className="text-xs text-gray-500">Only Super Users can edit email</p>
               )}
             </div>
@@ -184,7 +211,7 @@ const ProfilePage = () => {
         </CardContent>
       </Card>
 
-      {canEditDetails && (
+      {isSuperUser && (
         <Card>
           <CardHeader>
             <CardTitle>Change Password</CardTitle>

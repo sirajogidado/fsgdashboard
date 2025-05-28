@@ -14,8 +14,6 @@ interface RegistrationData {
   phoneNumber: string;
   directorate: Directorate;
   role: UserRole;
-  password: string;
-  confirmPassword: string;
 }
 
 interface RegistrationFormProps {
@@ -29,8 +27,6 @@ const RegistrationForm = ({ onBackToLogin }: RegistrationFormProps) => {
     phoneNumber: "",
     directorate: "DAWS",
     role: "Technical",
-    password: "",
-    confirmPassword: "",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -41,10 +37,10 @@ const RegistrationForm = ({ onBackToLogin }: RegistrationFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (formData.password !== formData.confirmPassword) {
+    if (!formData.fullName || !formData.email) {
       toast({
         title: "Error",
-        description: "Passwords do not match",
+        description: "Please fill in all required fields",
         variant: "destructive",
       });
       return;
@@ -70,7 +66,7 @@ const RegistrationForm = ({ onBackToLogin }: RegistrationFormProps) => {
 
       toast({
         title: "Registration Submitted",
-        description: "Your registration has been submitted for admin approval. You will be notified once approved.",
+        description: "Your registration has been submitted for admin approval. You will be notified once approved and your login credentials will be provided.",
       });
 
       onBackToLogin();
@@ -98,7 +94,7 @@ const RegistrationForm = ({ onBackToLogin }: RegistrationFormProps) => {
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <Label htmlFor="fullName">Full Name</Label>
+          <Label htmlFor="fullName">Full Name *</Label>
           <Input
             id="fullName"
             type="text"
@@ -110,7 +106,7 @@ const RegistrationForm = ({ onBackToLogin }: RegistrationFormProps) => {
         </div>
 
         <div>
-          <Label htmlFor="email">Email Address</Label>
+          <Label htmlFor="email">Email Address *</Label>
           <Input
             id="email"
             type="email"
@@ -168,28 +164,10 @@ const RegistrationForm = ({ onBackToLogin }: RegistrationFormProps) => {
           </RadioGroup>
         </div>
 
-        <div>
-          <Label htmlFor="password">Password</Label>
-          <Input
-            id="password"
-            type="password"
-            required
-            value={formData.password}
-            onChange={(e) => handleInputChange("password", e.target.value)}
-            placeholder="Enter your password"
-          />
-        </div>
-
-        <div>
-          <Label htmlFor="confirmPassword">Confirm Password</Label>
-          <Input
-            id="confirmPassword"
-            type="password"
-            required
-            value={formData.confirmPassword}
-            onChange={(e) => handleInputChange("confirmPassword", e.target.value)}
-            placeholder="Confirm your password"
-          />
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+          <p className="text-sm text-blue-800">
+            <strong>Note:</strong> Your login credentials will be provided by the administrator once your registration is approved.
+          </p>
         </div>
 
         <div className="flex gap-3">

@@ -1,4 +1,3 @@
-
 import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
 import { User, AuthState } from "../types/auth";
 
@@ -9,7 +8,7 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demonstration
+// Mock users for demonstration (no demo info displayed)
 const mockUsers: User[] = [
   {
     id: "1",
