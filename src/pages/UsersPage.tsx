@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,6 +25,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
 import { useAuth } from "@/context/AuthContext";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import PendingRegistrations from "@/components/PendingRegistrations";
 
 const UsersPage = () => {
   const { user: currentUser } = useAuth();
@@ -65,6 +66,15 @@ const UsersPage = () => {
       phoneNumber: "08045678901",
       directorate: "DOLTS",
       role: "Read and View",
+      profileImage: "/placeholder.svg",
+    },
+    {
+      id: "5",
+      name: "Sirajo Gidado",
+      email: "sirajo.gidado@ncaa.gov.ng",
+      phoneNumber: "08056789012",
+      directorate: "ICT",
+      role: "Super User",
       profileImage: "/placeholder.svg",
     },
   ]);
@@ -193,117 +203,138 @@ const UsersPage = () => {
             Manage user accounts and permissions
           </p>
         </div>
-        <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
-          <DialogTrigger asChild>
-            <Button>Add User</Button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-              <DialogTitle>Add New User</DialogTitle>
-              <DialogDescription>
-                Create a new user account with appropriate role and permissions.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="name">Staff Name</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  value={newUser.name}
-                  onChange={handleInputChange}
-                  placeholder="Enter staff name"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={newUser.email}
-                  onChange={handleInputChange}
-                  placeholder="Enter email address"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="phoneNumber">Phone Number</Label>
-                <Input
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  value={newUser.phoneNumber}
-                  onChange={handleInputChange}
-                  placeholder="Enter phone number"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  value={newUser.password}
-                  onChange={handleInputChange}
-                  placeholder="Enter password"
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="directorate">Directorate</Label>
-                <Select
-                  value={newUser.directorate}
-                  onValueChange={(value: Directorate) =>
-                    setNewUser((prev) => ({ ...prev, directorate: value }))
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select directorate" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="DAWS">DAWS</SelectItem>
-                    <SelectItem value="DAAS">DAAS</SelectItem>
-                    <SelectItem value="ICT">ICT</SelectItem>
-                    <SelectItem value="DOLTS">DOLTS</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="grid gap-2">
-                <Label>User Role</Label>
-                <RadioGroup
-                  value={newUser.role}
-                  onValueChange={(value: UserRole) =>
-                    setNewUser((prev) => ({ ...prev, role: value }))
-                  }
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Super User" id="super" />
-                    <Label htmlFor="super">Super User</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Technical" id="technical" />
-                    <Label htmlFor="technical">Technical</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Read and View" id="read" />
-                    <Label htmlFor="read">Read and View</Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button variant="outline" onClick={() => setIsAddUserOpen(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleAddUser}>Add User</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
       </div>
 
-      <div className="bg-white rounded-md shadow">
-        <div className="p-6">
-          <DataTable columns={columns} data={users} searchKey="name" />
-        </div>
-      </div>
+      <Tabs defaultValue="active-users" className="w-full">
+        <TabsList>
+          <TabsTrigger value="active-users">Active Users</TabsTrigger>
+          <TabsTrigger value="pending-registrations">Pending Registrations</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="active-users" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <h2 className="text-lg font-semibold">Active Users</h2>
+            <Dialog open={isAddUserOpen} onOpenChange={setIsAddUserOpen}>
+              <DialogTrigger asChild>
+                <Button>Add User</Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Add New User</DialogTitle>
+                  <DialogDescription>
+                    Create a new user account with appropriate role and permissions.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="name">Staff Name</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      value={newUser.name}
+                      onChange={handleInputChange}
+                      placeholder="Enter staff name"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="email">Email</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={newUser.email}
+                      onChange={handleInputChange}
+                      placeholder="Enter email address"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="phoneNumber">Phone Number</Label>
+                    <Input
+                      id="phoneNumber"
+                      name="phoneNumber"
+                      value={newUser.phoneNumber}
+                      onChange={handleInputChange}
+                      placeholder="Enter phone number"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="password">Password</Label>
+                    <Input
+                      id="password"
+                      name="password"
+                      type="password"
+                      value={newUser.password}
+                      onChange={handleInputChange}
+                      placeholder="Enter password"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="directorate">Directorate</Label>
+                    <Select
+                      value={newUser.directorate}
+                      onValueChange={(value: Directorate) =>
+                        setNewUser((prev) => ({ ...prev, directorate: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select directorate" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="DAWS">DAWS</SelectItem>
+                        <SelectItem value="DAAS">DAAS</SelectItem>
+                        <SelectItem value="ICT">ICT</SelectItem>
+                        <SelectItem value="DOLTS">DOLTS</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>User Role</Label>
+                    <RadioGroup
+                      value={newUser.role}
+                      onValueChange={(value: UserRole) =>
+                        setNewUser((prev) => ({ ...prev, role: value }))
+                      }
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Super User" id="super" />
+                        <Label htmlFor="super">Super User</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Technical" id="technical" />
+                        <Label htmlFor="technical">Technical</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Read and View" id="read" />
+                        <Label htmlFor="read">Read and View</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => setIsAddUserOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleAddUser}>Add User</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          <div className="bg-white rounded-md shadow">
+            <div className="p-6">
+              <DataTable columns={columns} data={users} searchKey="name" />
+            </div>
+          </div>
+        </TabsContent>
+        
+        <TabsContent value="pending-registrations">
+          <div className="bg-white rounded-md shadow">
+            <div className="p-6">
+              <PendingRegistrations />
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };

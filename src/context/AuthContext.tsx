@@ -47,6 +47,15 @@ const mockUsers: User[] = [
     role: "Read and View",
     profileImage: "/placeholder.svg"
   },
+  {
+    id: "5",
+    name: "Sirajo Gidado",
+    email: "sirajo.gidado@ncaa.gov.ng",
+    phoneNumber: "08056789012",
+    directorate: "ICT",
+    role: "Super User",
+    profileImage: "/placeholder.svg"
+  },
 ];
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {

@@ -15,6 +15,10 @@ import {
   Users,
   Shield,
   User,
+  Brain,
+  MessageSquare,
+  BarChart3,
+  Zap,
 } from "lucide-react";
 import {
   Collapsible,
@@ -35,6 +39,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
   }>({
     globalOperations: false,
     amo: false,
+    ai: false,
   });
 
   const toggleMenu = (menu: string) => {
@@ -96,6 +101,17 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                 <LayoutDashboard className="h-6 w-6" />
               </Link>
             </li>
+            <li>
+              <button
+                onClick={() => toggleMenu("ai")}
+                className={cn(
+                  "flex items-center justify-center p-2 rounded-md hover:bg-white/10 w-full",
+                  openMenus.ai && "bg-white/20"
+                )}
+              >
+                <Brain className="h-6 w-6" />
+              </button>
+            </li>
             {user?.role === "Super User" && (
               <li>
                 <button
@@ -114,7 +130,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                 <Link
                   to="/aoc"
                   className={cn(
-                    "flex items-center justify-center p-2 rounded-md hover:bg-white/10",
+                    "flex items-center px-3 py-2 rounded-md hover:bg-white/10",
                     isActive("/aoc") && "bg-white/20"
                   )}
                 >
@@ -127,7 +143,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                 <Link
                   to="/ato"
                   className={cn(
-                    "flex items-center justify-center p-2 rounded-md hover:bg-white/10",
+                    "flex items-center px-3 py-2 rounded-md hover:bg-white/10",
                     isActive("/ato") && "bg-white/20"
                   )}
                 >
@@ -140,7 +156,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                 <Link
                   to="/foreign-airline-dacl"
                   className={cn(
-                    "flex items-center justify-center p-2 rounded-md hover:bg-white/10",
+                    "flex items-center px-3 py-2 rounded-md hover:bg-white/10",
                     isActive("/foreign-airline-dacl") && "bg-white/10"
                   )}
                 >
@@ -154,7 +170,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                   <Link
                     to="/ac-status"
                     className={cn(
-                      "flex items-center justify-center p-2 rounded-md hover:bg-white/10",
+                      "flex items-center px-3 py-2 rounded-md hover:bg-white/10",
                       isActive("/ac-status") && "bg-white/20"
                     )}
                   >
@@ -227,6 +243,80 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
               <LayoutDashboard className="h-5 w-5 mr-3" />
               <span>Overview</span>
             </Link>
+          </li>
+          
+          {/* AI Features */}
+          <li>
+            <Collapsible
+              open={openMenus.ai}
+              onOpenChange={() => toggleMenu("ai")}
+              className="w-full"
+            >
+              <CollapsibleTrigger
+                className={cn(
+                  "flex items-center justify-between px-3 py-2 w-full rounded-md hover:bg-white/10 transition-colors",
+                  openMenus.ai && "bg-white/20"
+                )}
+              >
+                <div className="flex items-center">
+                  <Brain className="h-5 w-5 mr-3" />
+                  <span>AI Features</span>
+                </div>
+                <ChevronDown
+                  className={cn(
+                    "h-4 w-4 transition-transform",
+                    openMenus.ai && "transform rotate-180"
+                  )}
+                />
+              </CollapsibleTrigger>
+              <CollapsibleContent className="pl-10 space-y-1 mt-1">
+                <Link
+                  to="/ai"
+                  className={cn(
+                    "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                    isActive("/ai") && "bg-white/10"
+                  )}
+                >
+                  AI Dashboard
+                </Link>
+                <Link
+                  to="/ai/chat"
+                  className={cn(
+                    "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                    isActive("/ai/chat") && "bg-white/10"
+                  )}
+                >
+                  AI Chat Assistant
+                </Link>
+                <Link
+                  to="/ai/document-analysis"
+                  className={cn(
+                    "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                    isActive("/ai/document-analysis") && "bg-white/10"
+                  )}
+                >
+                  Document Analysis
+                </Link>
+                <Link
+                  to="/ai/analytics"
+                  className={cn(
+                    "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                    isActive("/ai/analytics") && "bg-white/10"
+                  )}
+                >
+                  Predictive Analytics
+                </Link>
+                <Link
+                  to="/ai/reports"
+                  className={cn(
+                    "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                    isActive("/ai/reports") && "bg-white/10"
+                  )}
+                >
+                  Smart Reports
+                </Link>
+              </CollapsibleContent>
+            </Collapsible>
           </li>
           
           {user?.role === "Super User" && (

@@ -6,12 +6,14 @@ import { toast } from "@/components/ui/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import RegistrationForm from "@/components/RegistrationForm";
 
 const Login = () => {
   const { login, isAuthenticated, isLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showRegistration, setShowRegistration] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   
@@ -19,6 +21,16 @@ const Login = () => {
 
   if (isAuthenticated) {
     return <Navigate to="/" replace />;
+  }
+
+  if (showRegistration) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="max-w-md w-full space-y-8 p-10 bg-white rounded-xl shadow-lg">
+          <RegistrationForm onBackToLogin={() => setShowRegistration(false)} />
+        </div>
+      </div>
+    );
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -103,7 +115,7 @@ const Login = () => {
             </div>
           </div>
 
-          <div>
+          <div className="space-y-4">
             <Button
               type="submit"
               disabled={isSubmitting}
@@ -135,12 +147,21 @@ const Login = () => {
               ) : null}
               Sign in
             </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowRegistration(true)}
+              className="w-full"
+            >
+              New User? Register Here
+            </Button>
           </div>
           
           <div className="text-sm text-center">
             <p className="text-gray-500">
               Demo accounts: <br/>
-              admin@ncaa.gov.ng | daws@ncaa.gov.ng | daas@ncaa.gov.ng | view@ncaa.gov.ng
+              admin@ncaa.gov.ng | daws@ncaa.gov.ng | daas@ncaa.gov.ng | view@ncaa.gov.ng | sirajo.gidado@ncaa.gov.ng
             </p>
             <p className="text-gray-500 mt-1">
               Password: password
