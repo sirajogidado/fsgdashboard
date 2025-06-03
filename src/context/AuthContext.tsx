@@ -1,6 +1,6 @@
 
 import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
-import { User, AuthState } from "../types/auth";
+import { User, AuthState, Directorate, UserRole } from "../types/auth";
 import { supabase } from "@/integrations/supabase/client";
 
 interface AuthContextType extends AuthState {
@@ -65,8 +65,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         name: users.name,
         email: users.email,
         phoneNumber: users.phone_number,
-        directorate: users.directorate,
-        role: users.role,
+        directorate: users.directorate as Directorate,
+        role: users.role as UserRole,
         profileImage: users.profile_image
       };
 
