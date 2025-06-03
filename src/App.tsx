@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +20,7 @@ import ProfilePage from "./pages/ProfilePage";
 import AOCPage from "./pages/AOC/AOCPage";
 import ATOPage from "./pages/ATO/ATOPage";
 import ACStatusPage from "./pages/ACStatus/ACStatusPage";
+import SettingsPage from "./pages/SettingsPage";
 
 // AI Pages
 import AIDashboard from "./pages/AI/AIDashboard";
