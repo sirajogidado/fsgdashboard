@@ -3,17 +3,13 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "@/components/ui/use-toast";
-import { Directorate, UserRole } from "@/types/auth";
+import { supabase } from "@/integrations/supabase/client";
 
 interface RegistrationData {
   fullName: string;
   email: string;
   phoneNumber: string;
-  directorate: Directorate;
-  role: UserRole;
 }
 
 interface RegistrationFormProps {
@@ -25,8 +21,6 @@ const RegistrationForm = ({ onBackToLogin }: RegistrationFormProps) => {
     fullName: "",
     email: "",
     phoneNumber: "",
-    directorate: "DAWS",
-    role: "Technical",
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -49,20 +43,26 @@ const RegistrationForm = ({ onBackToLogin }: RegistrationFormProps) => {
     setIsSubmitting(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      // Store pending registration (in real app, this would go to backend)
-      const pendingRegistrations = JSON.parse(localStorage.getItem("pending_registrations") || "[]");
-      const newRegistration = {
-        id: Date.now().toString(),
-        ...formData,
-        status: "pending",
-        createdAt: new Date().toISOString(),
-      };
-      
-      pendingRegistrations.push(newRegistration);
-      localStorage.setItem("pending_registrations", JSON.stringify(pendingRegistrations));
+      const { error } = await supabase
+        .from('pending_registrations')
+        .insert({
+          full_name: formData.fullName,
+          email: formData.email,
+          phone_number: formData.phoneNumber,
+          requested_directorate: 'DAWS',
+          requested_role: 'Technical',
+          status: 'pending'
+        });
+
+      if (error) {
+        console.error('Registration error:', error);
+        toast({
+          title: "Error",
+          description: "Failed to submit registration. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
 
       toast({
         title: "Registration Submitted",
@@ -71,6 +71,7 @@ const RegistrationForm = ({ onBackToLogin }: RegistrationFormProps) => {
 
       onBackToLogin();
     } catch (error) {
+      console.error('Registration error:', error);
       toast({
         title: "Error",
         description: "Failed to submit registration. Please try again.",
@@ -126,42 +127,6 @@ const RegistrationForm = ({ onBackToLogin }: RegistrationFormProps) => {
             onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
             placeholder="Enter your phone number"
           />
-        </div>
-
-        <div>
-          <Label htmlFor="directorate">Directorate</Label>
-          <Select
-            value={formData.directorate}
-            onValueChange={(value: Directorate) => handleInputChange("directorate", value)}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select directorate" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="DAWS">DAWS</SelectItem>
-              <SelectItem value="DAAS">DAAS</SelectItem>
-              <SelectItem value="ICT">ICT</SelectItem>
-              <SelectItem value="DOLTS">DOLTS</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div>
-          <Label>Requested Role</Label>
-          <RadioGroup
-            value={formData.role}
-            onValueChange={(value: UserRole) => handleInputChange("role", value)}
-            className="mt-2"
-          >
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Technical" id="technical" />
-              <Label htmlFor="technical">Technical</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="Read and View" id="readview" />
-              <Label htmlFor="readview">Read and View</Label>
-            </div>
-          </RadioGroup>
         </div>
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
