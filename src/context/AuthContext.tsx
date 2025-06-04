@@ -18,7 +18,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    // Check for stored user on mount
+    checkStoredUser();
+  }, []);
+
+  const checkStoredUser = () => {
     const storedUser = localStorage.getItem("ncaa_user");
     if (storedUser) {
       try {
@@ -40,13 +43,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setState(prev => ({ ...prev, isLoading: false }));
     }
-  }, []);
+  };
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setState(prev => ({ ...prev, isLoading: true }));
     
     try {
-      // Query the users table directly for authentication
+      console.log("Attempting login for:", email);
+      
       const { data: users, error } = await supabase
         .from('users')
         .select('*')
@@ -55,7 +59,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq('is_active', true)
         .single();
 
+      console.log("Login query result:", { users, error });
+
       if (error || !users) {
+        console.error("Login failed:", error);
         setState(prev => ({ ...prev, isLoading: false }));
         return false;
       }
@@ -69,6 +76,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         role: users.role as UserRole,
         profileImage: users.profile_image
       };
+
+      console.log("Login successful for user:", user);
 
       setState({
         user,
