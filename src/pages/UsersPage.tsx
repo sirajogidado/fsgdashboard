@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -112,6 +111,16 @@ const UsersPage = () => {
   };
 
   const handleAddUser = async () => {
+    // Check if current user is Super User before adding
+    if (!currentUser || currentUser.role !== "Super User") {
+      toast({
+        title: "Access Denied",
+        description: "Only Super Users can add new users.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       console.log("Adding user:", newUser);
       
@@ -156,6 +165,16 @@ const UsersPage = () => {
   const handleEditUser = async () => {
     if (!editingUser) return;
 
+    // Check if current user is Super User before editing
+    if (!currentUser || currentUser.role !== "Super User") {
+      toast({
+        title: "Access Denied",
+        description: "Only Super Users can edit users.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('users')
@@ -195,6 +214,16 @@ const UsersPage = () => {
   };
 
   const handleDeactivateUser = async (userId: string, userName: string) => {
+    // Check if current user is Super User before deactivating
+    if (!currentUser || currentUser.role !== "Super User") {
+      toast({
+        title: "Access Denied",
+        description: "Only Super Users can deactivate users.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       const { error } = await supabase
         .from('users')
