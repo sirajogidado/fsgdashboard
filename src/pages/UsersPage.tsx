@@ -44,8 +44,6 @@ interface DatabaseUser {
 const UsersPage = () => {
   const { user: currentUser } = useAuth();
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
-  const [isEditUserOpen, setIsEditUserOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<DatabaseUser | null>(null);
   const [users, setUsers] = useState<DatabaseUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -61,6 +59,7 @@ const UsersPage = () => {
   useEffect(() => {
     fetchUsers();
 
+    // Set up real-time subscription
     const channel = supabase
       .channel('users-changes')
       .on(
@@ -106,15 +105,8 @@ const UsersPage = () => {
     setNewUser((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setEditingUser((prev) => prev ? ({ ...prev, [name]: value }) : null);
-  };
-
   const handleAddUser = async () => {
     try {
-      console.log("Adding user:", newUser);
-      
       const { error } = await supabase
         .from('users')
         .insert({
@@ -131,7 +123,7 @@ const UsersPage = () => {
         console.error('Error adding user:', error);
         toast({
           title: "Error",
-          description: `Failed to add user: ${error.message}`,
+          description: "Failed to add user.",
           variant: "destructive",
         });
         return;
@@ -145,53 +137,7 @@ const UsersPage = () => {
       resetForm();
     } catch (error) {
       console.error('Error adding user:', error);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred.",
-        variant: "destructive",
-      });
     }
-  };
-
-  const handleEditUser = async () => {
-    if (!editingUser) return;
-
-    try {
-      const { error } = await supabase
-        .from('users')
-        .update({
-          name: editingUser.name,
-          email: editingUser.email,
-          phone_number: editingUser.phone_number,
-          directorate: editingUser.directorate,
-          role: editingUser.role,
-        })
-        .eq('id', editingUser.id);
-
-      if (error) {
-        console.error('Error updating user:', error);
-        toast({
-          title: "Error",
-          description: `Failed to update user: ${error.message}`,
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "User Updated",
-        description: `${editingUser.name} has been updated successfully.`,
-      });
-      setIsEditUserOpen(false);
-      setEditingUser(null);
-    } catch (error) {
-      console.error('Error updating user:', error);
-    }
-  };
-
-  const handleEditClick = (user: DatabaseUser) => {
-    setEditingUser(user);
-    setIsEditUserOpen(true);
   };
 
   const handleDeactivateUser = async (userId: string, userName: string) => {
@@ -293,11 +239,7 @@ const UsersPage = () => {
       header: "Actions",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => handleEditClick(row.original)}
-          >
+          <Button variant="outline" size="sm">
             Edit
           </Button>
           {row.original.is_active && (
@@ -455,100 +397,6 @@ const UsersPage = () => {
               </DialogContent>
             </Dialog>
           </div>
-
-          {/* Edit User Dialog */}
-          <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
-            <DialogContent className="sm:max-w-[425px]">
-              <DialogHeader>
-                <DialogTitle>Edit User</DialogTitle>
-                <DialogDescription>
-                  Update user account information.
-                </DialogDescription>
-              </DialogHeader>
-              {editingUser && (
-                <div className="grid gap-4 py-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="edit-name">Staff Name</Label>
-                    <Input
-                      id="edit-name"
-                      name="name"
-                      value={editingUser.name}
-                      onChange={handleEditInputChange}
-                      placeholder="Enter staff name"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="edit-email">Email</Label>
-                    <Input
-                      id="edit-email"
-                      name="email"
-                      type="email"
-                      value={editingUser.email}
-                      onChange={handleEditInputChange}
-                      placeholder="Enter email address"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="edit-phone">Phone Number</Label>
-                    <Input
-                      id="edit-phone"
-                      name="phone_number"
-                      value={editingUser.phone_number || ''}
-                      onChange={handleEditInputChange}
-                      placeholder="Enter phone number"
-                    />
-                  </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="edit-directorate">Directorate</Label>
-                    <Select
-                      value={editingUser.directorate}
-                      onValueChange={(value: Directorate) =>
-                        setEditingUser((prev) => prev ? ({ ...prev, directorate: value }) : null)
-                      }
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select directorate" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="DAWS">DAWS</SelectItem>
-                        <SelectItem value="DAAS">DAAS</SelectItem>
-                        <SelectItem value="ICT">ICT</SelectItem>
-                        <SelectItem value="DOLTS">DOLTS</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="grid gap-2">
-                    <Label>User Role</Label>
-                    <RadioGroup
-                      value={editingUser.role}
-                      onValueChange={(value: UserRole) =>
-                        setEditingUser((prev) => prev ? ({ ...prev, role: value }) : null)
-                      }
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Super User" id="edit-super" />
-                        <Label htmlFor="edit-super">Super User</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Technical" id="edit-technical" />
-                        <Label htmlFor="edit-technical">Technical</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="Read and View" id="edit-read" />
-                        <Label htmlFor="edit-read">Read and View</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                </div>
-              )}
-              <DialogFooter>
-                <Button variant="outline" onClick={() => setIsEditUserOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleEditUser}>Update User</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
 
           <div className="bg-white rounded-md shadow">
             <div className="p-6">
