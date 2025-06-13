@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,31 +20,64 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DataTable } from "@/components/DataTable/DataTable";
-import { Directorate, UserRole } from "@/types/auth";
+import { Directorate, User, UserRole } from "@/types/auth";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PendingRegistrations from "@/components/PendingRegistrations";
-import { supabase } from "@/integrations/supabase/client";
-
-interface DatabaseUser {
-  id: string;
-  name: string;
-  email: string;
-  phone_number: string;
-  directorate: string;
-  role: string;
-  profile_image: string;
-  is_active: boolean;
-}
 
 const UsersPage = () => {
   const { user: currentUser } = useAuth();
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
-  const [users, setUsers] = useState<DatabaseUser[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [users, setUsers] = useState<User[]>([
+    {
+      id: "1",
+      name: "Admin User",
+      email: "admin@ncaa.gov.ng",
+      phoneNumber: "08012345678",
+      directorate: "ICT",
+      role: "Super User",
+      profileImage: "/placeholder.svg",
+    },
+    {
+      id: "2",
+      name: "DAWS User",
+      email: "daws@ncaa.gov.ng",
+      phoneNumber: "08023456789",
+      directorate: "DAWS",
+      role: "Technical",
+      profileImage: "/placeholder.svg",
+    },
+    {
+      id: "3",
+      name: "DAAS User",
+      email: "daas@ncaa.gov.ng",
+      phoneNumber: "08034567890",
+      directorate: "DAAS",
+      role: "Technical",
+      profileImage: "/placeholder.svg",
+    },
+    {
+      id: "4",
+      name: "View Only",
+      email: "view@ncaa.gov.ng",
+      phoneNumber: "08045678901",
+      directorate: "DOLTS",
+      role: "Read and View",
+      profileImage: "/placeholder.svg",
+    },
+    {
+      id: "5",
+      name: "Sirajo Gidado",
+      email: "sirajo.gidado@ncaa.gov.ng",
+      phoneNumber: "08056789012",
+      directorate: "ICT",
+      role: "Super User",
+      profileImage: "/placeholder.svg",
+    },
+  ]);
 
   const [newUser, setNewUser] = useState({
     name: "",
@@ -56,114 +88,30 @@ const UsersPage = () => {
     role: "Technical" as UserRole,
   });
 
-  useEffect(() => {
-    fetchUsers();
-
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('users-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'users'
-        },
-        () => {
-          fetchUsers();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
-  const fetchUsers = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching users:', error);
-        return;
-      }
-
-      setUsers(data || []);
-    } catch (error) {
-      console.error('Error fetching users:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setNewUser((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddUser = async () => {
-    try {
-      const { error } = await supabase
-        .from('users')
-        .insert({
-          name: newUser.name,
-          email: newUser.email,
-          phone_number: newUser.phoneNumber,
-          directorate: newUser.directorate,
-          role: newUser.role,
-          password_hash: newUser.password,
-          is_active: true
-        });
+  const handleAddUser = () => {
+    const userId = `${users.length + 1}`;
+    const createdUser: User = {
+      id: userId,
+      name: newUser.name,
+      email: newUser.email,
+      phoneNumber: newUser.phoneNumber,
+      directorate: newUser.directorate,
+      role: newUser.role,
+      profileImage: "/placeholder.svg",
+    };
 
-      if (error) {
-        console.error('Error adding user:', error);
-        toast({
-          title: "Error",
-          description: "Failed to add user.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "User Added",
-        description: `${newUser.name} has been added successfully.`,
-      });
-      setIsAddUserOpen(false);
-      resetForm();
-    } catch (error) {
-      console.error('Error adding user:', error);
-    }
-  };
-
-  const handleDeactivateUser = async (userId: string, userName: string) => {
-    try {
-      const { error } = await supabase
-        .from('users')
-        .update({ is_active: false })
-        .eq('id', userId);
-
-      if (error) {
-        console.error('Error deactivating user:', error);
-        toast({
-          title: "Error",
-          description: "Failed to deactivate user.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "User Deactivated",
-        description: `${userName} has been deactivated.`,
-      });
-    } catch (error) {
-      console.error('Error deactivating user:', error);
-    }
+    setUsers((prev) => [...prev, createdUser]);
+    toast({
+      title: "User Added",
+      description: `${createdUser.name} has been added successfully.`,
+    });
+    setIsAddUserOpen(false);
+    resetForm();
   };
 
   const resetForm = () => {
@@ -177,7 +125,7 @@ const UsersPage = () => {
     });
   };
 
-  const columns: ColumnDef<DatabaseUser>[] = [
+  const columns: ColumnDef<User>[] = [
     {
       accessorKey: "name",
       header: "Name",
@@ -187,7 +135,7 @@ const UsersPage = () => {
       header: "Email",
     },
     {
-      accessorKey: "phone_number",
+      accessorKey: "phoneNumber",
       header: "Phone Number",
     },
     {
@@ -220,21 +168,6 @@ const UsersPage = () => {
       },
     },
     {
-      accessorKey: "is_active",
-      header: "Status",
-      cell: ({ row }) => (
-        <Badge
-          className={
-            row.original.is_active
-              ? "bg-green-100 text-green-800 border-green-300"
-              : "bg-red-100 text-red-800 border-red-300"
-          }
-        >
-          {row.original.is_active ? "Active" : "Inactive"}
-        </Badge>
-      ),
-    },
-    {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
@@ -242,16 +175,9 @@ const UsersPage = () => {
           <Button variant="outline" size="sm">
             Edit
           </Button>
-          {row.original.is_active && (
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="text-red-500 hover:text-red-700"
-              onClick={() => handleDeactivateUser(row.original.id, row.original.name)}
-            >
-              Deactivate
-            </Button>
-          )}
+          <Button variant="outline" size="sm" className="text-red-500 hover:text-red-700">
+            Deactivate
+          </Button>
         </div>
       ),
     },
@@ -266,10 +192,6 @@ const UsersPage = () => {
         </p>
       </div>
     );
-  }
-
-  if (isLoading) {
-    return <div className="flex items-center justify-center p-4">Loading...</div>;
   }
 
   return (

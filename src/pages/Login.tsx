@@ -157,6 +157,16 @@ const Login = () => {
               New User? Register Here
             </Button>
           </div>
+          
+          <div className="text-sm text-center">
+            <p className="text-gray-500">
+              Demo accounts: <br/>
+              admin@ncaa.gov.ng | daws@ncaa.gov.ng | daas@ncaa.gov.ng | view@ncaa.gov.ng | sirajo.gidado@ncaa.gov.ng
+            </p>
+            <p className="text-gray-500 mt-1">
+              Password: password
+            </p>
+          </div>
         </form>
       </div>
     </div>
