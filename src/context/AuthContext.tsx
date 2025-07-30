@@ -1,6 +1,6 @@
 
 import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
-import { User, AuthState, Directorate, UserRole } from "../types/auth";
+import { User, AuthState } from "../types/auth";
 import { supabase } from "@/integrations/supabase/client";
 
 interface AuthContextType extends AuthState {
@@ -18,10 +18,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    checkStoredUser();
-  }, []);
-
-  const checkStoredUser = () => {
+    // Check for stored user on mount
     const storedUser = localStorage.getItem("ncaa_user");
     if (storedUser) {
       try {
@@ -43,14 +40,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setState(prev => ({ ...prev, isLoading: false }));
     }
-  };
+  }, []);
 
   const login = async (email: string, password: string): Promise<boolean> => {
     setState(prev => ({ ...prev, isLoading: true }));
     
     try {
-      console.log("Attempting login for:", email);
-      
+      // Query the users table directly for authentication
       const { data: users, error } = await supabase
         .from('users')
         .select('*')
@@ -59,10 +55,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         .eq('is_active', true)
         .single();
 
-      console.log("Login query result:", { users, error });
-
       if (error || !users) {
-        console.error("Login failed:", error);
         setState(prev => ({ ...prev, isLoading: false }));
         return false;
       }
@@ -72,12 +65,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         name: users.name,
         email: users.email,
         phoneNumber: users.phone_number,
-        directorate: users.directorate as Directorate,
-        role: users.role as UserRole,
+        directorate: users.directorate,
+        role: users.role,
         profileImage: users.profile_image
       };
-
-      console.log("Login successful for user:", user);
 
       setState({
         user,
