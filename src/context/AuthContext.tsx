@@ -1,5 +1,7 @@
+
 import React, { createContext, useState, useContext, ReactNode, useEffect } from "react";
-import { User, AuthState } from "../types/auth";
+import { User, AuthState, Directorate, UserRole } from "../types/auth";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<boolean>;
@@ -7,55 +9,6 @@ interface AuthContextType extends AuthState {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
-
-// Mock users for demonstration (no demo info displayed)
-const mockUsers: User[] = [
-  {
-    id: "1",
-    name: "Admin User",
-    email: "admin@ncaa.gov.ng",
-    phoneNumber: "08012345678",
-    directorate: "ICT",
-    role: "Super User",
-    profileImage: "/placeholder.svg"
-  },
-  {
-    id: "2",
-    name: "DAWS User",
-    email: "daws@ncaa.gov.ng",
-    phoneNumber: "08023456789",
-    directorate: "DAWS",
-    role: "Technical",
-    profileImage: "/placeholder.svg"
-  },
-  {
-    id: "3",
-    name: "DAAS User",
-    email: "daas@ncaa.gov.ng",
-    phoneNumber: "08034567890",
-    directorate: "DAAS",
-    role: "Technical",
-    profileImage: "/placeholder.svg"
-  },
-  {
-    id: "4",
-    name: "View Only",
-    email: "view@ncaa.gov.ng",
-    phoneNumber: "08045678901",
-    directorate: "DOLTS",
-    role: "Read and View",
-    profileImage: "/placeholder.svg"
-  },
-  {
-    id: "5",
-    name: "Sirajo Gidado",
-    email: "sirajo.gidado@ncaa.gov.ng",
-    phoneNumber: "08056789012",
-    directorate: "ICT",
-    role: "Super User",
-    profileImage: "/placeholder.svg"
-  },
-];
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [state, setState] = useState<AuthState>({
@@ -65,7 +18,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    // Check for stored user on mount
+    checkStoredUser();
+  }, []);
+
+  const checkStoredUser = () => {
     const storedUser = localStorage.getItem("ncaa_user");
     if (storedUser) {
       try {
@@ -87,30 +43,54 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     } else {
       setState(prev => ({ ...prev, isLoading: false }));
     }
-  }, []);
+  };
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // In a real app, you would make an API call here
     setState(prev => ({ ...prev, isLoading: true }));
     
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const user = mockUsers.find(u => u.email === email);
-        
-        if (user && password === "password") { // Mock password check
-          setState({
-            user,
-            isAuthenticated: true,
-            isLoading: false
-          });
-          localStorage.setItem("ncaa_user", JSON.stringify(user));
-          resolve(true);
-        } else {
-          setState(prev => ({ ...prev, isLoading: false }));
-          resolve(false);
-        }
-      }, 1000);
-    });
+    try {
+      console.log("Attempting login for:", email);
+      
+      const { data: users, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('email', email)
+        .eq('password_hash', password)
+        .eq('is_active', true)
+        .single();
+
+      console.log("Login query result:", { users, error });
+
+      if (error || !users) {
+        console.error("Login failed:", error);
+        setState(prev => ({ ...prev, isLoading: false }));
+        return false;
+      }
+
+      const user: User = {
+        id: users.id,
+        name: users.name,
+        email: users.email,
+        phoneNumber: users.phone_number,
+        directorate: users.directorate as Directorate,
+        role: users.role as UserRole,
+        profileImage: users.profile_image
+      };
+
+      console.log("Login successful for user:", user);
+
+      setState({
+        user,
+        isAuthenticated: true,
+        isLoading: false
+      });
+      localStorage.setItem("ncaa_user", JSON.stringify(user));
+      return true;
+    } catch (error) {
+      console.error("Login error:", error);
+      setState(prev => ({ ...prev, isLoading: false }));
+      return false;
+    }
   };
 
   const logout = () => {

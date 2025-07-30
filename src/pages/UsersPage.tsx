@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,64 +20,33 @@ import {
 } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { DataTable } from "@/components/DataTable/DataTable";
-import { Directorate, User, UserRole } from "@/types/auth";
+import { Directorate, UserRole } from "@/types/auth";
 import { ColumnDef } from "@tanstack/react-table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PendingRegistrations from "@/components/PendingRegistrations";
+import { supabase } from "@/integrations/supabase/client";
+
+interface DatabaseUser {
+  id: string;
+  name: string;
+  email: string;
+  phone_number: string;
+  directorate: string;
+  role: string;
+  profile_image: string;
+  is_active: boolean;
+}
 
 const UsersPage = () => {
   const { user: currentUser } = useAuth();
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
-  const [users, setUsers] = useState<User[]>([
-    {
-      id: "1",
-      name: "Admin User",
-      email: "admin@ncaa.gov.ng",
-      phoneNumber: "08012345678",
-      directorate: "ICT",
-      role: "Super User",
-      profileImage: "/placeholder.svg",
-    },
-    {
-      id: "2",
-      name: "DAWS User",
-      email: "daws@ncaa.gov.ng",
-      phoneNumber: "08023456789",
-      directorate: "DAWS",
-      role: "Technical",
-      profileImage: "/placeholder.svg",
-    },
-    {
-      id: "3",
-      name: "DAAS User",
-      email: "daas@ncaa.gov.ng",
-      phoneNumber: "08034567890",
-      directorate: "DAAS",
-      role: "Technical",
-      profileImage: "/placeholder.svg",
-    },
-    {
-      id: "4",
-      name: "View Only",
-      email: "view@ncaa.gov.ng",
-      phoneNumber: "08045678901",
-      directorate: "DOLTS",
-      role: "Read and View",
-      profileImage: "/placeholder.svg",
-    },
-    {
-      id: "5",
-      name: "Sirajo Gidado",
-      email: "sirajo.gidado@ncaa.gov.ng",
-      phoneNumber: "08056789012",
-      directorate: "ICT",
-      role: "Super User",
-      profileImage: "/placeholder.svg",
-    },
-  ]);
+  const [isEditUserOpen, setIsEditUserOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<DatabaseUser | null>(null);
+  const [users, setUsers] = useState<DatabaseUser[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [newUser, setNewUser] = useState({
     name: "",
@@ -88,30 +57,196 @@ const UsersPage = () => {
     role: "Technical" as UserRole,
   });
 
+  useEffect(() => {
+    fetchUsers();
+
+    const channel = supabase
+      .channel('users-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'users'
+        },
+        () => {
+          fetchUsers();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
+  const fetchUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching users:', error);
+        return;
+      }
+
+      setUsers(data || []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setNewUser((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddUser = () => {
-    const userId = `${users.length + 1}`;
-    const createdUser: User = {
-      id: userId,
-      name: newUser.name,
-      email: newUser.email,
-      phoneNumber: newUser.phoneNumber,
-      directorate: newUser.directorate,
-      role: newUser.role,
-      profileImage: "/placeholder.svg",
-    };
+  const handleEditInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setEditingUser((prev) => prev ? ({ ...prev, [name]: value }) : null);
+  };
 
-    setUsers((prev) => [...prev, createdUser]);
-    toast({
-      title: "User Added",
-      description: `${createdUser.name} has been added successfully.`,
-    });
-    setIsAddUserOpen(false);
-    resetForm();
+  const handleAddUser = async () => {
+    // Check if current user is Super User before adding
+    if (!currentUser || currentUser.role !== "Super User") {
+      toast({
+        title: "Access Denied",
+        description: "Only Super Users can add new users.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      console.log("Adding user:", newUser);
+      
+      const { error } = await supabase
+        .from('users')
+        .insert({
+          name: newUser.name,
+          email: newUser.email,
+          phone_number: newUser.phoneNumber,
+          directorate: newUser.directorate,
+          role: newUser.role,
+          password_hash: newUser.password,
+          is_active: true
+        });
+
+      if (error) {
+        console.error('Error adding user:', error);
+        toast({
+          title: "Error",
+          description: `Failed to add user: ${error.message}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "User Added",
+        description: `${newUser.name} has been added successfully.`,
+      });
+      setIsAddUserOpen(false);
+      resetForm();
+    } catch (error) {
+      console.error('Error adding user:', error);
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditUser = async () => {
+    if (!editingUser) return;
+
+    // Check if current user is Super User before editing
+    if (!currentUser || currentUser.role !== "Super User") {
+      toast({
+        title: "Access Denied",
+        description: "Only Super Users can edit users.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({
+          name: editingUser.name,
+          email: editingUser.email,
+          phone_number: editingUser.phone_number,
+          directorate: editingUser.directorate,
+          role: editingUser.role,
+        })
+        .eq('id', editingUser.id);
+
+      if (error) {
+        console.error('Error updating user:', error);
+        toast({
+          title: "Error",
+          description: `Failed to update user: ${error.message}`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "User Updated",
+        description: `${editingUser.name} has been updated successfully.`,
+      });
+      setIsEditUserOpen(false);
+      setEditingUser(null);
+    } catch (error) {
+      console.error('Error updating user:', error);
+    }
+  };
+
+  const handleEditClick = (user: DatabaseUser) => {
+    setEditingUser(user);
+    setIsEditUserOpen(true);
+  };
+
+  const handleDeactivateUser = async (userId: string, userName: string) => {
+    // Check if current user is Super User before deactivating
+    if (!currentUser || currentUser.role !== "Super User") {
+      toast({
+        title: "Access Denied",
+        description: "Only Super Users can deactivate users.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ is_active: false })
+        .eq('id', userId);
+
+      if (error) {
+        console.error('Error deactivating user:', error);
+        toast({
+          title: "Error",
+          description: "Failed to deactivate user.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "User Deactivated",
+        description: `${userName} has been deactivated.`,
+      });
+    } catch (error) {
+      console.error('Error deactivating user:', error);
+    }
   };
 
   const resetForm = () => {
@@ -125,7 +260,7 @@ const UsersPage = () => {
     });
   };
 
-  const columns: ColumnDef<User>[] = [
+  const columns: ColumnDef<DatabaseUser>[] = [
     {
       accessorKey: "name",
       header: "Name",
@@ -135,7 +270,7 @@ const UsersPage = () => {
       header: "Email",
     },
     {
-      accessorKey: "phoneNumber",
+      accessorKey: "phone_number",
       header: "Phone Number",
     },
     {
@@ -168,16 +303,42 @@ const UsersPage = () => {
       },
     },
     {
+      accessorKey: "is_active",
+      header: "Status",
+      cell: ({ row }) => (
+        <Badge
+          className={
+            row.original.is_active
+              ? "bg-green-100 text-green-800 border-green-300"
+              : "bg-red-100 text-red-800 border-red-300"
+          }
+        >
+          {row.original.is_active ? "Active" : "Inactive"}
+        </Badge>
+      ),
+    },
+    {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => handleEditClick(row.original)}
+          >
             Edit
           </Button>
-          <Button variant="outline" size="sm" className="text-red-500 hover:text-red-700">
-            Deactivate
-          </Button>
+          {row.original.is_active && (
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="text-red-500 hover:text-red-700"
+              onClick={() => handleDeactivateUser(row.original.id, row.original.name)}
+            >
+              Deactivate
+            </Button>
+          )}
         </div>
       ),
     },
@@ -192,6 +353,10 @@ const UsersPage = () => {
         </p>
       </div>
     );
+  }
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center p-4">Loading...</div>;
   }
 
   return (
@@ -319,6 +484,100 @@ const UsersPage = () => {
               </DialogContent>
             </Dialog>
           </div>
+
+          {/* Edit User Dialog */}
+          <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Edit User</DialogTitle>
+                <DialogDescription>
+                  Update user account information.
+                </DialogDescription>
+              </DialogHeader>
+              {editingUser && (
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-name">Staff Name</Label>
+                    <Input
+                      id="edit-name"
+                      name="name"
+                      value={editingUser.name}
+                      onChange={handleEditInputChange}
+                      placeholder="Enter staff name"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-email">Email</Label>
+                    <Input
+                      id="edit-email"
+                      name="email"
+                      type="email"
+                      value={editingUser.email}
+                      onChange={handleEditInputChange}
+                      placeholder="Enter email address"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-phone">Phone Number</Label>
+                    <Input
+                      id="edit-phone"
+                      name="phone_number"
+                      value={editingUser.phone_number || ''}
+                      onChange={handleEditInputChange}
+                      placeholder="Enter phone number"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-directorate">Directorate</Label>
+                    <Select
+                      value={editingUser.directorate}
+                      onValueChange={(value: Directorate) =>
+                        setEditingUser((prev) => prev ? ({ ...prev, directorate: value }) : null)
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select directorate" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="DAWS">DAWS</SelectItem>
+                        <SelectItem value="DAAS">DAAS</SelectItem>
+                        <SelectItem value="ICT">ICT</SelectItem>
+                        <SelectItem value="DOLTS">DOLTS</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>User Role</Label>
+                    <RadioGroup
+                      value={editingUser.role}
+                      onValueChange={(value: UserRole) =>
+                        setEditingUser((prev) => prev ? ({ ...prev, role: value }) : null)
+                      }
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Super User" id="edit-super" />
+                        <Label htmlFor="edit-super">Super User</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Technical" id="edit-technical" />
+                        <Label htmlFor="edit-technical">Technical</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Read and View" id="edit-read" />
+                        <Label htmlFor="edit-read">Read and View</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                </div>
+              )}
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsEditUserOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleEditUser}>Update User</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
 
           <div className="bg-white rounded-md shadow">
             <div className="p-6">

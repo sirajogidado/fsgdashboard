@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -19,6 +20,7 @@ import ProfilePage from "./pages/ProfilePage";
 import AOCPage from "./pages/AOC/AOCPage";
 import ATOPage from "./pages/ATO/ATOPage";
 import ACStatusPage from "./pages/ACStatus/ACStatusPage";
+import SettingsPage from "./pages/SettingsPage";
 
 // AI Pages
 import AIDashboard from "./pages/AI/AIDashboard";
@@ -74,12 +76,47 @@ function App() {
                 {/* Profile Page - All authenticated users */}
                 <Route path="profile" element={<ProfilePage />} />
                 
-                {/* AI Features - All authenticated users */}
-                <Route path="ai" element={<AIDashboard />} />
-                <Route path="ai/chat" element={<AIChatPage />} />
-                <Route path="ai/document-analysis" element={<DocumentAnalysisPage />} />
-                <Route path="ai/analytics" element={<PredictiveAnalyticsPage />} />
-                <Route path="ai/reports" element={<SmartReportsPage />} />
+                {/* AI Features - All authenticated users except Read and View */}
+                <Route 
+                  path="ai" 
+                  element={
+                    <ProtectedRoute requireAIAccess={true}>
+                      <AIDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="ai/chat" 
+                  element={
+                    <ProtectedRoute requireAIAccess={true}>
+                      <AIChatPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="ai/document-analysis" 
+                  element={
+                    <ProtectedRoute requireAIAccess={true}>
+                      <DocumentAnalysisPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="ai/analytics" 
+                  element={
+                    <ProtectedRoute requireAIAccess={true}>
+                      <PredictiveAnalyticsPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="ai/reports" 
+                  element={
+                    <ProtectedRoute requireAIAccess={true}>
+                      <SmartReportsPage />
+                    </ProtectedRoute>
+                  } 
+                />
                 
                 {/* Users Management */}
                 <Route 
@@ -174,7 +211,7 @@ function App() {
                   path="settings" 
                   element={
                     <ProtectedRoute>
-                      <div className="p-8">Settings Page - Coming Soon</div>
+                      <SettingsPage />
                     </ProtectedRoute>
                   } 
                 />

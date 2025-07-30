@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/DataTable/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
   DialogContent,
@@ -19,49 +20,96 @@ import { Label } from "@/components/ui/label";
 
 interface PendingRegistration {
   id: string;
-  fullName: string;
+  full_name: string;
   email: string;
-  phoneNumber: string;
-  directorate: string;
-  role: string;
+  phone_number: string;
+  requested_directorate: string;
+  requested_role: string;
   status: string;
-  createdAt: string;
-  rejectionReason?: string;
+  created_at: string;
+  rejection_reason?: string;
 }
 
 const PendingRegistrations = () => {
   const [registrations, setRegistrations] = useState<PendingRegistration[]>([]);
   const [rejectionReason, setRejectionReason] = useState("");
   const [selectedRegistration, setSelectedRegistration] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Load pending registrations from localStorage
-    const stored = localStorage.getItem("pending_registrations");
-    if (stored) {
-      setRegistrations(JSON.parse(stored));
-    }
+    fetchRegistrations();
+
+    // Set up real-time subscription
+    const channel = supabase
+      .channel('pending-registrations-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'pending_registrations'
+        },
+        () => {
+          fetchRegistrations();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
-  const updateRegistrations = (updated: PendingRegistration[]) => {
-    setRegistrations(updated);
-    localStorage.setItem("pending_registrations", JSON.stringify(updated));
+  const fetchRegistrations = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('pending_registrations')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching registrations:', error);
+        return;
+      }
+
+      setRegistrations(data || []);
+    } catch (error) {
+      console.error('Error fetching registrations:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleApprove = (id: string) => {
-    const updated = registrations.map(reg => 
-      reg.id === id 
-        ? { ...reg, status: "approved", approvedAt: new Date().toISOString() }
-        : reg
-    );
-    updateRegistrations(updated);
-    
-    toast({
-      title: "Registration Approved",
-      description: "User has been approved and can now login.",
-    });
+  const handleApprove = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('pending_registrations')
+        .update({ 
+          status: 'approved',
+          approved_at: new Date().toISOString()
+        })
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error approving registration:', error);
+        toast({
+          title: "Error",
+          description: "Failed to approve registration.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Registration Approved",
+        description: "User has been approved and can now login.",
+      });
+    } catch (error) {
+      console.error('Error approving registration:', error);
+    }
   };
 
-  const handleReject = (id: string) => {
+  const handleReject = async (id: string) => {
     if (!rejectionReason.trim()) {
       toast({
         title: "Error",
@@ -71,25 +119,40 @@ const PendingRegistrations = () => {
       return;
     }
 
-    const updated = registrations.map(reg => 
-      reg.id === id 
-        ? { ...reg, status: "rejected", rejectionReason, rejectedAt: new Date().toISOString() }
-        : reg
-    );
-    updateRegistrations(updated);
-    
-    setRejectionReason("");
-    setSelectedRegistration(null);
-    
-    toast({
-      title: "Registration Rejected",
-      description: "User has been notified of the rejection.",
-    });
+    try {
+      const { error } = await supabase
+        .from('pending_registrations')
+        .update({ 
+          status: 'rejected',
+          rejection_reason: rejectionReason
+        })
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error rejecting registration:', error);
+        toast({
+          title: "Error",
+          description: "Failed to reject registration.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      setRejectionReason("");
+      setSelectedRegistration(null);
+      
+      toast({
+        title: "Registration Rejected",
+        description: "User has been notified of the rejection.",
+      });
+    } catch (error) {
+      console.error('Error rejecting registration:', error);
+    }
   };
 
   const columns: ColumnDef<PendingRegistration>[] = [
     {
-      accessorKey: "fullName",
+      accessorKey: "full_name",
       header: "Full Name",
     },
     {
@@ -97,24 +160,24 @@ const PendingRegistrations = () => {
       header: "Email",
     },
     {
-      accessorKey: "phoneNumber",
+      accessorKey: "phone_number",
       header: "Phone Number",
     },
     {
-      accessorKey: "directorate",
+      accessorKey: "requested_directorate",
       header: "Directorate",
       cell: ({ row }) => (
         <Badge variant="outline" className="bg-gray-100">
-          {row.original.directorate}
+          {row.original.requested_directorate}
         </Badge>
       ),
     },
     {
-      accessorKey: "role",
+      accessorKey: "requested_role",
       header: "Requested Role",
       cell: ({ row }) => (
         <Badge variant="outline" className="bg-blue-100 text-blue-800">
-          {row.original.role}
+          {row.original.requested_role}
         </Badge>
       ),
     },
@@ -139,10 +202,10 @@ const PendingRegistrations = () => {
       },
     },
     {
-      accessorKey: "createdAt",
+      accessorKey: "created_at",
       header: "Applied On",
       cell: ({ row }) => {
-        return new Date(row.original.createdAt).toLocaleDateString();
+        return new Date(row.original.created_at).toLocaleDateString();
       },
     },
     {
@@ -225,6 +288,10 @@ const PendingRegistrations = () => {
 
   const pendingCount = registrations.filter(reg => reg.status === "pending").length;
 
+  if (isLoading) {
+    return <div className="flex items-center justify-center p-4">Loading...</div>;
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
@@ -241,7 +308,7 @@ const PendingRegistrations = () => {
         )}
       </div>
       
-      <DataTable columns={columns} data={registrations} searchKey="fullName" />
+      <DataTable columns={columns} data={registrations} searchKey="full_name" />
     </div>
   );
 };

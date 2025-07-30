@@ -26,6 +26,11 @@ const UserRolesTable = ({ searchQuery, onEdit }: UserRolesTableProps) => {
     { id: "3", roleName: "Read and View", description: "View only access", permissions: "read", users: 1 },
   ]);
 
+  const handleEdit = (id: string) => {
+    console.log("Editing role with ID:", id);
+    onEdit(id);
+  };
+
   const handleDelete = (id: string) => {
     setData(prev => prev.filter(item => item.id !== id));
     toast({
@@ -75,7 +80,7 @@ const UserRolesTable = ({ searchQuery, onEdit }: UserRolesTableProps) => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => onEdit(row.original.id)}
+            onClick={() => handleEdit(row.original.id)}
           >
             Edit
           </Button>
