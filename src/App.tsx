@@ -16,6 +16,7 @@ import Dashboard from "./pages/Dashboard";
 import Unauthorized from "./pages/Unauthorized";
 import UsersPage from "./pages/UsersPage";
 import ProfilePage from "./pages/ProfilePage";
+import SettingsPage from "./pages/SettingsPage";
 import AOCPage from "./pages/AOC/AOCPage";
 import ATOPage from "./pages/ATO/ATOPage";
 import ACStatusPage from "./pages/ACStatus/ACStatusPage";
