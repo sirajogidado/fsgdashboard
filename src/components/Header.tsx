@@ -2,6 +2,7 @@
 import React from "react";
 import { Menu, Settings, User } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,9 +20,18 @@ interface HeaderProps {
 
 const Header = ({ toggleSidebar }: HeaderProps) => {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
+  };
+
+  const handleProfileClick = () => {
+    navigate("/profile");
+  };
+
+  const handleSettingsClick = () => {
+    navigate("/settings");
   };
 
   const getInitials = (name: string) => {
@@ -73,14 +83,16 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleProfileClick}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="mr-2 h-4 w-4" />
-                <span>Settings</span>
-              </DropdownMenuItem>
+              {user?.role === "Super User" && (
+                <DropdownMenuItem onClick={handleSettingsClick}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
             </DropdownMenuContent>

@@ -209,7 +209,7 @@ function App() {
                 <Route 
                   path="settings" 
                   element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requiredRole="Super User">
                       <SettingsPage />
                     </ProtectedRoute>
                   } 

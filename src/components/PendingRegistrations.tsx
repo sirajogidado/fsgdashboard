@@ -82,13 +82,9 @@ const PendingRegistrations = () => {
 
   const handleApprove = async (id: string) => {
     try {
-      const { error } = await supabase
-        .from('pending_registrations')
-        .update({ 
-          status: 'approved',
-          approved_at: new Date().toISOString()
-        })
-        .eq('id', id);
+      const { error } = await supabase.rpc('approve_pending_registration' as any, {
+        registration_id: id
+      });
 
       if (error) {
         console.error('Error approving registration:', error);
@@ -102,7 +98,7 @@ const PendingRegistrations = () => {
 
       toast({
         title: "Registration Approved",
-        description: "User has been approved and can now login.",
+        description: "User account created and can now login with default password 'password'.",
       });
     } catch (error) {
       console.error('Error approving registration:', error);

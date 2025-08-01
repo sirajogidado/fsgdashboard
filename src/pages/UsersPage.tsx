@@ -44,6 +44,8 @@ interface DatabaseUser {
 const UsersPage = () => {
   const { user: currentUser } = useAuth();
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
+  const [isEditUserOpen, setIsEditUserOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<DatabaseUser | null>(null);
   const [users, setUsers] = useState<DatabaseUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -103,6 +105,63 @@ const UsersPage = () => {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setNewUser((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleEditUser = (user: DatabaseUser) => {
+    setEditingUser(user);
+    setNewUser({
+      name: user.name,
+      email: user.email,
+      phoneNumber: user.phone_number || "",
+      password: "", // Don't prefill password
+      directorate: user.directorate as Directorate,
+      role: user.role as UserRole,
+    });
+    setIsEditUserOpen(true);
+  };
+
+  const handleUpdateUser = async () => {
+    if (!editingUser) return;
+
+    try {
+      const updateData: any = {
+        name: newUser.name,
+        email: newUser.email,
+        phone_number: newUser.phoneNumber,
+        directorate: newUser.directorate,
+        role: newUser.role,
+      };
+
+      // Only update password if provided
+      if (newUser.password) {
+        updateData.password_hash = newUser.password;
+      }
+
+      const { error } = await supabase
+        .from('users')
+        .update(updateData)
+        .eq('id', editingUser.id);
+
+      if (error) {
+        console.error('Error updating user:', error);
+        toast({
+          title: "Error",
+          description: "Failed to update user.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "User Updated",
+        description: `${newUser.name} has been updated successfully.`,
+      });
+      setIsEditUserOpen(false);
+      setEditingUser(null);
+      resetForm();
+    } catch (error) {
+      console.error('Error updating user:', error);
+    }
   };
 
   const handleAddUser = async () => {
@@ -175,6 +234,7 @@ const UsersPage = () => {
       directorate: "DAWS",
       role: "Technical",
     });
+    setEditingUser(null);
   };
 
   const columns: ColumnDef<DatabaseUser>[] = [
@@ -239,7 +299,11 @@ const UsersPage = () => {
       header: "Actions",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => handleEditUser(row.original)}
+          >
             Edit
           </Button>
           {row.original.is_active && (
@@ -393,6 +457,112 @@ const UsersPage = () => {
                     Cancel
                   </Button>
                   <Button onClick={handleAddUser}>Add User</Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+
+            {/* Edit User Dialog */}
+            <Dialog open={isEditUserOpen} onOpenChange={setIsEditUserOpen}>
+              <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle>Edit User</DialogTitle>
+                  <DialogDescription>
+                    Update user information and permissions.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-name">Staff Name</Label>
+                    <Input
+                      id="edit-name"
+                      name="name"
+                      value={newUser.name}
+                      onChange={handleInputChange}
+                      placeholder="Enter staff name"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-email">Email</Label>
+                    <Input
+                      id="edit-email"
+                      name="email"
+                      type="email"
+                      value={newUser.email}
+                      onChange={handleInputChange}
+                      placeholder="Enter email address"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-phoneNumber">Phone Number</Label>
+                    <Input
+                      id="edit-phoneNumber"
+                      name="phoneNumber"
+                      value={newUser.phoneNumber}
+                      onChange={handleInputChange}
+                      placeholder="Enter phone number"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-password">New Password (optional)</Label>
+                    <Input
+                      id="edit-password"
+                      name="password"
+                      type="password"
+                      value={newUser.password}
+                      onChange={handleInputChange}
+                      placeholder="Leave blank to keep current password"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="edit-directorate">Directorate</Label>
+                    <Select
+                      value={newUser.directorate}
+                      onValueChange={(value: Directorate) =>
+                        setNewUser((prev) => ({ ...prev, directorate: value }))
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select directorate" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="DAWS">DAWS</SelectItem>
+                        <SelectItem value="DAAS">DAAS</SelectItem>
+                        <SelectItem value="ICT">ICT</SelectItem>
+                        <SelectItem value="DOLTS">DOLTS</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <Label>User Role</Label>
+                    <RadioGroup
+                      value={newUser.role}
+                      onValueChange={(value: UserRole) =>
+                        setNewUser((prev) => ({ ...prev, role: value }))
+                      }
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Super User" id="edit-super" />
+                        <Label htmlFor="edit-super">Super User</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Technical" id="edit-technical" />
+                        <Label htmlFor="edit-technical">Technical</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Read and View" id="edit-read" />
+                        <Label htmlFor="edit-read">Read and View</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button variant="outline" onClick={() => {
+                    setIsEditUserOpen(false);
+                    resetForm();
+                  }}>
+                    Cancel
+                  </Button>
+                  <Button onClick={handleUpdateUser}>Update User</Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
