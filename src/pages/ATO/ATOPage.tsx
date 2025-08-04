@@ -11,6 +11,17 @@ import ATOList from "./ATOList";
 const ATOPage = () => {
   const [activeTab, setActiveTab] = useState<string>("view");
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
+
+  const handleEdit = (id: string) => {
+    setEditingId(id);
+    setActiveTab("add");
+  };
+
+  const handleCancel = () => {
+    setEditingId(null);
+    setActiveTab("view");
+  };
 
   return (
     <div className="space-y-6">
@@ -22,7 +33,7 @@ const ATOPage = () => {
         <div className="flex justify-between items-center mb-4">
           <TabsList>
             <TabsTrigger value="view">View ATO</TabsTrigger>
-            <TabsTrigger value="add">Add ATO</TabsTrigger>
+            <TabsTrigger value="add">{editingId ? "Edit ATO" : "Add ATO"}</TabsTrigger>
           </TabsList>
           
           {activeTab === "view" && (
@@ -44,7 +55,7 @@ const ATOPage = () => {
               <CardTitle>ATO Records</CardTitle>
             </CardHeader>
             <CardContent>
-              <ATOList searchQuery={searchQuery} />
+              <ATOList searchQuery={searchQuery} onEdit={handleEdit} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -52,10 +63,10 @@ const ATOPage = () => {
         <TabsContent value="add">
           <Card>
             <CardHeader>
-              <CardTitle>Add New ATO</CardTitle>
+              <CardTitle>{editingId ? "Edit ATO" : "Add New ATO"}</CardTitle>
             </CardHeader>
             <CardContent>
-              <ATOForm />
+              <ATOForm editingId={editingId} onCancel={handleCancel} />
             </CardContent>
           </Card>
         </TabsContent>

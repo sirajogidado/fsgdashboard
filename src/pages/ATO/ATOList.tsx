@@ -14,6 +14,7 @@ import { FileText, Edit } from "lucide-react";
 
 interface ATOListProps {
   searchQuery: string;
+  onEdit: (id: string) => void;
 }
 
 // Mock data - in a real app this would come from an API
@@ -71,7 +72,7 @@ const getStatusColor = (validityDate: string) => {
   }
 };
 
-const ATOList = ({ searchQuery }: ATOListProps) => {
+const ATOList = ({ searchQuery, onEdit }: ATOListProps) => {
   // Filter data based on search query
   const filteredData = mockData.filter((item) =>
     Object.values(item).some((value) =>
@@ -106,13 +107,13 @@ const ATOList = ({ searchQuery }: ATOListProps) => {
                 <TableCell>{ato.contactPerson}</TableCell>
                 <TableCell>
                   <Badge
-                    className={`${
+                    variant={
                       getStatusColor(ato.validityDate) === "red"
-                        ? "bg-red-500"
+                        ? "destructive"
                         : getStatusColor(ato.validityDate) === "yellow"
-                        ? "bg-yellow-500"
-                        : "bg-green-500"
-                    } text-white`}
+                        ? "secondary"
+                        : "default"
+                    }
                   >
                     {getStatusColor(ato.validityDate) === "red"
                       ? "Expired"
@@ -126,7 +127,7 @@ const ATOList = ({ searchQuery }: ATOListProps) => {
                     <Button variant="ghost" size="icon">
                       <FileText className="h-4 w-4" />
                     </Button>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" onClick={() => onEdit(ato.id)}>
                       <Edit className="h-4 w-4" />
                     </Button>
                   </div>

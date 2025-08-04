@@ -504,7 +504,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
           )}
 
           {/* Economic License - DATR only with Technical privilege */}
-          {hasAccess("DATR") && user?.role === "Technical" && (
+          {user?.directorate === "DATR" && user?.role === "Technical" && (
             <li>
               <Collapsible
                 open={openMenus.economicLicense}
@@ -702,18 +702,6 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                 >
                   <Users className="h-5 w-5 mr-3" />
                   <span>Users</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/audit-trail"
-                  className={cn(
-                    "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
-                    isActive("/audit-trail") && "bg-white/20"
-                  )}
-                >
-                  <FileText className="h-5 w-5 mr-3" />
-                  <span>Audit Trail</span>
                 </Link>
               </li>
             </>

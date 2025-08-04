@@ -34,7 +34,12 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-const ATOForm = () => {
+interface ATOFormProps {
+  editingId?: string | null;
+  onCancel?: () => void;
+}
+
+const ATOForm = ({ editingId, onCancel }: ATOFormProps) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -50,10 +55,13 @@ const ATOForm = () => {
   const onSubmit = (data: FormValues) => {
     console.log("Form submitted:", data);
     toast({
-      title: "ATO Added",
-      description: "The ATO has been successfully added.",
+      title: editingId ? "ATO Updated" : "ATO Added",
+      description: `The ATO has been successfully ${editingId ? "updated" : "added"}.`,
     });
     form.reset();
+    if (onCancel) {
+      onCancel();
+    }
   };
 
   // Mock data for dropdowns
@@ -178,10 +186,10 @@ const ATOForm = () => {
         </div>
 
         <div className="flex justify-end space-x-2">
-          <Button variant="outline" type="button" onClick={() => form.reset()}>
+          <Button variant="outline" type="button" onClick={onCancel || (() => form.reset())}>
             Cancel
           </Button>
-          <Button type="submit">Save</Button>
+          <Button type="submit">{editingId ? "Update" : "Save"}</Button>
         </div>
       </form>
     </Form>

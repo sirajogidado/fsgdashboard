@@ -39,14 +39,21 @@ const UserRolesPage = () => {
           <TabsList>
             <TabsTrigger value="view">View User Roles</TabsTrigger>
             <TabsTrigger value="add">{editingId ? "Edit User Role" : "Add User Role"}</TabsTrigger>
+            {isSuperUser && <TabsTrigger value="directorates">Directorates</TabsTrigger>}
             {isSuperUser && <TabsTrigger value="audit">Audit Trail</TabsTrigger>}
           </TabsList>
           
-          {(activeTab === "view" || (activeTab === "audit" && isSuperUser)) && (
+          {(activeTab === "view" || activeTab === "directorates" || (activeTab === "audit" && isSuperUser)) && (
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder={activeTab === "audit" ? "Search audit trail..." : "Search users..."}
+                placeholder={
+                  activeTab === "audit" 
+                    ? "Search audit trail..." 
+                    : activeTab === "directorates"
+                    ? "Search directorates..."
+                    : "Search users..."
+                }
                 className="pl-8 w-[250px]"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -76,6 +83,21 @@ const UserRolesPage = () => {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {isSuperUser && (
+          <TabsContent value="directorates">
+            <Card>
+              <CardHeader>
+                <CardTitle>Directorates Management</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-center py-8 text-muted-foreground">
+                  Directorates management will be implemented here
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
 
         {isSuperUser && (
           <TabsContent value="audit">
