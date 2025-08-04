@@ -49,6 +49,17 @@ import TravelAgencyPage from "./pages/Global/TravelAgency/TravelAgencyPage";
 import ForeignAirlinePage from "./pages/Global/ForeignAirline/ForeignAirlinePage";
 import CertificateTypePage from "./pages/Global/CertificateType/CertificateTypePage";
 
+// Economic License Pages
+import PAASPage from "./pages/EconomicLicense/PAAS/PAASPage";
+import AOPPage from "./pages/EconomicLicense/AOP/AOPPage";
+import ATLPage from "./pages/EconomicLicense/ATL/ATLPage";
+import PNCFPage from "./pages/EconomicLicense/PNCF/PNCFPage";
+import ATOLPage from "./pages/EconomicLicense/ATOL/ATOLPage";
+import FCOPPage from "./pages/EconomicLicense/FCOP/FCOPPage";
+
+// Audit Trail Page
+import AuditTrailPage from "./pages/AuditTrail/AuditTrailPage";
+
 // Create QueryClient outside the component
 const queryClient = new QueryClient();
 
@@ -309,6 +320,66 @@ function App() {
                   element={
                     <ProtectedRoute requiredRole="Super User">
                       <CertificateTypePage />
+                    </ProtectedRoute>
+                  } 
+                />
+
+                {/* Economic License Routes - DATR only with Technical privilege */}
+                <Route 
+                  path="economic-license/paas" 
+                  element={
+                    <ProtectedRoute requiredDirectorate="DATR">
+                      <PAASPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="economic-license/aop" 
+                  element={
+                    <ProtectedRoute requiredDirectorate="DATR">
+                      <AOPPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="economic-license/atl" 
+                  element={
+                    <ProtectedRoute requiredDirectorate="DATR">
+                      <ATLPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="economic-license/pncf" 
+                  element={
+                    <ProtectedRoute requiredDirectorate="DATR">
+                      <PNCFPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="economic-license/atol" 
+                  element={
+                    <ProtectedRoute requiredDirectorate="DATR">
+                      <ATOLPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="economic-license/fcop" 
+                  element={
+                    <ProtectedRoute requiredDirectorate="DATR">
+                      <FCOPPage />
+                    </ProtectedRoute>
+                  } 
+                />
+
+                {/* Audit Trail Route - Super Users only */}
+                <Route 
+                  path="audit-trail" 
+                  element={
+                    <ProtectedRoute requiredRole="Super User">
+                      <AuditTrailPage />
                     </ProtectedRoute>
                   } 
                 />

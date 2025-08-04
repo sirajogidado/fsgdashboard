@@ -40,6 +40,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
     globalOperations: false,
     amo: false,
     ai: false,
+    economicLicense: false,
   });
 
   const toggleMenu = (menu: string) => {
@@ -502,6 +503,91 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
             </li>
           )}
 
+          {/* Economic License - DATR only with Technical privilege */}
+          {hasAccess("DATR") && user?.role === "Technical" && (
+            <li>
+              <Collapsible
+                open={openMenus.economicLicense}
+                onOpenChange={() => toggleMenu("economicLicense")}
+                className="w-full"
+              >
+                <CollapsibleTrigger
+                  className={cn(
+                    "flex items-center justify-between px-3 py-2 w-full rounded-md hover:bg-white/10 transition-colors",
+                    openMenus.economicLicense && "bg-white/20"
+                  )}
+                >
+                  <div className="flex items-center">
+                    <Briefcase className="h-5 w-5 mr-3" />
+                    <span>Economic License</span>
+                  </div>
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 transition-transform",
+                      openMenus.economicLicense && "transform rotate-180"
+                    )}
+                  />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pl-10 space-y-1 mt-1">
+                  <Link
+                    to="/economic-license/paas"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/economic-license/paas") && "bg-white/10"
+                    )}
+                  >
+                    PAAS
+                  </Link>
+                  <Link
+                    to="/economic-license/aop"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/economic-license/aop") && "bg-white/10"
+                    )}
+                  >
+                    AOP
+                  </Link>
+                  <Link
+                    to="/economic-license/atl"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/economic-license/atl") && "bg-white/10"
+                    )}
+                  >
+                    ATL
+                  </Link>
+                  <Link
+                    to="/economic-license/pncf"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/economic-license/pncf") && "bg-white/10"
+                    )}
+                  >
+                    PNCF
+                  </Link>
+                  <Link
+                    to="/economic-license/atol"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/economic-license/atol") && "bg-white/10"
+                    )}
+                  >
+                    ATOL
+                  </Link>
+                  <Link
+                    to="/economic-license/fcop"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/economic-license/fcop") && "bg-white/10"
+                    )}
+                  >
+                    FCOP
+                  </Link>
+                </CollapsibleContent>
+              </Collapsible>
+            </li>
+          )}
+
           {hasAccess("DAWS", ["DOLTS"]) && (
             <>
               <li>
@@ -605,18 +691,32 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
           </li>
           
           {user?.role === "Super User" && (
-            <li>
-              <Link
-                to="/users"
-                className={cn(
-                  "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
-                  isActive("/users") && "bg-white/20"
-                )}
-              >
-                <Users className="h-5 w-5 mr-3" />
-                <span>Users</span>
-              </Link>
-            </li>
+            <>
+              <li>
+                <Link
+                  to="/users"
+                  className={cn(
+                    "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
+                    isActive("/users") && "bg-white/20"
+                  )}
+                >
+                  <Users className="h-5 w-5 mr-3" />
+                  <span>Users</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/audit-trail"
+                  className={cn(
+                    "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
+                    isActive("/audit-trail") && "bg-white/20"
+                  )}
+                >
+                  <FileText className="h-5 w-5 mr-3" />
+                  <span>Audit Trail</span>
+                </Link>
+              </li>
+            </>
           )}
           
           <li>

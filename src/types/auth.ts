@@ -1,7 +1,7 @@
 
 export type UserRole = "Super User" | "Technical" | "Read and View";
 
-export type Directorate = "DAWS" | "DAAS" | "DOLTS" | "ICT" | "AOC" | "ATO" | "DACL" | "AMO" | "FOCC";
+export type Directorate = "DAWS" | "DAAS" | "DOLTS" | "ICT" | "AOC" | "ATO" | "DACL" | "AMO" | "FOCC" | "DATR";
 
 export interface User {
   id: string;

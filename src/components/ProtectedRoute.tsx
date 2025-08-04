@@ -67,6 +67,14 @@ const ProtectedRoute = ({
     return <Navigate to="/unauthorized" replace />;
   }
 
+  // Special restriction for DATR users - only Technical role can access Economic License
+  if (user.directorate === "DATR" && 
+      user.role !== "Technical" && 
+      user.role !== "Super User" &&
+      location.pathname.startsWith("/economic-license")) {
+    return <Navigate to="/unauthorized" replace />;
+  }
+
   // Check if read-only user is trying to access non-read-only content
   if (!allowReadOnly && user.role === "Read and View") {
     return <Navigate to="/unauthorized" replace />;
