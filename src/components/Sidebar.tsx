@@ -503,8 +503,8 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
             </li>
           )}
 
-          {/* Economic License - DATR only with Technical privilege */}
-          {user?.directorate === "DATR" && user?.role === "Technical" && (
+          {/* Economic License - DATR with Technical privilege or Super User */}
+          {(user?.role === "Super User" || (user?.directorate === "DATR" && user?.role === "Technical")) && (
             <li>
               <Collapsible
                 open={openMenus.economicLicense}
