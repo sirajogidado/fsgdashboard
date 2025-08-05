@@ -8,12 +8,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 
-interface PAASFormProps {
+interface ATOLFormProps {
   onCancel: () => void;
   editingId?: string | null;
 }
 
-const PAASForm = ({ onCancel, editingId }: PAASFormProps) => {
+const ATOLForm = ({ onCancel, editingId }: ATOLFormProps) => {
   const [formData, setFormData] = useState({
     operatorType: "",
     selectedOperator: "",
@@ -25,7 +25,7 @@ const PAASForm = ({ onCancel, editingId }: PAASFormProps) => {
     comment: ""
   });
 
-  // Mock data for AOC and General Aviation
+  // Mock data for different operator types
   const aocData = [
     { id: "1", name: "Airline A - AOC-001-2023" },
     { id: "2", name: "Airline B - AOC-002-2023" },
@@ -37,9 +37,29 @@ const PAASForm = ({ onCancel, editingId }: PAASFormProps) => {
     { id: "2", name: "Charter Services - 5N-DEF" },
   ];
 
+  const travelAgencyData = [
+    { id: "1", name: "Elite Travel - Lagos" },
+    { id: "2", name: "World Tours - Abuja" },
+  ];
+
+  const othersData = [
+    { id: "1", name: "Other Operator 1" },
+    { id: "2", name: "Other Operator 2" },
+  ];
+
+  const getOperatorData = () => {
+    switch (formData.operatorType) {
+      case "existing_aoc": return aocData;
+      case "general_aviation": return generalAviationData;
+      case "travel_agency": return travelAgencyData;
+      case "others": return othersData;
+      default: return [];
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success(editingId ? "PAAS record updated successfully!" : "PAAS record created successfully!");
+    toast.success(editingId ? "ATOL record updated successfully!" : "ATOL record created successfully!");
     onCancel();
   };
 
@@ -55,7 +75,7 @@ const PAASForm = ({ onCancel, editingId }: PAASFormProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{editingId ? "Edit PAAS Record" : "Add New PAAS Record"}</CardTitle>
+        <CardTitle>{editingId ? "Edit ATOL Record" : "Add New ATOL Record"}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -64,7 +84,7 @@ const PAASForm = ({ onCancel, editingId }: PAASFormProps) => {
             <RadioGroup
               value={formData.operatorType}
               onValueChange={(value) => handleChange("operatorType", value)}
-              className="flex gap-6 mt-2"
+              className="grid grid-cols-2 gap-4 mt-2"
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="existing_aoc" id="existing_aoc" />
@@ -74,20 +94,30 @@ const PAASForm = ({ onCancel, editingId }: PAASFormProps) => {
                 <RadioGroupItem value="general_aviation" id="general_aviation" />
                 <Label htmlFor="general_aviation">General Aviation</Label>
               </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="travel_agency" id="travel_agency" />
+                <Label htmlFor="travel_agency">Travel Agency</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="others" id="others" />
+                <Label htmlFor="others">Others</Label>
+              </div>
             </RadioGroup>
           </div>
 
           {formData.operatorType && (
             <div>
               <Label htmlFor="selectedOperator">
-                {formData.operatorType === "existing_aoc" ? "Select AOC" : "Select General Aviation"}
+                Select {formData.operatorType === "existing_aoc" ? "AOC" : 
+                       formData.operatorType === "general_aviation" ? "General Aviation" :
+                       formData.operatorType === "travel_agency" ? "Travel Agency" : "Other"}
               </Label>
               <Select value={formData.selectedOperator} onValueChange={(value) => handleChange("selectedOperator", value)}>
                 <SelectTrigger>
-                  <SelectValue placeholder={`Select ${formData.operatorType === "existing_aoc" ? "AOC" : "General Aviation"}`} />
+                  <SelectValue placeholder={`Select ${formData.operatorType.replace('_', ' ')}`} />
                 </SelectTrigger>
                 <SelectContent>
-                  {(formData.operatorType === "existing_aoc" ? aocData : generalAviationData).map((item) => (
+                  {getOperatorData().map((item) => (
                     <SelectItem key={item.id} value={item.id}>
                       {item.name}
                     </SelectItem>
@@ -168,7 +198,7 @@ const PAASForm = ({ onCancel, editingId }: PAASFormProps) => {
               Cancel
             </Button>
             <Button type="submit">
-              {editingId ? "Update" : "Save"} PAAS Record
+              {editingId ? "Update" : "Save"} ATOL Record
             </Button>
           </div>
         </form>
@@ -177,4 +207,4 @@ const PAASForm = ({ onCancel, editingId }: PAASFormProps) => {
   );
 };
 
-export default PAASForm;
+export default ATOLForm;

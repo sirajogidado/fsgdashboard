@@ -8,12 +8,12 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 
-interface PAASFormProps {
+interface PNCFFormProps {
   onCancel: () => void;
   editingId?: string | null;
 }
 
-const PAASForm = ({ onCancel, editingId }: PAASFormProps) => {
+const PNCFForm = ({ onCancel, editingId }: PNCFFormProps) => {
   const [formData, setFormData] = useState({
     operatorType: "",
     selectedOperator: "",
@@ -39,7 +39,7 @@ const PAASForm = ({ onCancel, editingId }: PAASFormProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success(editingId ? "PAAS record updated successfully!" : "PAAS record created successfully!");
+    toast.success(editingId ? "PNCF record updated successfully!" : "PNCF record created successfully!");
     onCancel();
   };
 
@@ -55,7 +55,7 @@ const PAASForm = ({ onCancel, editingId }: PAASFormProps) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{editingId ? "Edit PAAS Record" : "Add New PAAS Record"}</CardTitle>
+        <CardTitle>{editingId ? "Edit PNCF Record" : "Add New PNCF Record"}</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -168,7 +168,7 @@ const PAASForm = ({ onCancel, editingId }: PAASFormProps) => {
               Cancel
             </Button>
             <Button type="submit">
-              {editingId ? "Update" : "Save"} PAAS Record
+              {editingId ? "Update" : "Save"} PNCF Record
             </Button>
           </div>
         </form>
@@ -177,4 +177,4 @@ const PAASForm = ({ onCancel, editingId }: PAASFormProps) => {
   );
 };
 
-export default PAASForm;
+export default PNCFForm;

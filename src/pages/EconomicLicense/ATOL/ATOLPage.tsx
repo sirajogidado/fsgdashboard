@@ -1,65 +1,34 @@
 import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import ATOLForm from "./ATOLForm";
 
 const ATOLPage = () => {
-  const [activeTab, setActiveTab] = useState<string>("view");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h2 className="text-3xl font-bold tracking-tight">ATOL (Air Travel Operating License) Management</h2>
+        <h1 className="text-2xl font-bold">Air Travel Organizer's License (ATOL) Management</h1>
+        <Button onClick={() => setIsFormOpen(true)}>Add New ATOL</Button>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <div className="flex justify-between items-center mb-4">
-          <TabsList>
-            <TabsTrigger value="view">View ATOL Records</TabsTrigger>
-            <TabsTrigger value="add">Add ATOL Record</TabsTrigger>
-          </TabsList>
-          
-          {activeTab === "view" && (
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search ATOL records..."
-                className="pl-8 w-[250px]"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
-          )}
-        </div>
+      {isFormOpen && (
+        <ATOLForm 
+          onCancel={() => setIsFormOpen(false)} 
+          editingId={editingId} 
+        />
+      )}
 
-        <TabsContent value="view">
-          <Card>
-            <CardHeader>
-              <CardTitle>ATOL Records</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                ATOL records will be displayed here
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        
-        <TabsContent value="add">
-          <Card>
-            <CardHeader>
-              <CardTitle>Add New ATOL Record</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8 text-muted-foreground">
-                ATOL form will be implemented here
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      <Card>
+        <CardHeader>
+          <CardTitle>ATOL Records List</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p>ATOL records list will be displayed here.</p>
+        </CardContent>
+      </Card>
     </div>
   );
 };
