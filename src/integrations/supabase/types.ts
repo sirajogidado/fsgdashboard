@@ -100,6 +100,238 @@ export type Database = {
         }
         Relationships: []
       }
+      aoc_certificates: {
+        Row: {
+          certificate_number: string
+          created_at: string
+          expiry_date: string
+          id: string
+          issue_date: string
+          operator_name: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          certificate_number: string
+          created_at?: string
+          expiry_date: string
+          id?: string
+          issue_date: string
+          operator_name: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          certificate_number?: string
+          created_at?: string
+          expiry_date?: string
+          id?: string
+          issue_date?: string
+          operator_name?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      aop_licenses: {
+        Row: {
+          aoc_id: string | null
+          certificate_url: string | null
+          comment: string | null
+          created_at: string
+          date_of_expiry: string
+          date_of_initial_issue: string
+          date_of_last_renewal: string | null
+          general_aviation_id: string | null
+          id: string
+          license_number: string
+          operator_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          aoc_id?: string | null
+          certificate_url?: string | null
+          comment?: string | null
+          created_at?: string
+          date_of_expiry: string
+          date_of_initial_issue: string
+          date_of_last_renewal?: string | null
+          general_aviation_id?: string | null
+          id?: string
+          license_number: string
+          operator_type: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          aoc_id?: string | null
+          certificate_url?: string | null
+          comment?: string | null
+          created_at?: string
+          date_of_expiry?: string
+          date_of_initial_issue?: string
+          date_of_last_renewal?: string | null
+          general_aviation_id?: string | null
+          id?: string
+          license_number?: string
+          operator_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aop_licenses_aoc_id_fkey"
+            columns: ["aoc_id"]
+            isOneToOne: false
+            referencedRelation: "aoc_certificates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aop_licenses_general_aviation_id_fkey"
+            columns: ["general_aviation_id"]
+            isOneToOne: false
+            referencedRelation: "general_aviation"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      atl_licenses: {
+        Row: {
+          aoc_id: string | null
+          certificate_url: string | null
+          comment: string | null
+          created_at: string
+          date_of_expiry: string
+          date_of_initial_issue: string
+          date_of_last_renewal: string | null
+          general_aviation_id: string | null
+          id: string
+          license_number: string
+          operator_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          aoc_id?: string | null
+          certificate_url?: string | null
+          comment?: string | null
+          created_at?: string
+          date_of_expiry: string
+          date_of_initial_issue: string
+          date_of_last_renewal?: string | null
+          general_aviation_id?: string | null
+          id?: string
+          license_number: string
+          operator_type: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          aoc_id?: string | null
+          certificate_url?: string | null
+          comment?: string | null
+          created_at?: string
+          date_of_expiry?: string
+          date_of_initial_issue?: string
+          date_of_last_renewal?: string | null
+          general_aviation_id?: string | null
+          id?: string
+          license_number?: string
+          operator_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atl_licenses_aoc_id_fkey"
+            columns: ["aoc_id"]
+            isOneToOne: false
+            referencedRelation: "aoc_certificates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atl_licenses_general_aviation_id_fkey"
+            columns: ["general_aviation_id"]
+            isOneToOne: false
+            referencedRelation: "general_aviation"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      atol_licenses: {
+        Row: {
+          aoc_id: string | null
+          certificate_url: string | null
+          comment: string | null
+          created_at: string
+          date_of_expiry: string
+          date_of_initial_issue: string
+          date_of_last_renewal: string | null
+          general_aviation_id: string | null
+          id: string
+          license_number: string
+          operator_type: string
+          status: string
+          travel_agency_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          aoc_id?: string | null
+          certificate_url?: string | null
+          comment?: string | null
+          created_at?: string
+          date_of_expiry: string
+          date_of_initial_issue: string
+          date_of_last_renewal?: string | null
+          general_aviation_id?: string | null
+          id?: string
+          license_number: string
+          operator_type: string
+          status?: string
+          travel_agency_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          aoc_id?: string | null
+          certificate_url?: string | null
+          comment?: string | null
+          created_at?: string
+          date_of_expiry?: string
+          date_of_initial_issue?: string
+          date_of_last_renewal?: string | null
+          general_aviation_id?: string | null
+          id?: string
+          license_number?: string
+          operator_type?: string
+          status?: string
+          travel_agency_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "atol_licenses_aoc_id_fkey"
+            columns: ["aoc_id"]
+            isOneToOne: false
+            referencedRelation: "aoc_certificates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atol_licenses_general_aviation_id_fkey"
+            columns: ["general_aviation_id"]
+            isOneToOne: false
+            referencedRelation: "general_aviation"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "atol_licenses_travel_agency_id_fkey"
+            columns: ["travel_agency_id"]
+            isOneToOne: false
+            referencedRelation: "travel_agencies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_trail: {
         Row: {
           action: string
@@ -294,6 +526,51 @@ export type Database = {
           id?: string
           status?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      fcop_licenses: {
+        Row: {
+          certificate_url: string | null
+          comment: string | null
+          created_at: string
+          fcop_issue_date: string
+          foreign_airline: string
+          id: string
+          license_number: string
+          part_10: boolean
+          part_17: boolean
+          part_18: boolean
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          certificate_url?: string | null
+          comment?: string | null
+          created_at?: string
+          fcop_issue_date: string
+          foreign_airline: string
+          id?: string
+          license_number: string
+          part_10?: boolean
+          part_17?: boolean
+          part_18?: boolean
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          certificate_url?: string | null
+          comment?: string | null
+          created_at?: string
+          fcop_issue_date?: string
+          foreign_airline?: string
+          id?: string
+          license_number?: string
+          part_10?: boolean
+          part_17?: boolean
+          part_18?: boolean
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -510,6 +787,69 @@ export type Database = {
         }
         Relationships: []
       }
+      paas_licenses: {
+        Row: {
+          aoc_id: string | null
+          certificate_url: string | null
+          comment: string | null
+          created_at: string
+          date_of_expiry: string
+          date_of_initial_issue: string
+          date_of_last_renewal: string | null
+          general_aviation_id: string | null
+          id: string
+          license_number: string
+          operator_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          aoc_id?: string | null
+          certificate_url?: string | null
+          comment?: string | null
+          created_at?: string
+          date_of_expiry: string
+          date_of_initial_issue: string
+          date_of_last_renewal?: string | null
+          general_aviation_id?: string | null
+          id?: string
+          license_number: string
+          operator_type: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          aoc_id?: string | null
+          certificate_url?: string | null
+          comment?: string | null
+          created_at?: string
+          date_of_expiry?: string
+          date_of_initial_issue?: string
+          date_of_last_renewal?: string | null
+          general_aviation_id?: string | null
+          id?: string
+          license_number?: string
+          operator_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "paas_licenses_aoc_id_fkey"
+            columns: ["aoc_id"]
+            isOneToOne: false
+            referencedRelation: "aoc_certificates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "paas_licenses_general_aviation_id_fkey"
+            columns: ["general_aviation_id"]
+            isOneToOne: false
+            referencedRelation: "general_aviation"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pending_registrations: {
         Row: {
           approved_at: string | null
@@ -551,6 +891,69 @@ export type Database = {
           status?: string
         }
         Relationships: []
+      }
+      pncl_licenses: {
+        Row: {
+          aoc_id: string | null
+          certificate_url: string | null
+          comment: string | null
+          created_at: string
+          date_of_expiry: string
+          date_of_initial_issue: string
+          date_of_last_renewal: string | null
+          general_aviation_id: string | null
+          id: string
+          license_number: string
+          operator_type: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          aoc_id?: string | null
+          certificate_url?: string | null
+          comment?: string | null
+          created_at?: string
+          date_of_expiry: string
+          date_of_initial_issue: string
+          date_of_last_renewal?: string | null
+          general_aviation_id?: string | null
+          id?: string
+          license_number: string
+          operator_type: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          aoc_id?: string | null
+          certificate_url?: string | null
+          comment?: string | null
+          created_at?: string
+          date_of_expiry?: string
+          date_of_initial_issue?: string
+          date_of_last_renewal?: string | null
+          general_aviation_id?: string | null
+          id?: string
+          license_number?: string
+          operator_type?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pncl_licenses_aoc_id_fkey"
+            columns: ["aoc_id"]
+            isOneToOne: false
+            referencedRelation: "aoc_certificates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pncl_licenses_general_aviation_id_fkey"
+            columns: ["general_aviation_id"]
+            isOneToOne: false
+            referencedRelation: "general_aviation"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       predictive_analytics: {
         Row: {
