@@ -68,9 +68,13 @@ const ForeignAMOForm: React.FC<ForeignAMOFormProps> = ({ onCancel, editingId }) 
     onCancel();
   };
 
-  // Mock data for dropdowns
-  const amoHolders = ["Ethiopian Airlines", "Kenya Airways", "Emirates", "Qatar Airways"];
-  const countries = ["Ethiopia", "Kenya", "United Arab Emirates", "Qatar", "United States", "United Kingdom"];
+  // Mock data for dropdowns - from Foreign AMO under global operations
+  const foreignAmoHolders = ["Lufthansa Technik", "Air France Industries", "Turkish Technic", "Emirates Engineering"];
+  const countries = [
+    "Germany", "France", "Turkey", "United Arab Emirates", "United States", 
+    "United Kingdom", "Netherlands", "Switzerland", "Belgium", "Italy", 
+    "Spain", "Canada", "Japan", "Singapore", "South Korea", "Australia"
+  ];
 
   return (
     <Card className="p-6 bg-white shadow-md">
@@ -90,7 +94,7 @@ const ForeignAMOForm: React.FC<ForeignAMOFormProps> = ({ onCancel, editingId }) 
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {amoHolders.map((holder) => (
+                      {foreignAmoHolders.map((holder) => (
                         <SelectItem key={holder} value={holder}>
                           {holder}
                         </SelectItem>

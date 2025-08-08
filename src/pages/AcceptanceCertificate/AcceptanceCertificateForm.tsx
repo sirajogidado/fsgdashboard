@@ -25,14 +25,14 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 
 const formSchema = z.object({
-  certificateNumber: z.string().min(1, "Certificate number is required"),
   aircraftManufacturer: z.string().min(1, "Aircraft manufacturer is required"),
-  aircraftType: z.string().min(1, "Aircraft type is required"),
-  engineType: z.string().min(1, "Engine type is required"),
-  engineManufacturer: z.string().min(1, "Engine manufacturer is required"),
-  issueDate: z.string().min(1, "Issue date is required"),
-  remarks: z.string().optional(),
+  tcAcceptanceCertNumber: z.string().min(1, "TC Acceptance Approval Certificate Number is required"),
   certificateFile: z.any(),
+  dateIssued: z.string().min(1, "Date issued is required"),
+  tcHolder: z.string().min(1, "TC holder is required"),
+  originalTcIssuedBy: z.string().min(1, "Original TC issued by is required"),
+  tcNumber: z.string().min(1, "TC number is required"),
+  remark: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -48,13 +48,13 @@ const AcceptanceCertificateForm: React.FC<AcceptanceCertificateFormProps> = ({ o
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      certificateNumber: "",
       aircraftManufacturer: "",
-      aircraftType: "",
-      engineType: "",
-      engineManufacturer: "",
-      issueDate: "",
-      remarks: "",
+      tcAcceptanceCertNumber: "",
+      dateIssued: "",
+      tcHolder: "",
+      originalTcIssuedBy: "",
+      tcNumber: "",
+      remark: "",
     },
   });
 
@@ -69,30 +69,14 @@ const AcceptanceCertificateForm: React.FC<AcceptanceCertificateFormProps> = ({ o
     onCancel();
   };
 
-  // Mock data for dropdowns
-  const manufacturers = ["Boeing", "Airbus", "Bombardier", "Embraer"];
-  const aircraftTypes = ["737-800", "A350-900", "Q400", "E190"];
-  const engineManufacturers = ["CFM International", "Pratt & Whitney", "Rolls-Royce", "General Electric"];
+  // Mock data for dropdowns - from global operations
+  const aircraftManufacturers = ["Boeing", "Airbus", "Bombardier", "Embraer", "Cessna", "Piper"];
 
   return (
     <Card className="p-6 bg-white shadow-md">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <FormField
-              control={form.control}
-              name="certificateNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Certificate Number</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Enter certificate number" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
             <FormField
               control={form.control}
               name="aircraftManufacturer"
@@ -106,7 +90,7 @@ const AcceptanceCertificateForm: React.FC<AcceptanceCertificateFormProps> = ({ o
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {manufacturers.map((manufacturer) => (
+                      {aircraftManufacturers.map((manufacturer) => (
                         <SelectItem key={manufacturer} value={manufacturer}>
                           {manufacturer}
                         </SelectItem>
@@ -120,76 +104,12 @@ const AcceptanceCertificateForm: React.FC<AcceptanceCertificateFormProps> = ({ o
 
             <FormField
               control={form.control}
-              name="aircraftType"
+              name="tcAcceptanceCertNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Aircraft Type</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select aircraft type" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {aircraftTypes.map((type) => (
-                        <SelectItem key={type} value={type}>
-                          {type}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="engineType"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Engine Type</FormLabel>
+                  <FormLabel>TC Acceptance Approval Certificate Number</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Enter engine type" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="engineManufacturer"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Engine Manufacturer</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select engine manufacturer" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {engineManufacturers.map((manufacturer) => (
-                        <SelectItem key={manufacturer} value={manufacturer}>
-                          {manufacturer}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="issueDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Issue Date</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} />
+                    <Input {...field} placeholder="Enter TC acceptance approval certificate number" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -201,7 +121,7 @@ const AcceptanceCertificateForm: React.FC<AcceptanceCertificateFormProps> = ({ o
               name="certificateFile"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Upload Certificate</FormLabel>
+                  <FormLabel>TC Acceptance Approval Certificate (Upload)</FormLabel>
                   <FormControl>
                     <Input 
                       type="file" 
@@ -216,14 +136,81 @@ const AcceptanceCertificateForm: React.FC<AcceptanceCertificateFormProps> = ({ o
 
             <FormField
               control={form.control}
-              name="remarks"
+              name="dateIssued"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Date Issued</FormLabel>
+                  <FormControl>
+                    <Input type="date" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="tcHolder"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>TC Holder</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select TC holder" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {aircraftManufacturers.map((manufacturer) => (
+                        <SelectItem key={manufacturer} value={manufacturer}>
+                          {manufacturer}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="originalTcIssuedBy"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Original TC Issued by</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter original TC issuer" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="tcNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>TC Number</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter TC number" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="remark"
               render={({ field }) => (
                 <FormItem className="md:col-span-2">
-                  <FormLabel>Remarks</FormLabel>
+                  <FormLabel>Remark</FormLabel>
                   <FormControl>
                     <Textarea 
                       {...field} 
-                      placeholder="Enter any additional remarks" 
+                      placeholder="Enter remark" 
                       className="min-h-[100px]"
                     />
                   </FormControl>

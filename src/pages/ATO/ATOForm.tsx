@@ -23,13 +23,13 @@ import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
-  name: z.string().min(1, "Operator name is required"),
-  licenseNumber: z.string().min(1, "License number is required"),
-  licenseFile: z.any(),
-  operationType: z.string().min(1, "Operation type is required"),
-  initialDate: z.string().min(1, "Initial date is required"),
-  issueDate: z.string().min(1, "Issue date is required"),
-  validityDate: z.string().min(1, "Validity date is required"),
+  trainingOrganization: z.string().min(1, "Training organization is required"),
+  approvalNumber: z.string().min(1, "Approval number is required"),
+  certificateFile: z.any(),
+  dateOfInitialIssue: z.string().min(1, "Date of initial issue is required"),
+  dateOfLastRenewal: z.string().optional(),
+  expiryDate: z.string().min(1, "Expiry date is required"),
+  comment: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -43,12 +43,12 @@ const ATOForm = ({ editingId, onCancel }: ATOFormProps) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      licenseNumber: "",
-      initialDate: "",
-      issueDate: "",
-      validityDate: "",
-      operationType: "",
+      trainingOrganization: "",
+      approvalNumber: "",
+      dateOfInitialIssue: "",
+      dateOfLastRenewal: "",
+      expiryDate: "",
+      comment: "",
     },
   });
 
@@ -64,8 +64,8 @@ const ATOForm = ({ editingId, onCancel }: ATOFormProps) => {
     }
   };
 
-  // Mock data for dropdowns
-  const operationTypes = ["Training", "Certification", "Assessment"];
+  // Mock data for dropdowns - from Training Organization in global operations
+  const trainingOrganizations = ["Ethiopian Airlines Training Academy", "Kenya Airways Training Center", "Rwanda Aviation Academy", "Tanzania Civil Aviation Academy"];
 
   return (
     <Form {...form}>
@@ -73,12 +73,37 @@ const ATOForm = ({ editingId, onCancel }: ATOFormProps) => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
-            name="name"
+            name="trainingOrganization"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Operator Name</FormLabel>
+                <FormLabel>Training Organizations</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select training organization" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {trainingOrganizations.map((org) => (
+                      <SelectItem key={org} value={org}>
+                        {org}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="approvalNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Approval Number</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Enter operator name" />
+                  <Input {...field} placeholder="Enter approval number" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -87,24 +112,10 @@ const ATOForm = ({ editingId, onCancel }: ATOFormProps) => {
 
           <FormField
             control={form.control}
-            name="licenseNumber"
+            name="certificateFile"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>License Number</FormLabel>
-                <FormControl>
-                  <Input {...field} placeholder="Enter license number" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="licenseFile"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>License File</FormLabel>
+                <FormLabel>Upload Certificate</FormLabel>
                 <FormControl>
                   <Input 
                     type="file" 
@@ -119,35 +130,10 @@ const ATOForm = ({ editingId, onCancel }: ATOFormProps) => {
 
           <FormField
             control={form.control}
-            name="operationType"
+            name="dateOfInitialIssue"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Operation Type</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select operation type" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {operationTypes.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="initialDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Initial Date</FormLabel>
+                <FormLabel>Date of Initial Issue</FormLabel>
                 <FormControl>
                   <Input type="date" {...field} />
                 </FormControl>
@@ -158,10 +144,10 @@ const ATOForm = ({ editingId, onCancel }: ATOFormProps) => {
 
           <FormField
             control={form.control}
-            name="issueDate"
+            name="dateOfLastRenewal"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Issue Date</FormLabel>
+                <FormLabel>Date of Last Renewal</FormLabel>
                 <FormControl>
                   <Input type="date" {...field} />
                 </FormControl>
@@ -172,12 +158,26 @@ const ATOForm = ({ editingId, onCancel }: ATOFormProps) => {
 
           <FormField
             control={form.control}
-            name="validityDate"
+            name="expiryDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Validity Date</FormLabel>
+                <FormLabel>Expiry Date</FormLabel>
                 <FormControl>
                   <Input type="date" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="comment"
+            render={({ field }) => (
+              <FormItem className="md:col-span-2">
+                <FormLabel>Comment</FormLabel>
+                <FormControl>
+                  <Input {...field} placeholder="Enter comment" />
                 </FormControl>
                 <FormMessage />
               </FormItem>

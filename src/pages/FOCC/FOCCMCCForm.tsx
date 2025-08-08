@@ -26,16 +26,18 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const formSchema = z.object({
   operatorType: z.string().min(1, "Operator type is required"),
+  existingAocOperator: z.string().optional(),
   foccNumber: z.string().min(1, "FOCC number is required"),
   foccFile: z.any(),
   mccNumber: z.string().min(1, "MCC number is required"),
+  mccFile: z.any(),
   aircraftSerialNumber: z.string().min(1, "Aircraft serial number is required"),
   stateOfRegistry: z.string().min(1, "State of registry is required"),
   registeredOwner: z.string().min(1, "Registered owner is required"),
   aircraftManufacturer: z.string().min(1, "Aircraft manufacturer is required"),
   aircraftType: z.string().min(1, "Aircraft type is required"),
   aircraftRegNumber: z.string().min(1, "Aircraft registration number is required"),
-  firstIssueDate: z.string().min(1, "First issue date is required"),
+  dateOfFirstIssue: z.string().min(1, "Date of first issue is required"),
   renewalDate: z.string().min(1, "Renewal date is required"),
   validityDate: z.string().min(1, "Validity date is required"),
 });
@@ -54,6 +56,7 @@ const FOCCMCCForm: React.FC<FOCCMCCFormProps> = ({ onCancel, editingId }) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       operatorType: "existing_aoc",
+      existingAocOperator: "",
       foccNumber: "",
       mccNumber: "",
       aircraftSerialNumber: "",
@@ -62,7 +65,7 @@ const FOCCMCCForm: React.FC<FOCCMCCFormProps> = ({ onCancel, editingId }) => {
       aircraftManufacturer: "",
       aircraftType: "",
       aircraftRegNumber: "",
-      firstIssueDate: "",
+      dateOfFirstIssue: "",
       renewalDate: "",
       validityDate: "",
     },
@@ -79,11 +82,12 @@ const FOCCMCCForm: React.FC<FOCCMCCFormProps> = ({ onCancel, editingId }) => {
     onCancel();
   };
 
-  // Mock data for dropdowns
-  const countries = ["Ethiopia", "Kenya", "Tanzania", "Rwanda", "Uganda"];
-  const manufacturers = ["Boeing", "Airbus", "Bombardier", "Embraer"];
-  const aircraftTypes = ["737-800", "A350-900", "Q400", "E190"];
-  const registrationNumbers = ["ET-AOP", "ET-AOR", "ET-AOS", "ET-AOT"];
+  // Mock data for dropdowns - from global operations
+  const generalAviationOperators = ["Ethiopian Airlines", "Kenya Airways", "RwandAir", "Air Tanzania"];
+  const stateOfRegistryOptions = ["Ethiopia", "Kenya", "Tanzania", "Rwanda", "Uganda"];
+  const aircraftManufacturers = ["Boeing", "Airbus", "Bombardier", "Embraer"];
+  const aircraftTypes = ["Boeing 737-800", "Airbus A350-900", "Bombardier Q400", "Embraer E190"];
+  const aircraftRegistrationMarks = ["ET-AOP", "ET-AOR", "ET-AOS", "ET-AOT"];
 
   return (
     <Card className="p-6 bg-white shadow-md">
@@ -109,9 +113,9 @@ const FOCCMCCForm: React.FC<FOCCMCCFormProps> = ({ onCancel, editingId }) => {
                         </FormLabel>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="general_aviation" id="general_aviation" />
-                        <FormLabel htmlFor="general_aviation" className="font-normal">
-                          General Aviation
+                        <RadioGroupItem value="non_aoc_holder" id="non_aoc_holder" />
+                        <FormLabel htmlFor="non_aoc_holder" className="font-normal">
+                          Non- AOC Holder
                         </FormLabel>
                       </div>
                     </RadioGroup>
@@ -121,12 +125,39 @@ const FOCCMCCForm: React.FC<FOCCMCCFormProps> = ({ onCancel, editingId }) => {
               )}
             />
 
+            {form.watch("operatorType") === "existing_aoc" && (
+              <FormField
+                control={form.control}
+                name="existingAocOperator"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Existing AOC Operator</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select AOC operator" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {generalAviationOperators.map((operator) => (
+                          <SelectItem key={operator} value={operator}>
+                            {operator}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             <FormField
               control={form.control}
               name="foccNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>FOCC No.</FormLabel>
+                  <FormLabel>FOCC Number</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Enter FOCC number" />
                   </FormControl>
@@ -140,7 +171,7 @@ const FOCCMCCForm: React.FC<FOCCMCCFormProps> = ({ onCancel, editingId }) => {
               name="foccFile"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Upload FOCC</FormLabel>
+                  <FormLabel>FOCC Upload</FormLabel>
                   <FormControl>
                     <Input 
                       type="file" 
@@ -158,9 +189,27 @@ const FOCCMCCForm: React.FC<FOCCMCCFormProps> = ({ onCancel, editingId }) => {
               name="mccNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>MCC No.</FormLabel>
+                  <FormLabel>MCC Number</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Enter MCC number" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="mccFile"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>MCC Upload</FormLabel>
+                  <FormControl>
+                    <Input 
+                      type="file" 
+                      onChange={(e) => field.onChange(e.target.files?.[0])} 
+                      className="cursor-pointer"
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -172,7 +221,7 @@ const FOCCMCCForm: React.FC<FOCCMCCFormProps> = ({ onCancel, editingId }) => {
               name="aircraftSerialNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Aircraft Serial No.</FormLabel>
+                  <FormLabel>Aircraft Serial Number</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Enter aircraft serial number" />
                   </FormControl>
@@ -194,9 +243,9 @@ const FOCCMCCForm: React.FC<FOCCMCCFormProps> = ({ onCancel, editingId }) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {countries.map((country) => (
-                        <SelectItem key={country} value={country}>
-                          {country}
+                      {stateOfRegistryOptions.map((state) => (
+                        <SelectItem key={state} value={state}>
+                          {state}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -233,7 +282,7 @@ const FOCCMCCForm: React.FC<FOCCMCCFormProps> = ({ onCancel, editingId }) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {manufacturers.map((manufacturer) => (
+                      {aircraftManufacturers.map((manufacturer) => (
                         <SelectItem key={manufacturer} value={manufacturer}>
                           {manufacturer}
                         </SelectItem>
@@ -275,7 +324,7 @@ const FOCCMCCForm: React.FC<FOCCMCCFormProps> = ({ onCancel, editingId }) => {
               name="aircraftRegNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Aircraft Reg No.</FormLabel>
+                  <FormLabel>Aircraft Reg Number</FormLabel>
                   <Select onValueChange={field.onChange} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
@@ -283,7 +332,7 @@ const FOCCMCCForm: React.FC<FOCCMCCFormProps> = ({ onCancel, editingId }) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {registrationNumbers.map((regNumber) => (
+                      {aircraftRegistrationMarks.map((regNumber) => (
                         <SelectItem key={regNumber} value={regNumber}>
                           {regNumber}
                         </SelectItem>
@@ -297,10 +346,10 @@ const FOCCMCCForm: React.FC<FOCCMCCFormProps> = ({ onCancel, editingId }) => {
 
             <FormField
               control={form.control}
-              name="firstIssueDate"
+              name="dateOfFirstIssue"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>First Issue Date</FormLabel>
+                  <FormLabel>Date of First Issue</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
                   </FormControl>

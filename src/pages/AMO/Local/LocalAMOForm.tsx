@@ -16,14 +16,22 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const formSchema = z.object({
   holderCriteria: z.string().min(1, "Holder criteria is required"),
-  approvalNumber: z.string().min(1, "AMO approval number is required"),
-  approvalFile: z.any(),
+  amoHolder: z.string().optional(),
+  amoApprovalNumber: z.string().min(1, "AMO approval number is required"),
+  amoApprovalUpload: z.any(),
   maintenanceLocation: z.string().min(1, "Maintenance location is required"),
-  expireDate: z.string().min(1, "Expire date is required"),
-  pmApprovalFile: z.any(),
+  expiryDate: z.string().min(1, "Expiry date is required"),
+  amoApprovalFile: z.any(),
   extension: z.string().optional(),
 });
 
@@ -40,10 +48,11 @@ const LocalAMOForm: React.FC<LocalAMOFormProps> = ({ onCancel, editingId }) => {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      holderCriteria: "existing_aoc",
-      approvalNumber: "",
+      holderCriteria: "non_aoc_holder",
+      amoHolder: "",
+      amoApprovalNumber: "",
       maintenanceLocation: "",
-      expireDate: "",
+      expiryDate: "",
       extension: "",
     },
   });
@@ -77,15 +86,15 @@ const LocalAMOForm: React.FC<LocalAMOFormProps> = ({ onCancel, editingId }) => {
                       className="flex flex-col space-y-1"
                     >
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="existing_aoc" id="existing_aoc" />
-                        <FormLabel htmlFor="existing_aoc" className="font-normal">
-                          Existing AOC
+                        <RadioGroupItem value="non_aoc_holder" id="non_aoc_holder" />
+                        <FormLabel htmlFor="non_aoc_holder" className="font-normal">
+                          Non- AOC Holder
                         </FormLabel>
                       </div>
                       <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="non_aoc" id="non_aoc" />
-                        <FormLabel htmlFor="non_aoc" className="font-normal">
-                          Non AOC holder
+                        <RadioGroupItem value="existing_aoc" id="existing_aoc" />
+                        <FormLabel htmlFor="existing_aoc" className="font-normal">
+                          Existing AOC
                         </FormLabel>
                       </div>
                     </RadioGroup>
@@ -95,12 +104,39 @@ const LocalAMOForm: React.FC<LocalAMOFormProps> = ({ onCancel, editingId }) => {
               )}
             />
 
+            {form.watch("holderCriteria") === "existing_aoc" && (
+              <FormField
+                control={form.control}
+                name="amoHolder"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>AMO Holder</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select general aviation operator" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {["Ethiopian Airlines", "Kenya Airways", "RwandAir", "Air Tanzania"].map((operator) => (
+                          <SelectItem key={operator} value={operator}>
+                            {operator}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             <FormField
               control={form.control}
-              name="approvalNumber"
+              name="amoApprovalNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>AMO approval No.</FormLabel>
+                  <FormLabel>AMO Approval Number</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Enter AMO approval number" />
                   </FormControl>
@@ -111,10 +147,10 @@ const LocalAMOForm: React.FC<LocalAMOFormProps> = ({ onCancel, editingId }) => {
 
             <FormField
               control={form.control}
-              name="approvalFile"
+              name="amoApprovalUpload"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Upload AMO Approval</FormLabel>
+                  <FormLabel>AMO Approval Upload</FormLabel>
                   <FormControl>
                     <Input 
                       type="file" 
@@ -132,9 +168,9 @@ const LocalAMOForm: React.FC<LocalAMOFormProps> = ({ onCancel, editingId }) => {
               name="maintenanceLocation"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Maintenance Location</FormLabel>
+                  <FormLabel>Maintenance Locations</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Enter maintenance location" />
+                    <Input {...field} placeholder="Enter maintenance locations" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -143,10 +179,10 @@ const LocalAMOForm: React.FC<LocalAMOFormProps> = ({ onCancel, editingId }) => {
 
             <FormField
               control={form.control}
-              name="expireDate"
+              name="expiryDate"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Expire Date</FormLabel>
+                  <FormLabel>Expiry Date</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
                   </FormControl>
@@ -157,7 +193,7 @@ const LocalAMOForm: React.FC<LocalAMOFormProps> = ({ onCancel, editingId }) => {
 
             <FormField
               control={form.control}
-              name="pmApprovalFile"
+              name="amoApprovalFile"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Upload AMO PM APRVL PG & LEP</FormLabel>

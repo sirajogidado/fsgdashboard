@@ -20,20 +20,18 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
 
 const formSchema = z.object({
   aocHolder: z.string().min(1, "AOC holder is required"),
-  aircraftType: z.string().min(1, "Aircraft type is required"),
-  certificateNumber: z.string().min(1, "Certificate number is required"),
+  aocCertificate: z.string().min(1, "AOC certificate is required"),
   certificateFile: z.any(),
   issueDate: z.string().min(1, "Issue date is required"),
   validityDate: z.string().min(1, "Validity date is required"),
   opsSpecs: z.any(),
   partG: z.any(),
-  remarks: z.string().optional(),
-  operations: z.string().min(1, "Operation type is required"),
+  status: z.string().min(1, "Status is required"),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -94,12 +92,10 @@ const AOCForm = ({ onCancel, editingId }: AOCFormProps) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       aocHolder: "",
-      aircraftType: "",
-      certificateNumber: "",
+      aocCertificate: "",
       issueDate: "",
       validityDate: "",
-      remarks: "",
-      operations: "",
+      status: "active",
     },
   });
 
@@ -109,23 +105,19 @@ const AOCForm = ({ onCancel, editingId }: AOCFormProps) => {
       if (aoc) {
         form.reset({
           aocHolder: aoc.aocHolder,
-          aircraftType: aoc.aircraftType,
-          certificateNumber: aoc.certificateNumber,
+          aocCertificate: aoc.certificateNumber,
           issueDate: aoc.issueDate,
           validityDate: aoc.validityDate,
-          remarks: aoc.remarks || "",
-          operations: aoc.operations,
+          status: "active",
         });
       }
     } else {
       form.reset({
         aocHolder: "",
-        aircraftType: "",
-        certificateNumber: "",
+        aocCertificate: "",
         issueDate: "",
         validityDate: "",
-        remarks: "",
-        operations: "",
+        status: "active",
       });
     }
   }, [editingId, form]);
@@ -141,10 +133,9 @@ const AOCForm = ({ onCancel, editingId }: AOCFormProps) => {
     onCancel();
   };
 
-  // Mock data for dropdowns - in a real app these would come from an API
-  const aocHolders = ["Airline A", "Airline B", "Airline C"];
-  const aircraftTypes = ["Boeing 737", "Airbus A320", "Embraer E190"];
-  const operationTypes = ["Commercial", "Private", "Cargo"];
+  // Mock data for dropdowns - in a real app these would come from global operations
+  const generalAviationOperators = ["Ethiopian Airlines", "Kenya Airways", "RwandAir", "Air Tanzania"];
+  const statusOptions = ["Active", "Suspended", "Expired", "Revoked"];
 
   return (
     <Form {...form}>
@@ -163,7 +154,7 @@ const AOCForm = ({ onCancel, editingId }: AOCFormProps) => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {aocHolders.map((holder) => (
+                    {generalAviationOperators.map((holder) => (
                       <SelectItem key={holder} value={holder}>
                         {holder}
                       </SelectItem>
@@ -177,37 +168,12 @@ const AOCForm = ({ onCancel, editingId }: AOCFormProps) => {
 
           <FormField
             control={form.control}
-            name="aircraftType"
+            name="aocCertificate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Aircraft Type</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select aircraft type" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {aircraftTypes.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="certificateNumber"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Certificate Number</FormLabel>
+                <FormLabel>AOC Certificate</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Enter certificate number" />
+                  <Input {...field} placeholder="Enter AOC certificate" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -219,7 +185,7 @@ const AOCForm = ({ onCancel, editingId }: AOCFormProps) => {
             name="certificateFile"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Certificate File</FormLabel>
+                <FormLabel>AOC Certificate (Upload)</FormLabel>
                 <FormControl>
                   <Input 
                     type="file" 
@@ -237,7 +203,7 @@ const AOCForm = ({ onCancel, editingId }: AOCFormProps) => {
             name="issueDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Issue Date</FormLabel>
+                <FormLabel>Issued Date</FormLabel>
                 <FormControl>
                   <Input type="date" {...field} />
                 </FormControl>
@@ -265,7 +231,7 @@ const AOCForm = ({ onCancel, editingId }: AOCFormProps) => {
             name="opsSpecs"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Ops Specs</FormLabel>
+                <FormLabel>OPS Specs (Upload)</FormLabel>
                 <FormControl>
                   <Input 
                     type="file" 
@@ -283,7 +249,7 @@ const AOCForm = ({ onCancel, editingId }: AOCFormProps) => {
             name="partG"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Part G</FormLabel>
+                <FormLabel>Part G (Upload)</FormLabel>
                 <FormControl>
                   <Input 
                     type="file" 
@@ -298,41 +264,25 @@ const AOCForm = ({ onCancel, editingId }: AOCFormProps) => {
 
           <FormField
             control={form.control}
-            name="operations"
+            name="status"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Operations</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select operation type" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {operationTypes.map((type) => (
-                      <SelectItem key={type} value={type}>
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="remarks"
-            render={({ field }) => (
-              <FormItem className="md:col-span-2">
-                <FormLabel>Remarks</FormLabel>
+              <FormItem className="space-y-3">
+                <FormLabel>Status</FormLabel>
                 <FormControl>
-                  <Textarea 
-                    {...field} 
-                    placeholder="Enter any additional remarks" 
-                    className="min-h-[100px]"
-                  />
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="flex flex-col space-y-1"
+                  >
+                    {statusOptions.map((status) => (
+                      <div key={status} className="flex items-center space-x-2">
+                        <RadioGroupItem value={status.toLowerCase()} id={status.toLowerCase()} />
+                        <FormLabel htmlFor={status.toLowerCase()} className="font-normal">
+                          {status}
+                        </FormLabel>
+                      </div>
+                    ))}
+                  </RadioGroup>
                 </FormControl>
                 <FormMessage />
               </FormItem>

@@ -26,9 +26,10 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const formSchema = z.object({
   aocHolder: z.string().min(1, "AOC holder is required"),
+  aircraftMaker: z.string().min(1, "Aircraft maker is required"),
   registrationMark: z.string().min(1, "Registration mark is required"),
-  serialNumber: z.string().min(1, "Serial number is required"),
   aircraftType: z.string().min(1, "Aircraft type is required"),
+  aircraftSerialNumber: z.string().min(1, "Aircraft serial number is required"),
   yearOfManufacture: z.string().min(1, "Year of manufacture is required"),
   currentRegistrationDate: z.string().min(1, "Current registration date is required"),
   registeredOwner: z.string().min(1, "Registered owner is required"),
@@ -36,7 +37,6 @@ const formSchema = z.object({
   cofaFile: z.any(),
   weight: z.string().min(1, "Weight is required"),
   majorChecks: z.string().min(1, "Major checks are required"),
-  serviceabilityStatus: z.string().min(1, "Aircraft serviceability status is required"),
   corFile: z.any(),
   noiseCertFile: z.any(),
   modeSFile: z.any(),
@@ -60,16 +60,16 @@ const ACStatusForm: React.FC<ACStatusFormProps> = ({ onCancel, editingId }) => {
     resolver: zodResolver(formSchema),
     defaultValues: {
       aocHolder: "",
+      aircraftMaker: "",
       registrationMark: "",
-      serialNumber: "",
       aircraftType: "",
+      aircraftSerialNumber: "",
       yearOfManufacture: "",
       currentRegistrationDate: "",
       registeredOwner: "",
       cofaStatus: "",
       weight: "",
       majorChecks: "",
-      serviceabilityStatus: "",
       rvsm: "no",
       pbn: "no",
       lvo: "no",
@@ -88,10 +88,11 @@ const ACStatusForm: React.FC<ACStatusFormProps> = ({ onCancel, editingId }) => {
     onCancel();
   };
 
-  // Mock data for dropdowns
-  const aocHolders = ["Ethiopian Airlines", "Kenya Airways", "RwandAir", "Air Tanzania"];
-  const registrationMarks = ["ET-AOP", "ET-AOR", "ET-AOS", "ET-AOT"];
-  const aircraftTypes = ["Boeing 737", "Boeing 777", "Airbus A350", "Bombardier Q400"];
+  // Mock data for dropdowns - from global operations
+  const generalAviationOperators = ["Ethiopian Airlines", "Kenya Airways", "RwandAir", "Air Tanzania"];
+  const aircraftManufacturers = ["Boeing", "Airbus", "Bombardier", "Embraer"];
+  const aircraftTypes = ["Boeing 737-800", "Boeing 777-300ER", "Airbus A350-900", "Bombardier Q400"];
+  const years = Array.from({ length: 30 }, (_, i) => new Date().getFullYear() - i);
 
   return (
     <Card className="p-6 bg-white shadow-md">
@@ -111,9 +112,34 @@ const ACStatusForm: React.FC<ACStatusFormProps> = ({ onCancel, editingId }) => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent>
-                      {aocHolders.map((holder) => (
+                      {generalAviationOperators.map((holder) => (
                         <SelectItem key={holder} value={holder}>
                           {holder}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="aircraftMaker"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Aircraft Maker operated by AOC holder</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select aircraft manufacturer" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {aircraftManufacturers.map((maker) => (
+                        <SelectItem key={maker} value={maker}>
+                          {maker}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -129,33 +155,8 @@ const ACStatusForm: React.FC<ACStatusFormProps> = ({ onCancel, editingId }) => {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Registration Mark</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select registration mark" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {registrationMarks.map((mark) => (
-                        <SelectItem key={mark} value={mark}>
-                          {mark}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="serialNumber"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Serial Number</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Enter serial number" />
+                    <Input {...field} placeholder="Enter registration mark" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -189,13 +190,38 @@ const ACStatusForm: React.FC<ACStatusFormProps> = ({ onCancel, editingId }) => {
 
             <FormField
               control={form.control}
+              name="aircraftSerialNumber"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Aircraft Serial Number</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Enter aircraft serial number" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="yearOfManufacture"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Year of Manufacture</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Enter year of manufacture" />
-                  </FormControl>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select year of manufacture" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {years.map((year) => (
+                        <SelectItem key={year} value={year.toString()}>
+                          {year}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
               )}
@@ -234,7 +260,7 @@ const ACStatusForm: React.FC<ACStatusFormProps> = ({ onCancel, editingId }) => {
               name="cofaStatus"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>C of A Status Date</FormLabel>
+                  <FormLabel>C of A Status</FormLabel>
                   <FormControl>
                     <Input type="date" {...field} />
                   </FormControl>
@@ -266,9 +292,9 @@ const ACStatusForm: React.FC<ACStatusFormProps> = ({ onCancel, editingId }) => {
               name="weight"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Weight (kg)</FormLabel>
+                  <FormLabel>Weight</FormLabel>
                   <FormControl>
-                    <Input {...field} placeholder="Enter weight in kg" />
+                    <Input {...field} placeholder="Enter weight" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -280,23 +306,9 @@ const ACStatusForm: React.FC<ACStatusFormProps> = ({ onCancel, editingId }) => {
               name="majorChecks"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Major Checks</FormLabel>
+                  <FormLabel>Major checks</FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Enter major checks" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="serviceabilityStatus"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Aircraft Serviceability Status</FormLabel>
-                  <FormControl>
-                    <Input {...field} placeholder="Enter serviceability status" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
