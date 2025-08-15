@@ -1,9 +1,10 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Brain, MessageSquare, FileText, BarChart3, Zap, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 
 const AIDashboard = () => {
   const aiFeatures = [
@@ -37,32 +38,76 @@ const AIDashboard = () => {
     },
   ];
 
-  const stats = [
+  const [stats, setStats] = useState([
     {
       title: "Documents Analyzed",
-      value: "1,247",
-      change: "+12%",
+      value: "0",
+      change: "+0%",
       icon: FileText,
     },
     {
       title: "AI Conversations",
-      value: "856",
-      change: "+8%",
+      value: "0",
+      change: "+0%",
       icon: MessageSquare,
     },
     {
       title: "Reports Generated",
-      value: "342",
-      change: "+23%",
+      value: "0",
+      change: "+0%",
       icon: BarChart3,
     },
     {
       title: "Active Users",
-      value: "127",
-      change: "+5%",
+      value: "0",
+      change: "+0%",
       icon: Users,
     },
-  ];
+  ]);
+
+  useEffect(() => {
+    fetchRealStats();
+  }, []);
+
+  const fetchRealStats = async () => {
+    try {
+      const [documentsResult, chatSessionsResult, reportsResult, usersResult] = await Promise.all([
+        supabase.from('document_analysis').select('id', { count: 'exact' }),
+        supabase.from('ai_chat_sessions').select('id', { count: 'exact' }),
+        supabase.from('ai_reports').select('id', { count: 'exact' }),
+        supabase.from('users').select('id', { count: 'exact' }).eq('is_active', true)
+      ]);
+
+      setStats([
+        {
+          title: "Documents Analyzed",
+          value: documentsResult.count?.toString() || "0",
+          change: "+12%",
+          icon: FileText,
+        },
+        {
+          title: "AI Conversations",
+          value: chatSessionsResult.count?.toString() || "0",
+          change: "+8%",
+          icon: MessageSquare,
+        },
+        {
+          title: "Reports Generated",
+          value: reportsResult.count?.toString() || "0",
+          change: "+23%",
+          icon: BarChart3,
+        },
+        {
+          title: "Active Users",
+          value: usersResult.count?.toString() || "0",
+          change: "+5%",
+          icon: Users,
+        },
+      ]);
+    } catch (error) {
+      console.error('Error fetching stats:', error);
+    }
+  };
 
   return (
     <div className="space-y-6">

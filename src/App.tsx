@@ -42,6 +42,7 @@ import ForeignRegistrationMarkPage from "./pages/Global/ForeignRegistrationMark/
 import GeneralAviationPage from "./pages/Global/GeneralAviation/GeneralAviationPage";
 import OperationTypePage from "./pages/Global/OperationType/OperationTypePage";
 import UserRolesPage from "./pages/Global/UserRoles/UserRolesPage";
+import DirectoratePage from "./pages/Global/Directorate/DirectoratePage";
 import GlobalForeignAMOPage from "./pages/Global/ForeignAMO/ForeignAMOPage";
 import StateOfRegistryPage from "./pages/Global/StateOfRegistry/StateOfRegistryPage";
 import TrainingOrganizationPage from "./pages/Global/TrainingOrganization/TrainingOrganizationPage";
@@ -272,6 +273,14 @@ function App() {
                   element={
                     <ProtectedRoute requiredRole="Super User">
                       <UserRolesPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="global/directorate" 
+                  element={
+                    <ProtectedRoute requiredRole="Super User">
+                      <DirectoratePage />
                     </ProtectedRoute>
                   } 
                 />

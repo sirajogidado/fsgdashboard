@@ -19,6 +19,7 @@ import {
   MessageSquare,
   BarChart3,
   Zap,
+  Building,
 } from "lucide-react";
 import {
   Collapsible,
@@ -203,17 +204,30 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
               </Link>
             </li>
             {user?.role === "Super User" && (
-              <li>
-                <Link
-                  to="/users"
-                  className={cn(
-                    "flex items-center justify-center p-2 rounded-md hover:bg-white/10",
-                    isActive("/users") && "bg-white/20"
-                  )}
-                >
-                  <Users className="h-6 w-6" />
-                </Link>
-              </li>
+              <>
+                <li>
+                  <Link
+                    to="/users"
+                    className={cn(
+                      "flex items-center justify-center p-2 rounded-md hover:bg-white/10",
+                      isActive("/users") && "bg-white/20"
+                    )}
+                  >
+                    <Users className="h-6 w-6" />
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/global/directorate"
+                    className={cn(
+                      "flex items-center justify-center p-2 rounded-md hover:bg-white/10",
+                      isActive("/global/directorate") && "bg-white/20"
+                    )}
+                  >
+                    <Building className="h-6 w-6" />
+                  </Link>
+                </li>
+              </>
             )}
           </ul>
         </nav>
@@ -452,6 +466,15 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                     )}
                   >
                     User Roles
+                  </Link>
+                  <Link
+                    to="/global/directorate"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/global/directorate") && "bg-white/10"
+                    )}
+                  >
+                    Directorates
                   </Link>
                 </CollapsibleContent>
               </Collapsible>

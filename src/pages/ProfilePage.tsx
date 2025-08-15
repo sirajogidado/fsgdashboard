@@ -1,32 +1,54 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { Camera, User } from "lucide-react";
 
 const ProfilePage = () => {
   const { user } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [directorates, setDirectorates] = useState<any[]>([]);
   const [profileData, setProfileData] = useState({
     name: user?.name || "",
     email: user?.email || "",
     phoneNumber: user?.phoneNumber || "",
-    profileImage: user?.profileImage || "/placeholder.svg"
+    profileImage: user?.profileImage || "/placeholder.svg",
+    directorate: user?.directorate || ""
   });
 
   const isSuperUser = user?.role === "Super User";
+
+  useEffect(() => {
+    fetchDirectorates();
+  }, []);
+
+  const fetchDirectorates = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('directorates')
+        .select('*')
+        .order('directorate_name');
+
+      if (error) throw error;
+      setDirectorates(data || []);
+    } catch (error) {
+      console.error('Error fetching directorates:', error);
+    }
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setProfileData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       if (file.size > 5 * 1024 * 1024) { // 5MB limit
@@ -38,18 +60,40 @@ const ProfilePage = () => {
         return;
       }
 
-      const reader = new FileReader();
-      reader.onload = (event) => {
+      try {
+        // Upload to Supabase storage
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${user?.id || 'user'}_${Date.now()}.${fileExt}`;
+        const filePath = `avatars/${fileName}`;
+
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('documents')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        // Get public URL
+        const { data: { publicUrl } } = supabase.storage
+          .from('documents')
+          .getPublicUrl(filePath);
+
         setProfileData(prev => ({ 
           ...prev, 
-          profileImage: event.target?.result as string 
+          profileImage: publicUrl 
         }));
+
         toast({
           title: "Image uploaded",
           description: "Your profile image has been updated.",
         });
-      };
-      reader.readAsDataURL(file);
+      } catch (error: any) {
+        console.error('Error uploading image:', error);
+        toast({
+          title: "Upload failed",
+          description: error.message || "Failed to upload image",
+          variant: "destructive",
+        });
+      }
     }
   };
 
@@ -66,7 +110,8 @@ const ProfilePage = () => {
       name: user?.name || "",
       email: user?.email || "",
       phoneNumber: user?.phoneNumber || "",
-      profileImage: user?.profileImage || "/placeholder.svg"
+      profileImage: user?.profileImage || "/placeholder.svg",
+      directorate: user?.directorate || ""
     });
     setIsEditing(false);
   };
@@ -184,10 +229,31 @@ const ProfilePage = () => {
             </div>
 
             <div className="space-y-2">
-              <Label>Directorate</Label>
-              <Badge variant="outline" className="bg-gray-100">
-                {user.directorate}
-              </Badge>
+              <Label htmlFor="directorate">Directorate</Label>
+              {isEditing && isSuperUser ? (
+                <Select
+                  value={profileData.directorate}
+                  onValueChange={(value) => setProfileData(prev => ({ ...prev, directorate: value }))}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select directorate" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-white z-50">
+                    {directorates.map((dir) => (
+                      <SelectItem key={dir.id} value={dir.directorate_name}>
+                        {dir.directorate_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Badge variant="outline" className="bg-gray-100">
+                  {user?.directorate}
+                </Badge>
+              )}
+              {!isSuperUser && (
+                <p className="text-xs text-gray-500">Only Super Users can edit directorate</p>
+              )}
             </div>
           </div>
 

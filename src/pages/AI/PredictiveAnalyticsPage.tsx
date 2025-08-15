@@ -1,9 +1,45 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { BarChart3, TrendingUp, AlertTriangle, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { BarChart3, TrendingUp, AlertTriangle, Calendar, RefreshCw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 const PredictiveAnalyticsPage = () => {
+  const [analytics, setAnalytics] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const generateAnalytics = async () => {
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('predictive-analytics', {
+        body: { analysisType: 'compliance_forecast' }
+      });
+
+      if (error) throw error;
+      setAnalytics(data);
+      
+      toast({
+        title: "Analytics Generated",
+        description: "Predictive analytics have been updated with latest data.",
+      });
+    } catch (error: any) {
+      console.error('Error generating analytics:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate analytics",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    generateAnalytics();
+  }, []);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-3">

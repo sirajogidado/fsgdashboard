@@ -1,9 +1,11 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { MessageSquare, Send, Bot, User } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 interface Message {
   id: string;
@@ -22,9 +24,49 @@ const AIChatPage = () => {
     },
   ]);
   const [inputMessage, setInputMessage] = useState("");
+  const [sessionId, setSessionId] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSendMessage = () => {
-    if (!inputMessage.trim()) return;
+  useEffect(() => {
+    initializeSession();
+  }, []);
+
+  const initializeSession = async () => {
+    try {
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "Please log in to use the chat",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data, error } = await supabase
+        .from('ai_chat_sessions')
+        .insert({ 
+          session_name: 'Aviation Compliance Chat',
+          user_id: user.id 
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      setSessionId(data.id);
+    } catch (error) {
+      console.error('Error initializing session:', error);
+      toast({
+        title: "Error",
+        description: "Failed to initialize chat session",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSendMessage = async () => {
+    if (!inputMessage.trim() || !sessionId || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -34,19 +76,45 @@ const AIChatPage = () => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    setInputMessage("");
+    setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
+    try {
+      const { data, error } = await supabase.functions.invoke('ai-chat', {
+        body: {
+          message: inputMessage,
+          sessionId: sessionId
+        }
+      });
+
+      if (error) throw error;
+
       const aiResponse: Message = {
         id: (Date.now() + 1).toString(),
-        content: "I understand your question about aviation compliance. Let me help you with that information.",
+        content: data.message,
         sender: "ai",
         timestamp: new Date(),
       };
       setMessages(prev => [...prev, aiResponse]);
-    }, 1000);
-
-    setInputMessage("");
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send message. Please try again.",
+        variant: "destructive",
+      });
+      
+      // Add error message to chat
+      const errorResponse: Message = {
+        id: (Date.now() + 1).toString(),
+        content: "I'm sorry, I'm having trouble connecting right now. Please try again.",
+        sender: "ai",
+        timestamp: new Date(),
+      };
+      setMessages(prev => [...prev, errorResponse]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -108,7 +176,7 @@ const AIChatPage = () => {
               placeholder="Ask about aviation compliance, regulations, or procedures..."
               onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
             />
-            <Button onClick={handleSendMessage}>
+            <Button onClick={handleSendMessage} disabled={isLoading || !sessionId}>
               <Send className="h-4 w-4" />
             </Button>
           </div>
