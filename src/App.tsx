@@ -36,6 +36,7 @@ import AircraftManufacturerPage from "./pages/Global/AircraftManufacturer/Aircra
 import AircraftTypePage from "./pages/Global/AircraftType/AircraftTypePage";
 import FOCCMCCPage from "./pages/FOCC/FOCCMCCPage";
 import AcceptanceCertificatePage from "./pages/AcceptanceCertificate/AcceptanceCertificatePage";
+import DAASPage from "./pages/DAAS/DAASPage";
 
 // Global Operations Pages
 import ForeignRegistrationMarkPage from "./pages/Global/ForeignRegistrationMark/ForeignRegistrationMarkPage";
@@ -145,6 +146,16 @@ function App() {
                   element={
                     <ProtectedRoute requiredDirectorate="DAWS">
                       <AOCPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                
+                {/* DAAS Module - DAAS only */}
+                <Route 
+                  path="daas" 
+                  element={
+                    <ProtectedRoute requiredDirectorate="DAAS">
+                      <DAASPage />
                     </ProtectedRoute>
                   } 
                 />

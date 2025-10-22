@@ -141,17 +141,30 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
               </li>
             )}
             {hasAccess("DAAS") && (
-              <li>
-                <Link
-                  to="/ato"
-                  className={cn(
-                    "flex items-center px-3 py-2 rounded-md hover:bg-white/10",
-                    isActive("/ato") && "bg-white/20"
-                  )}
-                >
-                  <GraduationCap className="h-6 w-6" />
-                </Link>
-              </li>
+              <>
+                <li>
+                  <Link
+                    to="/daas"
+                    className={cn(
+                      "flex items-center justify-center p-2 rounded-md hover:bg-white/10",
+                      isActive("/daas") && "bg-white/20"
+                    )}
+                  >
+                    <Building className="h-6 w-6" />
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/ato"
+                    className={cn(
+                      "flex items-center px-3 py-2 rounded-md hover:bg-white/10",
+                      isActive("/ato") && "bg-white/20"
+                    )}
+                  >
+                    <GraduationCap className="h-6 w-6" />
+                  </Link>
+                </li>
+              </>
             )}
             {hasAccess("DOLTS") && (
               <li>
@@ -497,18 +510,32 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
           )}
 
           {hasAccess("DAAS") && (
-            <li>
-              <Link
-                to="/ato"
-                className={cn(
-                  "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
-                  isActive("/ato") && "bg-white/20"
-                )}
-              >
-                <GraduationCap className="h-5 w-5 mr-3" />
-                <span>ATO</span>
-              </Link>
-            </li>
+            <>
+              <li>
+                <Link
+                  to="/daas"
+                  className={cn(
+                    "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
+                    isActive("/daas") && "bg-white/20"
+                  )}
+                >
+                  <Building className="h-5 w-5 mr-3" />
+                  <span>DAAS Module</span>
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/ato"
+                  className={cn(
+                    "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
+                    isActive("/ato") && "bg-white/20"
+                  )}
+                >
+                  <GraduationCap className="h-5 w-5 mr-3" />
+                  <span>ATO</span>
+                </Link>
+              </li>
+            </>
           )}
 
           {hasAccess("DOLTS") && (
