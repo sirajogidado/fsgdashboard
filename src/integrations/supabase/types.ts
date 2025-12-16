@@ -14,6 +14,72 @@ export type Database = {
   }
   public: {
     Tables: {
+      aerodrome_certifications: {
+        Row: {
+          aerodrome_name: string
+          category: string | null
+          certificate_number: string
+          certificate_type: string
+          certificate_url: string | null
+          comments: string | null
+          created_at: string
+          expiry_date: string
+          icao_code: string | null
+          id: string
+          issue_date: string
+          last_inspection_date: string | null
+          location: string
+          next_inspection_date: string | null
+          operator_name: string
+          runway_count: number | null
+          runway_length: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          aerodrome_name: string
+          category?: string | null
+          certificate_number: string
+          certificate_type: string
+          certificate_url?: string | null
+          comments?: string | null
+          created_at?: string
+          expiry_date: string
+          icao_code?: string | null
+          id?: string
+          issue_date: string
+          last_inspection_date?: string | null
+          location: string
+          next_inspection_date?: string | null
+          operator_name: string
+          runway_count?: number | null
+          runway_length?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          aerodrome_name?: string
+          category?: string | null
+          certificate_number?: string
+          certificate_type?: string
+          certificate_url?: string | null
+          comments?: string | null
+          created_at?: string
+          expiry_date?: string
+          icao_code?: string | null
+          id?: string
+          issue_date?: string
+          last_inspection_date?: string | null
+          location?: string
+          next_inspection_date?: string | null
+          operator_name?: string
+          runway_count?: number | null
+          runway_length?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ai_chat_messages: {
         Row: {
           content: string
@@ -338,7 +404,7 @@ export type Database = {
           created_at: string
           description: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           module: string
           new_values: Json | null
           old_values: Json | null
@@ -353,7 +419,7 @@ export type Database = {
           created_at?: string
           description: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           module: string
           new_values?: Json | null
           old_values?: Json | null
@@ -368,7 +434,7 @@ export type Database = {
           created_at?: string
           description?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           module?: string
           new_values?: Json | null
           old_values?: Json | null
@@ -1168,10 +1234,7 @@ export type Database = {
         Args: { registration_id: string }
         Returns: undefined
       }
-      check_certificate_expiry: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      check_certificate_expiry: { Args: never; Returns: undefined }
       log_audit_trail: {
         Args: {
           p_action: string

@@ -42,6 +42,7 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
     amo: false,
     ai: false,
     economicLicense: false,
+    daas: false,
   });
 
   const toggleMenu = (menu: string) => {
@@ -141,30 +142,17 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
               </li>
             )}
             {hasAccess("DAAS") && (
-              <>
-                <li>
-                  <Link
-                    to="/daas"
-                    className={cn(
-                      "flex items-center justify-center p-2 rounded-md hover:bg-white/10",
-                      isActive("/daas") && "bg-white/20"
-                    )}
-                  >
-                    <Building className="h-6 w-6" />
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/ato"
-                    className={cn(
-                      "flex items-center px-3 py-2 rounded-md hover:bg-white/10",
-                      isActive("/ato") && "bg-white/20"
-                    )}
-                  >
-                    <GraduationCap className="h-6 w-6" />
-                  </Link>
-                </li>
-              </>
+              <li>
+                <button
+                  onClick={() => toggleMenu("daas")}
+                  className={cn(
+                    "flex items-center justify-center p-2 rounded-md hover:bg-white/10 w-full",
+                    openMenus.daas && "bg-white/20"
+                  )}
+                >
+                  <Building className="h-6 w-6" />
+                </button>
+              </li>
             )}
             {hasAccess("DOLTS") && (
               <li>
@@ -510,32 +498,60 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
           )}
 
           {hasAccess("DAAS") && (
-            <>
-              <li>
-                <Link
-                  to="/daas"
+            <li>
+              <Collapsible
+                open={openMenus.daas}
+                onOpenChange={() => toggleMenu("daas")}
+                className="w-full"
+              >
+                <CollapsibleTrigger
                   className={cn(
-                    "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
-                    isActive("/daas") && "bg-white/20"
+                    "flex items-center justify-between px-3 py-2 w-full rounded-md hover:bg-white/10 transition-colors",
+                    openMenus.daas && "bg-white/20"
                   )}
                 >
-                  <Building className="h-5 w-5 mr-3" />
-                  <span>DAAS Module</span>
-                </Link>
-              </li>
-              <li>
-                <Link
-                  to="/ato"
-                  className={cn(
-                    "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
-                    isActive("/ato") && "bg-white/20"
-                  )}
-                >
-                  <GraduationCap className="h-5 w-5 mr-3" />
-                  <span>ATO</span>
-                </Link>
-              </li>
-            </>
+                  <div className="flex items-center">
+                    <Building className="h-5 w-5 mr-3" />
+                    <span>DAAS</span>
+                  </div>
+                  <ChevronDown
+                    className={cn(
+                      "h-4 w-4 transition-transform",
+                      openMenus.daas && "transform rotate-180"
+                    )}
+                  />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pl-10 space-y-1 mt-1">
+                  <Link
+                    to="/daas"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/daas") && "bg-white/10"
+                    )}
+                  >
+                    Overview
+                  </Link>
+                  <Link
+                    to="/daas/aerodrome-certifications"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/daas/aerodrome-certifications") && "bg-white/10"
+                    )}
+                  >
+                    Aerodrome Certifications
+                  </Link>
+                  <Link
+                    to="/ato"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/ato") && "bg-white/10"
+                    )}
+                  >
+                    ATO
+                  </Link>
+                </CollapsibleContent>
+              </Collapsible>
+            </li>
           )}
 
           {hasAccess("DOLTS") && (
