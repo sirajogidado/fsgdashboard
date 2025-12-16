@@ -523,13 +523,13 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pl-10 space-y-1 mt-1">
                   <Link
-                    to="/daas"
+                    to="/daas/dashboard"
                     className={cn(
                       "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
-                      isActive("/daas") && "bg-white/10"
+                      isActive("/daas/dashboard") && "bg-white/10"
                     )}
                   >
-                    Overview
+                    Dashboard
                   </Link>
                   <Link
                     to="/daas/aerodrome-certifications"
@@ -539,6 +539,24 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
                     )}
                   >
                     Aerodrome Certifications
+                  </Link>
+                  <Link
+                    to="/daas/safety-inspections"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/daas/safety-inspections") && "bg-white/10"
+                    )}
+                  >
+                    Safety Inspections
+                  </Link>
+                  <Link
+                    to="/daas/personnel"
+                    className={cn(
+                      "block py-1.5 px-2 rounded hover:bg-white/10 text-sm transition-colors",
+                      isActive("/daas/personnel") && "bg-white/10"
+                    )}
+                  >
+                    Personnel
                   </Link>
                   <Link
                     to="/ato"

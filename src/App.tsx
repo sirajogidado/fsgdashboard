@@ -38,6 +38,10 @@ import FOCCMCCPage from "./pages/FOCC/FOCCMCCPage";
 import AcceptanceCertificatePage from "./pages/AcceptanceCertificate/AcceptanceCertificatePage";
 import DAASPage from "./pages/DAAS/DAASPage";
 import AerodromeCertificationPage from "./pages/DAAS/AerodromeCertifications/AerodromeCertificationPage";
+import DAASDashboard from "./pages/DAAS/DAASDashboard";
+import SafetyInspectionPage from "./pages/DAAS/SafetyInspections/SafetyInspectionPage";
+import PersonnelPage from "./pages/DAAS/Personnel/PersonnelPage";
+import PersonnelCertificationsPage from "./pages/DAAS/Personnel/PersonnelCertificationsPage";
 
 // Global Operations Pages
 import ForeignRegistrationMarkPage from "./pages/Global/ForeignRegistrationMark/ForeignRegistrationMarkPage";
@@ -161,10 +165,42 @@ function App() {
                   } 
                 />
                 <Route 
+                  path="daas/dashboard" 
+                  element={
+                    <ProtectedRoute requiredDirectorate="DAAS">
+                      <DAASDashboard />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
                   path="daas/aerodrome-certifications" 
                   element={
                     <ProtectedRoute requiredDirectorate="DAAS">
                       <AerodromeCertificationPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="daas/safety-inspections" 
+                  element={
+                    <ProtectedRoute requiredDirectorate="DAAS">
+                      <SafetyInspectionPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="daas/personnel" 
+                  element={
+                    <ProtectedRoute requiredDirectorate="DAAS">
+                      <PersonnelPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="daas/personnel/:personnelId/certifications" 
+                  element={
+                    <ProtectedRoute requiredDirectorate="DAAS">
+                      <PersonnelCertificationsPage />
                     </ProtectedRoute>
                   } 
                 />
