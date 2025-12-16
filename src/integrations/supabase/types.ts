@@ -80,6 +80,53 @@ export type Database = {
         }
         Relationships: []
       }
+      aerodrome_personnel: {
+        Row: {
+          aerodrome_id: string | null
+          created_at: string
+          email: string | null
+          full_name: string
+          hire_date: string | null
+          id: string
+          phone: string | null
+          position: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          aerodrome_id?: string | null
+          created_at?: string
+          email?: string | null
+          full_name: string
+          hire_date?: string | null
+          id?: string
+          phone?: string | null
+          position: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          aerodrome_id?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          hire_date?: string | null
+          id?: string
+          phone?: string | null
+          position?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aerodrome_personnel_aerodrome_id_fkey"
+            columns: ["aerodrome_id"]
+            isOneToOne: false
+            referencedRelation: "aerodrome_certifications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_chat_messages: {
         Row: {
           content: string
@@ -979,6 +1026,56 @@ export type Database = {
         }
         Relationships: []
       }
+      personnel_certifications: {
+        Row: {
+          certificate_url: string | null
+          certification_name: string
+          certification_number: string | null
+          created_at: string
+          expiry_date: string
+          id: string
+          issue_date: string
+          issuing_authority: string
+          personnel_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          certificate_url?: string | null
+          certification_name: string
+          certification_number?: string | null
+          created_at?: string
+          expiry_date: string
+          id?: string
+          issue_date: string
+          issuing_authority: string
+          personnel_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          certificate_url?: string | null
+          certification_name?: string
+          certification_number?: string | null
+          created_at?: string
+          expiry_date?: string
+          id?: string
+          issue_date?: string
+          issuing_authority?: string
+          personnel_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personnel_certifications_personnel_id_fkey"
+            columns: ["personnel_id"]
+            isOneToOne: false
+            referencedRelation: "aerodrome_personnel"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pncl_licenses: {
         Row: {
           aoc_id: string | null
@@ -1095,6 +1192,62 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      safety_inspections: {
+        Row: {
+          aerodrome_id: string | null
+          completed_date: string | null
+          compliance_status: string | null
+          created_at: string
+          findings: string | null
+          id: string
+          inspection_type: string
+          inspector_name: string
+          next_inspection_date: string | null
+          recommendations: string | null
+          scheduled_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          aerodrome_id?: string | null
+          completed_date?: string | null
+          compliance_status?: string | null
+          created_at?: string
+          findings?: string | null
+          id?: string
+          inspection_type: string
+          inspector_name: string
+          next_inspection_date?: string | null
+          recommendations?: string | null
+          scheduled_date: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          aerodrome_id?: string | null
+          completed_date?: string | null
+          compliance_status?: string | null
+          created_at?: string
+          findings?: string | null
+          id?: string
+          inspection_type?: string
+          inspector_name?: string
+          next_inspection_date?: string | null
+          recommendations?: string | null
+          scheduled_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "safety_inspections_aerodrome_id_fkey"
+            columns: ["aerodrome_id"]
+            isOneToOne: false
+            referencedRelation: "aerodrome_certifications"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       state_of_registry: {
         Row: {
