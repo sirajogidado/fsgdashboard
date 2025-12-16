@@ -37,6 +37,7 @@ import AircraftTypePage from "./pages/Global/AircraftType/AircraftTypePage";
 import FOCCMCCPage from "./pages/FOCC/FOCCMCCPage";
 import AcceptanceCertificatePage from "./pages/AcceptanceCertificate/AcceptanceCertificatePage";
 import DAASPage from "./pages/DAAS/DAASPage";
+import AerodromeCertificationPage from "./pages/DAAS/AerodromeCertifications/AerodromeCertificationPage";
 
 // Global Operations Pages
 import ForeignRegistrationMarkPage from "./pages/Global/ForeignRegistrationMark/ForeignRegistrationMarkPage";
@@ -156,6 +157,14 @@ function App() {
                   element={
                     <ProtectedRoute requiredDirectorate="DAAS">
                       <DAASPage />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="daas/aerodrome-certifications" 
+                  element={
+                    <ProtectedRoute requiredDirectorate="DAAS">
+                      <AerodromeCertificationPage />
                     </ProtectedRoute>
                   } 
                 />
