@@ -28,7 +28,9 @@ import {
   Users,
   Activity,
   DollarSign,
-  Globe
+  Globe,
+  Building,
+  ClipboardCheck
 } from "lucide-react";
 
 const Dashboard = () => {
@@ -261,9 +263,33 @@ const Dashboard = () => {
       title: "Economic Licenses",
       description: "DATR Economic Licensing",
       icon: DollarSign,
-      path: "/economic-license",
+      path: "/economic-license/paas",
       count: dashboardData.economicLicensesCount,
       canAccess: user?.directorate === "DATR" || user?.role === "Super User" || user?.directorate === "ICT"
+    },
+    {
+      title: "Aerodrome Certifications",
+      description: "Aerodrome Certificates & Licenses",
+      icon: Building,
+      path: "/daas/aerodrome-certifications",
+      count: dashboardData.aerodromeCount,
+      canAccess: user?.directorate === "DAAS" || user?.role === "Super User" || user?.directorate === "ICT"
+    },
+    {
+      title: "Safety Inspections",
+      description: "Scheduled & Completed Inspections",
+      icon: ClipboardCheck,
+      path: "/daas/safety-inspections",
+      count: dashboardData.inspectionCount,
+      canAccess: user?.directorate === "DAAS" || user?.role === "Super User" || user?.directorate === "ICT"
+    },
+    {
+      title: "Aerodrome Personnel",
+      description: "Staff & Certifications",
+      icon: Users,
+      path: "/daas/personnel",
+      count: dashboardData.personnelCount,
+      canAccess: user?.directorate === "DAAS" || user?.role === "Super User" || user?.directorate === "ICT"
     }
   ];
 
