@@ -85,7 +85,10 @@ const Dashboard = () => {
           pnclResult,
           atolResult,
           fcopResult,
-          auditResult
+          auditResult,
+          aerodromeResult,
+          inspectionResult,
+          personnelResult
         ] = await Promise.all([
           supabase.from('aoc_certificates').select('*', { count: 'exact' }),
           supabase.from('general_aviation').select('*', { count: 'exact' }),
@@ -98,11 +101,10 @@ const Dashboard = () => {
           supabase.from('pncl_licenses').select('*', { count: 'exact' }),
           supabase.from('atol_licenses').select('*', { count: 'exact' }),
           supabase.from('fcop_licenses').select('*', { count: 'exact' }),
-          supabase
-            .from('audit_trail')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .limit(5)
+          supabase.from('audit_trail').select('*').order('created_at', { ascending: false }).limit(5),
+          supabase.from('aerodrome_certifications').select('*', { count: 'exact' }),
+          supabase.from('safety_inspections').select('*', { count: 'exact' }),
+          supabase.from('aerodrome_personnel').select('*', { count: 'exact' })
         ]);
 
         // Calculate counts
@@ -122,14 +124,17 @@ const Dashboard = () => {
         setDashboardData({
           certificatesCount: totalCertificates,
           economicLicensesCount: economicLicensesTotal,
-          expiringCount: 0, // Will be calculated with date logic
-          pendingCount: 0, // Will be calculated with status logic
+          expiringCount: 0,
+          pendingCount: 0,
           aocCount: aocResult.count || 0,
           atoCount: generalAviationResult.count || 0,
           amotCount: foreignAmoResult.count || 0,
           daclCount: foreignAirlineDaclResult.count || 0,
           foccCount: foccResult.count || 0,
-          acceptanceCount: 0
+          acceptanceCount: 0,
+          aerodromeCount: aerodromeResult.count || 0,
+          inspectionCount: inspectionResult.count || 0,
+          personnelCount: personnelResult.count || 0
         });
 
         // Set chart data
