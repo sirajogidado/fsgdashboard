@@ -20,7 +20,8 @@ interface DirectorateData {
 
 const DirectorateForm = ({ onCancel, editingId, onSuccess }: DirectorateFormProps) => {
   const [directorateData, setDirectorateData] = useState<DirectorateData>({
-    directorate_name: "",
+    name: "",
+    code: "",
   });
   const [isLoading, setIsLoading] = useState(false);
 
@@ -41,7 +42,8 @@ const DirectorateForm = ({ onCancel, editingId, onSuccess }: DirectorateFormProp
       if (error) throw error;
 
       setDirectorateData({
-        directorate_name: data.directorate_name || "",
+        name: data.name || "",
+        code: data.code || "",
       });
     } catch (error) {
       console.error("Error fetching directorate:", error);
@@ -113,14 +115,25 @@ const DirectorateForm = ({ onCancel, editingId, onSuccess }: DirectorateFormProp
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="directorate_name">Directorate Name *</Label>
+            <Label htmlFor="name">Directorate Name *</Label>
             <Input
-              id="directorate_name"
-              name="directorate_name"
-              value={directorateData.directorate_name}
+              id="name"
+              name="name"
+              value={directorateData.name}
               onChange={handleInputChange}
               required
               placeholder="Enter directorate name"
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="code">Code *</Label>
+            <Input
+              id="code"
+              name="code"
+              value={directorateData.code}
+              onChange={handleInputChange}
+              required
+              placeholder="Enter directorate code"
             />
           </div>
 
