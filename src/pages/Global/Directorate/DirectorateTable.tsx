@@ -25,9 +25,10 @@ interface DirectorateTableProps {
 
 interface Directorate {
   id: string;
-  directorate_name: string;
+  name: string;
+  code: string;
+  description: string | null;
   created_at: string;
-  updated_at: string;
 }
 
 const DirectorateTable = ({ searchQuery, onEdit, refreshTrigger }: DirectorateTableProps) => {
@@ -44,7 +45,7 @@ const DirectorateTable = ({ searchQuery, onEdit, refreshTrigger }: DirectorateTa
       const { data, error } = await supabase
         .from("directorates")
         .select("*")
-        .order("directorate_name");
+        .order("name");
 
       if (error) throw error;
       setDirectorates(data || []);
@@ -86,12 +87,12 @@ const DirectorateTable = ({ searchQuery, onEdit, refreshTrigger }: DirectorateTa
   };
 
   const filteredDirectorates = directorates.filter(directorate =>
-    directorate.directorate_name.toLowerCase().includes(searchQuery.toLowerCase())
+    directorate.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const columns = [
     {
-      accessorKey: "directorate_name",
+      accessorKey: "name",
       header: "Directorate Name",
     },
     {

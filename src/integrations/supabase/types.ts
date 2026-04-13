@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.12 (cd3cf9e)"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -20,9 +20,8 @@ export type Database = {
           category: string | null
           certificate_number: string
           certificate_type: string
-          certificate_url: string | null
           comments: string | null
-          created_at: string
+          created_at: string | null
           expiry_date: string
           icao_code: string | null
           id: string
@@ -33,17 +32,16 @@ export type Database = {
           operator_name: string
           runway_count: number | null
           runway_length: string | null
-          status: string
-          updated_at: string
+          status: string | null
+          updated_at: string | null
         }
         Insert: {
           aerodrome_name: string
           category?: string | null
           certificate_number: string
           certificate_type: string
-          certificate_url?: string | null
           comments?: string | null
-          created_at?: string
+          created_at?: string | null
           expiry_date: string
           icao_code?: string | null
           id?: string
@@ -54,17 +52,16 @@ export type Database = {
           operator_name: string
           runway_count?: number | null
           runway_length?: string | null
-          status?: string
-          updated_at?: string
+          status?: string | null
+          updated_at?: string | null
         }
         Update: {
           aerodrome_name?: string
           category?: string | null
           certificate_number?: string
           certificate_type?: string
-          certificate_url?: string | null
           comments?: string | null
-          created_at?: string
+          created_at?: string | null
           expiry_date?: string
           icao_code?: string | null
           id?: string
@@ -75,47 +72,47 @@ export type Database = {
           operator_name?: string
           runway_count?: number | null
           runway_length?: string | null
-          status?: string
-          updated_at?: string
+          status?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
       aerodrome_personnel: {
         Row: {
           aerodrome_id: string | null
-          created_at: string
+          created_at: string | null
           email: string | null
           full_name: string
           hire_date: string | null
           id: string
           phone: string | null
           position: string
-          status: string
-          updated_at: string
+          status: string | null
+          updated_at: string | null
         }
         Insert: {
           aerodrome_id?: string | null
-          created_at?: string
+          created_at?: string | null
           email?: string | null
           full_name: string
           hire_date?: string | null
           id?: string
           phone?: string | null
           position: string
-          status?: string
-          updated_at?: string
+          status?: string | null
+          updated_at?: string | null
         }
         Update: {
           aerodrome_id?: string | null
-          created_at?: string
+          created_at?: string | null
           email?: string | null
           full_name?: string
           hire_date?: string | null
           id?: string
           phone?: string | null
           position?: string
-          status?: string
-          updated_at?: string
+          status?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -133,21 +130,21 @@ export type Database = {
           created_at: string | null
           id: string
           role: string
-          session_id: string
+          session_id: string | null
         }
         Insert: {
           content: string
           created_at?: string | null
           id?: string
           role: string
-          session_id: string
+          session_id?: string | null
         }
         Update: {
           content?: string
           created_at?: string | null
           id?: string
           role?: string
-          session_id?: string
+          session_id?: string | null
         }
         Relationships: [
           {
@@ -164,466 +161,241 @@ export type Database = {
           created_at: string | null
           id: string
           session_name: string | null
+          updated_at: string | null
           user_id: string
         }
         Insert: {
           created_at?: string | null
           id?: string
           session_name?: string | null
+          updated_at?: string | null
           user_id: string
         }
         Update: {
           created_at?: string | null
           id?: string
           session_name?: string | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
       }
       ai_reports: {
         Row: {
-          content: string
           created_at: string | null
-          data_sources: Json | null
           id: string
-          report_type: string
+          report_data: Json | null
+          report_name: string | null
+          report_type: string | null
           status: string | null
-          title: string
-          user_id: string
+          user_id: string | null
         }
         Insert: {
-          content: string
           created_at?: string | null
-          data_sources?: Json | null
           id?: string
-          report_type: string
+          report_data?: Json | null
+          report_name?: string | null
+          report_type?: string | null
           status?: string | null
-          title: string
-          user_id: string
+          user_id?: string | null
         }
         Update: {
-          content?: string
           created_at?: string | null
-          data_sources?: Json | null
           id?: string
-          report_type?: string
+          report_data?: Json | null
+          report_name?: string | null
+          report_type?: string | null
           status?: string | null
-          title?: string
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: []
       }
       aoc_certificates: {
         Row: {
-          certificate_number: string
-          created_at: string
-          expiry_date: string
+          certificate_number: string | null
+          created_at: string | null
+          expiry_date: string | null
           id: string
-          issue_date: string
-          operator_name: string
-          status: string
-          updated_at: string
+          issue_date: string | null
+          operator_name: string | null
+          status: string | null
+          updated_at: string | null
         }
         Insert: {
-          certificate_number: string
-          created_at?: string
-          expiry_date: string
+          certificate_number?: string | null
+          created_at?: string | null
+          expiry_date?: string | null
           id?: string
-          issue_date: string
-          operator_name: string
-          status?: string
-          updated_at?: string
+          issue_date?: string | null
+          operator_name?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
         Update: {
-          certificate_number?: string
-          created_at?: string
-          expiry_date?: string
+          certificate_number?: string | null
+          created_at?: string | null
+          expiry_date?: string | null
           id?: string
-          issue_date?: string
-          operator_name?: string
-          status?: string
-          updated_at?: string
+          issue_date?: string | null
+          operator_name?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
       aop_licenses: {
         Row: {
-          aoc_id: string | null
-          certificate_url: string | null
-          comment: string | null
-          created_at: string
-          date_of_expiry: string
-          date_of_initial_issue: string
-          date_of_last_renewal: string | null
-          general_aviation_id: string | null
+          created_at: string | null
+          expiry_date: string | null
           id: string
-          license_number: string
-          operator_type: string
-          status: string
-          updated_at: string
+          issue_date: string | null
+          license_number: string | null
+          operator_name: string | null
+          status: string | null
+          updated_at: string | null
         }
         Insert: {
-          aoc_id?: string | null
-          certificate_url?: string | null
-          comment?: string | null
-          created_at?: string
-          date_of_expiry: string
-          date_of_initial_issue: string
-          date_of_last_renewal?: string | null
-          general_aviation_id?: string | null
+          created_at?: string | null
+          expiry_date?: string | null
           id?: string
-          license_number: string
-          operator_type: string
-          status?: string
-          updated_at?: string
+          issue_date?: string | null
+          license_number?: string | null
+          operator_name?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
         Update: {
-          aoc_id?: string | null
-          certificate_url?: string | null
-          comment?: string | null
-          created_at?: string
-          date_of_expiry?: string
-          date_of_initial_issue?: string
-          date_of_last_renewal?: string | null
-          general_aviation_id?: string | null
+          created_at?: string | null
+          expiry_date?: string | null
           id?: string
-          license_number?: string
-          operator_type?: string
-          status?: string
-          updated_at?: string
+          issue_date?: string | null
+          license_number?: string | null
+          operator_name?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "aop_licenses_aoc_id_fkey"
-            columns: ["aoc_id"]
-            isOneToOne: false
-            referencedRelation: "aoc_certificates"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "aop_licenses_general_aviation_id_fkey"
-            columns: ["general_aviation_id"]
-            isOneToOne: false
-            referencedRelation: "general_aviation"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       atl_licenses: {
         Row: {
-          aoc_id: string | null
-          certificate_url: string | null
-          comment: string | null
-          created_at: string
-          date_of_expiry: string
-          date_of_initial_issue: string
-          date_of_last_renewal: string | null
-          general_aviation_id: string | null
+          created_at: string | null
+          expiry_date: string | null
           id: string
-          license_number: string
-          operator_type: string
-          status: string
-          updated_at: string
+          issue_date: string | null
+          license_number: string | null
+          operator_name: string | null
+          status: string | null
+          updated_at: string | null
         }
         Insert: {
-          aoc_id?: string | null
-          certificate_url?: string | null
-          comment?: string | null
-          created_at?: string
-          date_of_expiry: string
-          date_of_initial_issue: string
-          date_of_last_renewal?: string | null
-          general_aviation_id?: string | null
+          created_at?: string | null
+          expiry_date?: string | null
           id?: string
-          license_number: string
-          operator_type: string
-          status?: string
-          updated_at?: string
+          issue_date?: string | null
+          license_number?: string | null
+          operator_name?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
         Update: {
-          aoc_id?: string | null
-          certificate_url?: string | null
-          comment?: string | null
-          created_at?: string
-          date_of_expiry?: string
-          date_of_initial_issue?: string
-          date_of_last_renewal?: string | null
-          general_aviation_id?: string | null
+          created_at?: string | null
+          expiry_date?: string | null
           id?: string
-          license_number?: string
-          operator_type?: string
-          status?: string
-          updated_at?: string
+          issue_date?: string | null
+          license_number?: string | null
+          operator_name?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "atl_licenses_aoc_id_fkey"
-            columns: ["aoc_id"]
-            isOneToOne: false
-            referencedRelation: "aoc_certificates"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "atl_licenses_general_aviation_id_fkey"
-            columns: ["general_aviation_id"]
-            isOneToOne: false
-            referencedRelation: "general_aviation"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       atol_licenses: {
         Row: {
-          aoc_id: string | null
-          certificate_url: string | null
-          comment: string | null
-          created_at: string
-          date_of_expiry: string
-          date_of_initial_issue: string
-          date_of_last_renewal: string | null
-          general_aviation_id: string | null
+          created_at: string | null
+          expiry_date: string | null
           id: string
-          license_number: string
-          operator_type: string
-          status: string
-          travel_agency_id: string | null
-          updated_at: string
+          issue_date: string | null
+          license_number: string | null
+          operator_name: string | null
+          status: string | null
+          updated_at: string | null
         }
         Insert: {
-          aoc_id?: string | null
-          certificate_url?: string | null
-          comment?: string | null
-          created_at?: string
-          date_of_expiry: string
-          date_of_initial_issue: string
-          date_of_last_renewal?: string | null
-          general_aviation_id?: string | null
+          created_at?: string | null
+          expiry_date?: string | null
           id?: string
-          license_number: string
-          operator_type: string
-          status?: string
-          travel_agency_id?: string | null
-          updated_at?: string
+          issue_date?: string | null
+          license_number?: string | null
+          operator_name?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
         Update: {
-          aoc_id?: string | null
-          certificate_url?: string | null
-          comment?: string | null
-          created_at?: string
-          date_of_expiry?: string
-          date_of_initial_issue?: string
-          date_of_last_renewal?: string | null
-          general_aviation_id?: string | null
+          created_at?: string | null
+          expiry_date?: string | null
           id?: string
-          license_number?: string
-          operator_type?: string
-          status?: string
-          travel_agency_id?: string | null
-          updated_at?: string
+          issue_date?: string | null
+          license_number?: string | null
+          operator_name?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "atol_licenses_aoc_id_fkey"
-            columns: ["aoc_id"]
-            isOneToOne: false
-            referencedRelation: "aoc_certificates"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "atol_licenses_general_aviation_id_fkey"
-            columns: ["general_aviation_id"]
-            isOneToOne: false
-            referencedRelation: "general_aviation"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "atol_licenses_travel_agency_id_fkey"
-            columns: ["travel_agency_id"]
-            isOneToOne: false
-            referencedRelation: "travel_agencies"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       audit_trail: {
         Row: {
           action: string
-          created_at: string
-          description: string
+          created_at: string | null
+          details: string | null
           id: string
-          ip_address: unknown
-          module: string
-          new_values: Json | null
-          old_values: Json | null
-          record_id: string | null
-          staff_id: string
-          staff_name: string
-          user_agent: string | null
-          user_id: string
+          ip_address: string | null
+          module: string | null
+          user_id: string | null
+          user_name: string | null
         }
         Insert: {
           action: string
-          created_at?: string
-          description: string
+          created_at?: string | null
+          details?: string | null
           id?: string
-          ip_address?: unknown
-          module: string
-          new_values?: Json | null
-          old_values?: Json | null
-          record_id?: string | null
-          staff_id: string
-          staff_name: string
-          user_agent?: string | null
-          user_id: string
+          ip_address?: string | null
+          module?: string | null
+          user_id?: string | null
+          user_name?: string | null
         }
         Update: {
           action?: string
-          created_at?: string
-          description?: string
+          created_at?: string | null
+          details?: string | null
           id?: string
-          ip_address?: unknown
-          module?: string
-          new_values?: Json | null
-          old_values?: Json | null
-          record_id?: string | null
-          staff_id?: string
-          staff_name?: string
-          user_agent?: string | null
-          user_id?: string
+          ip_address?: string | null
+          module?: string | null
+          user_id?: string | null
+          user_name?: string | null
         }
         Relationships: []
-      }
-      certificate_types: {
-        Row: {
-          category: string
-          certificate_name: string
-          created_at: string | null
-          description: string | null
-          id: string
-          updated_at: string | null
-          validity: string
-        }
-        Insert: {
-          category: string
-          certificate_name: string
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          updated_at?: string | null
-          validity: string
-        }
-        Update: {
-          category?: string
-          certificate_name?: string
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          updated_at?: string | null
-          validity?: string
-        }
-        Relationships: []
-      }
-      certificates: {
-        Row: {
-          certificate_number: string
-          certificate_type: string
-          created_at: string | null
-          document_url: string | null
-          expiry_date: string
-          extracted_data: Json | null
-          id: string
-          issue_date: string
-          issuing_authority: string
-          status: string | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          certificate_number: string
-          certificate_type: string
-          created_at?: string | null
-          document_url?: string | null
-          expiry_date: string
-          extracted_data?: Json | null
-          id?: string
-          issue_date: string
-          issuing_authority: string
-          status?: string | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          certificate_number?: string
-          certificate_type?: string
-          created_at?: string | null
-          document_url?: string | null
-          expiry_date?: string
-          extracted_data?: Json | null
-          id?: string
-          issue_date?: string
-          issuing_authority?: string
-          status?: string | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      compliance_alerts: {
-        Row: {
-          alert_type: string
-          certificate_id: string | null
-          created_at: string | null
-          id: string
-          message: string
-          severity: string | null
-          status: string | null
-        }
-        Insert: {
-          alert_type: string
-          certificate_id?: string | null
-          created_at?: string | null
-          id?: string
-          message: string
-          severity?: string | null
-          status?: string | null
-        }
-        Update: {
-          alert_type?: string
-          certificate_id?: string | null
-          created_at?: string | null
-          id?: string
-          message?: string
-          severity?: string | null
-          status?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "compliance_alerts_certificate_id_fkey"
-            columns: ["certificate_id"]
-            isOneToOne: false
-            referencedRelation: "certificates"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       directorates: {
         Row: {
-          created_at: string
-          directorate_name: string
+          code: string
+          created_at: string | null
+          description: string | null
           id: string
-          updated_at: string
+          name: string
         }
         Insert: {
-          created_at?: string
-          directorate_name: string
+          code: string
+          created_at?: string | null
+          description?: string | null
           id?: string
-          updated_at?: string
+          name: string
         }
         Update: {
-          created_at?: string
-          directorate_name?: string
+          code?: string
+          created_at?: string | null
+          description?: string | null
           id?: string
-          updated_at?: string
+          name?: string
         }
         Relationships: []
       }
@@ -633,438 +405,333 @@ export type Database = {
           confidence_score: number | null
           created_at: string | null
           extracted_text: string | null
-          file_name: string
-          file_url: string
+          file_name: string | null
+          file_url: string | null
           id: string
           status: string | null
-          user_id: string
+          updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           analysis_result?: Json | null
           confidence_score?: number | null
           created_at?: string | null
           extracted_text?: string | null
-          file_name: string
-          file_url: string
+          file_name?: string | null
+          file_url?: string | null
           id?: string
           status?: string | null
-          user_id: string
+          updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           analysis_result?: Json | null
           confidence_score?: number | null
           created_at?: string | null
           extracted_text?: string | null
-          file_name?: string
-          file_url?: string
+          file_name?: string | null
+          file_url?: string | null
           id?: string
           status?: string | null
-          user_id?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      documents: {
+        Row: {
+          created_at: string | null
+          file_type: string | null
+          file_url: string | null
+          id: string
+          module: string | null
+          name: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          file_type?: string | null
+          file_url?: string | null
+          id?: string
+          module?: string | null
+          name: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          file_type?: string | null
+          file_url?: string | null
+          id?: string
+          module?: string | null
+          name?: string
+          uploaded_by?: string | null
         }
         Relationships: []
       }
       fcop_licenses: {
         Row: {
-          certificate_url: string | null
-          comment: string | null
-          created_at: string
-          fcop_issue_date: string
-          foreign_airline: string
+          created_at: string | null
+          expiry_date: string | null
           id: string
-          license_number: string
-          part_10: boolean
-          part_17: boolean
-          part_18: boolean
-          status: string
-          updated_at: string
+          issue_date: string | null
+          license_number: string | null
+          operator_name: string | null
+          status: string | null
+          updated_at: string | null
         }
         Insert: {
-          certificate_url?: string | null
-          comment?: string | null
-          created_at?: string
-          fcop_issue_date: string
-          foreign_airline: string
+          created_at?: string | null
+          expiry_date?: string | null
           id?: string
-          license_number: string
-          part_10?: boolean
-          part_17?: boolean
-          part_18?: boolean
-          status?: string
-          updated_at?: string
+          issue_date?: string | null
+          license_number?: string | null
+          operator_name?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
         Update: {
-          certificate_url?: string | null
-          comment?: string | null
-          created_at?: string
-          fcop_issue_date?: string
-          foreign_airline?: string
+          created_at?: string | null
+          expiry_date?: string | null
           id?: string
-          license_number?: string
-          part_10?: boolean
-          part_17?: boolean
-          part_18?: boolean
-          status?: string
-          updated_at?: string
+          issue_date?: string | null
+          license_number?: string | null
+          operator_name?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
       focc_mcc_records: {
         Row: {
-          aircraft_reg_number: string
-          aircraft_type: string
           created_at: string | null
-          focc_number: string
+          expiry_date: string | null
           id: string
-          mcc_number: string
-          operator_type: string
+          issue_date: string | null
+          operator_name: string | null
+          record_number: string | null
+          status: string | null
           updated_at: string | null
-          validity_date: string
         }
         Insert: {
-          aircraft_reg_number: string
-          aircraft_type: string
           created_at?: string | null
-          focc_number: string
+          expiry_date?: string | null
           id?: string
-          mcc_number: string
-          operator_type: string
+          issue_date?: string | null
+          operator_name?: string | null
+          record_number?: string | null
+          status?: string | null
           updated_at?: string | null
-          validity_date: string
         }
         Update: {
-          aircraft_reg_number?: string
-          aircraft_type?: string
           created_at?: string | null
-          focc_number?: string
+          expiry_date?: string | null
           id?: string
-          mcc_number?: string
-          operator_type?: string
+          issue_date?: string | null
+          operator_name?: string | null
+          record_number?: string | null
+          status?: string | null
           updated_at?: string | null
-          validity_date?: string
         }
         Relationships: []
       }
       foreign_airline_dacl: {
         Row: {
-          airline_name: string
-          approval: string
-          country: string
+          airline_name: string | null
+          country: string | null
           created_at: string | null
-          expiry_date: string
           id: string
-          issue_date: string
-          status: string
+          permit_number: string | null
+          status: string | null
           updated_at: string | null
         }
         Insert: {
-          airline_name: string
-          approval: string
-          country: string
+          airline_name?: string | null
+          country?: string | null
           created_at?: string | null
-          expiry_date: string
           id?: string
-          issue_date: string
-          status?: string
+          permit_number?: string | null
+          status?: string | null
           updated_at?: string | null
         }
         Update: {
-          airline_name?: string
-          approval?: string
-          country?: string
+          airline_name?: string | null
+          country?: string | null
           created_at?: string | null
-          expiry_date?: string
           id?: string
-          issue_date?: string
-          status?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      foreign_airlines: {
-        Row: {
-          airline_name: string
-          country: string
-          created_at: string | null
-          iata_code: string
-          icao_code: string
-          id: string
-          updated_at: string | null
-        }
-        Insert: {
-          airline_name: string
-          country: string
-          created_at?: string | null
-          iata_code: string
-          icao_code: string
-          id?: string
-          updated_at?: string | null
-        }
-        Update: {
-          airline_name?: string
-          country?: string
-          created_at?: string | null
-          iata_code?: string
-          icao_code?: string
-          id?: string
+          permit_number?: string | null
+          status?: string | null
           updated_at?: string | null
         }
         Relationships: []
       }
       foreign_amo: {
         Row: {
-          amo_name: string
-          country: string
+          approval_number: string | null
+          country: string | null
           created_at: string | null
-          description: string | null
           id: string
+          organization_name: string | null
+          status: string | null
           updated_at: string | null
         }
         Insert: {
-          amo_name: string
-          country: string
+          approval_number?: string | null
+          country?: string | null
           created_at?: string | null
-          description?: string | null
           id?: string
+          organization_name?: string | null
+          status?: string | null
           updated_at?: string | null
         }
         Update: {
-          amo_name?: string
-          country?: string
+          approval_number?: string | null
+          country?: string | null
           created_at?: string | null
-          description?: string | null
           id?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      foreign_registration_marks: {
-        Row: {
-          country: string
-          created_at: string | null
-          description: string | null
-          id: string
-          registration_mark: string
-          updated_at: string | null
-        }
-        Insert: {
-          country: string
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          registration_mark: string
-          updated_at?: string | null
-        }
-        Update: {
-          country?: string
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          registration_mark?: string
+          organization_name?: string | null
+          status?: string | null
           updated_at?: string | null
         }
         Relationships: []
       }
       general_aviation: {
         Row: {
-          aircraft_type: string
+          aircraft_type: string | null
           created_at: string | null
-          description: string | null
           id: string
-          operator_name: string
-          registration_mark: string
+          operator_name: string | null
+          registration: string | null
+          status: string | null
           updated_at: string | null
         }
         Insert: {
-          aircraft_type: string
+          aircraft_type?: string | null
           created_at?: string | null
-          description?: string | null
           id?: string
-          operator_name: string
-          registration_mark: string
+          operator_name?: string | null
+          registration?: string | null
+          status?: string | null
           updated_at?: string | null
         }
         Update: {
-          aircraft_type?: string
+          aircraft_type?: string | null
           created_at?: string | null
-          description?: string | null
           id?: string
-          operator_name?: string
-          registration_mark?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      operation_types: {
-        Row: {
-          category: string
-          created_at: string | null
-          description: string | null
-          id: string
-          operation_type: string
-          updated_at: string | null
-        }
-        Insert: {
-          category: string
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          operation_type: string
-          updated_at?: string | null
-        }
-        Update: {
-          category?: string
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          operation_type?: string
+          operator_name?: string | null
+          registration?: string | null
+          status?: string | null
           updated_at?: string | null
         }
         Relationships: []
       }
       paas_licenses: {
         Row: {
-          aoc_id: string | null
-          certificate_url: string | null
-          comment: string | null
-          created_at: string
-          date_of_expiry: string
-          date_of_initial_issue: string
-          date_of_last_renewal: string | null
-          general_aviation_id: string | null
+          created_at: string | null
+          expiry_date: string | null
           id: string
-          license_number: string
-          operator_type: string
-          status: string
-          updated_at: string
+          issue_date: string | null
+          license_number: string | null
+          operator_name: string | null
+          status: string | null
+          updated_at: string | null
         }
         Insert: {
-          aoc_id?: string | null
-          certificate_url?: string | null
-          comment?: string | null
-          created_at?: string
-          date_of_expiry: string
-          date_of_initial_issue: string
-          date_of_last_renewal?: string | null
-          general_aviation_id?: string | null
+          created_at?: string | null
+          expiry_date?: string | null
           id?: string
-          license_number: string
-          operator_type: string
-          status?: string
-          updated_at?: string
+          issue_date?: string | null
+          license_number?: string | null
+          operator_name?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
         Update: {
-          aoc_id?: string | null
-          certificate_url?: string | null
-          comment?: string | null
-          created_at?: string
-          date_of_expiry?: string
-          date_of_initial_issue?: string
-          date_of_last_renewal?: string | null
-          general_aviation_id?: string | null
+          created_at?: string | null
+          expiry_date?: string | null
           id?: string
-          license_number?: string
-          operator_type?: string
-          status?: string
-          updated_at?: string
+          issue_date?: string | null
+          license_number?: string | null
+          operator_name?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "paas_licenses_aoc_id_fkey"
-            columns: ["aoc_id"]
-            isOneToOne: false
-            referencedRelation: "aoc_certificates"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "paas_licenses_general_aviation_id_fkey"
-            columns: ["general_aviation_id"]
-            isOneToOne: false
-            referencedRelation: "general_aviation"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       pending_registrations: {
         Row: {
-          approved_at: string | null
-          approved_by: string | null
-          created_at: string
+          created_at: string | null
           email: string
           full_name: string
           id: string
           phone_number: string | null
           rejection_reason: string | null
-          requested_directorate: string
-          requested_role: string
-          status: string
+          requested_directorate: string | null
+          requested_role: string | null
+          status: string | null
+          updated_at: string | null
         }
         Insert: {
-          approved_at?: string | null
-          approved_by?: string | null
-          created_at?: string
+          created_at?: string | null
           email: string
           full_name: string
           id?: string
           phone_number?: string | null
           rejection_reason?: string | null
-          requested_directorate: string
-          requested_role: string
-          status?: string
+          requested_directorate?: string | null
+          requested_role?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
         Update: {
-          approved_at?: string | null
-          approved_by?: string | null
-          created_at?: string
+          created_at?: string | null
           email?: string
           full_name?: string
           id?: string
           phone_number?: string | null
           rejection_reason?: string | null
-          requested_directorate?: string
-          requested_role?: string
-          status?: string
+          requested_directorate?: string | null
+          requested_role?: string | null
+          status?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
       personnel_certifications: {
         Row: {
-          certificate_url: string | null
           certification_name: string
           certification_number: string | null
-          created_at: string
-          expiry_date: string
+          created_at: string | null
+          expiry_date: string | null
           id: string
-          issue_date: string
-          issuing_authority: string
+          issue_date: string | null
+          issuing_authority: string | null
           personnel_id: string | null
-          status: string
-          updated_at: string
+          status: string | null
+          updated_at: string | null
         }
         Insert: {
-          certificate_url?: string | null
           certification_name: string
           certification_number?: string | null
-          created_at?: string
-          expiry_date: string
+          created_at?: string | null
+          expiry_date?: string | null
           id?: string
-          issue_date: string
-          issuing_authority: string
+          issue_date?: string | null
+          issuing_authority?: string | null
           personnel_id?: string | null
-          status?: string
-          updated_at?: string
+          status?: string | null
+          updated_at?: string | null
         }
         Update: {
-          certificate_url?: string | null
           certification_name?: string
           certification_number?: string | null
-          created_at?: string
-          expiry_date?: string
+          created_at?: string | null
+          expiry_date?: string | null
           id?: string
-          issue_date?: string
-          issuing_authority?: string
+          issue_date?: string | null
+          issuing_authority?: string | null
           personnel_id?: string | null
-          status?: string
-          updated_at?: string
+          status?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -1078,118 +745,34 @@ export type Database = {
       }
       pncl_licenses: {
         Row: {
-          aoc_id: string | null
-          certificate_url: string | null
-          comment: string | null
-          created_at: string
-          date_of_expiry: string
-          date_of_initial_issue: string
-          date_of_last_renewal: string | null
-          general_aviation_id: string | null
-          id: string
-          license_number: string
-          operator_type: string
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          aoc_id?: string | null
-          certificate_url?: string | null
-          comment?: string | null
-          created_at?: string
-          date_of_expiry: string
-          date_of_initial_issue: string
-          date_of_last_renewal?: string | null
-          general_aviation_id?: string | null
-          id?: string
-          license_number: string
-          operator_type: string
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          aoc_id?: string | null
-          certificate_url?: string | null
-          comment?: string | null
-          created_at?: string
-          date_of_expiry?: string
-          date_of_initial_issue?: string
-          date_of_last_renewal?: string | null
-          general_aviation_id?: string | null
-          id?: string
-          license_number?: string
-          operator_type?: string
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "pncl_licenses_aoc_id_fkey"
-            columns: ["aoc_id"]
-            isOneToOne: false
-            referencedRelation: "aoc_certificates"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pncl_licenses_general_aviation_id_fkey"
-            columns: ["general_aviation_id"]
-            isOneToOne: false
-            referencedRelation: "general_aviation"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      predictive_analytics: {
-        Row: {
-          analysis_type: string
-          confidence_score: number | null
           created_at: string | null
+          expiry_date: string | null
           id: string
-          input_data: Json
-          predictions: Json
-        }
-        Insert: {
-          analysis_type: string
-          confidence_score?: number | null
-          created_at?: string | null
-          id?: string
-          input_data: Json
-          predictions: Json
-        }
-        Update: {
-          analysis_type?: string
-          confidence_score?: number | null
-          created_at?: string | null
-          id?: string
-          input_data?: Json
-          predictions?: Json
-        }
-        Relationships: []
-      }
-      profiles: {
-        Row: {
-          avatar_url: string | null
-          created_at: string | null
-          full_name: string | null
-          id: string
+          issue_date: string | null
+          license_number: string | null
+          operator_name: string | null
+          status: string | null
           updated_at: string | null
-          user_id: string
         }
         Insert: {
-          avatar_url?: string | null
           created_at?: string | null
-          full_name?: string | null
+          expiry_date?: string | null
           id?: string
+          issue_date?: string | null
+          license_number?: string | null
+          operator_name?: string | null
+          status?: string | null
           updated_at?: string | null
-          user_id: string
         }
         Update: {
-          avatar_url?: string | null
           created_at?: string | null
-          full_name?: string | null
+          expiry_date?: string | null
           id?: string
+          issue_date?: string | null
+          license_number?: string | null
+          operator_name?: string | null
+          status?: string | null
           updated_at?: string | null
-          user_id?: string
         }
         Relationships: []
       }
@@ -1198,7 +781,7 @@ export type Database = {
           aerodrome_id: string | null
           completed_date: string | null
           compliance_status: string | null
-          created_at: string
+          created_at: string | null
           findings: string | null
           id: string
           inspection_type: string
@@ -1206,14 +789,14 @@ export type Database = {
           next_inspection_date: string | null
           recommendations: string | null
           scheduled_date: string
-          status: string
-          updated_at: string
+          status: string | null
+          updated_at: string | null
         }
         Insert: {
           aerodrome_id?: string | null
           completed_date?: string | null
           compliance_status?: string | null
-          created_at?: string
+          created_at?: string | null
           findings?: string | null
           id?: string
           inspection_type: string
@@ -1221,14 +804,14 @@ export type Database = {
           next_inspection_date?: string | null
           recommendations?: string | null
           scheduled_date: string
-          status?: string
-          updated_at?: string
+          status?: string | null
+          updated_at?: string | null
         }
         Update: {
           aerodrome_id?: string | null
           completed_date?: string | null
           compliance_status?: string | null
-          created_at?: string
+          created_at?: string | null
           findings?: string | null
           id?: string
           inspection_type?: string
@@ -1236,8 +819,8 @@ export type Database = {
           next_inspection_date?: string | null
           recommendations?: string | null
           scheduled_date?: string
-          status?: string
-          updated_at?: string
+          status?: string | null
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -1249,97 +832,10 @@ export type Database = {
           },
         ]
       }
-      state_of_registry: {
-        Row: {
-          country_code: string
-          country_name: string
-          created_at: string | null
-          id: string
-          registration_prefix: string
-          updated_at: string | null
-        }
-        Insert: {
-          country_code: string
-          country_name: string
-          created_at?: string | null
-          id?: string
-          registration_prefix: string
-          updated_at?: string | null
-        }
-        Update: {
-          country_code?: string
-          country_name?: string
-          created_at?: string | null
-          id?: string
-          registration_prefix?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      training_organizations: {
-        Row: {
-          category: string
-          country: string
-          created_at: string | null
-          description: string | null
-          id: string
-          organization_name: string
-          updated_at: string | null
-        }
-        Insert: {
-          category: string
-          country: string
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          organization_name: string
-          updated_at?: string | null
-        }
-        Update: {
-          category?: string
-          country?: string
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          organization_name?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      travel_agencies: {
-        Row: {
-          agency_name: string
-          contact_person: string
-          created_at: string | null
-          description: string | null
-          id: string
-          location: string
-          updated_at: string | null
-        }
-        Insert: {
-          agency_name: string
-          contact_person: string
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          location: string
-          updated_at?: string | null
-        }
-        Update: {
-          agency_name?: string
-          contact_person?: string
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          location?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       users: {
         Row: {
           created_at: string | null
-          directorate: string
+          directorate: string | null
           email: string
           id: string
           is_active: boolean | null
@@ -1347,12 +843,12 @@ export type Database = {
           password_hash: string
           phone_number: string | null
           profile_image: string | null
-          role: string
+          role: string | null
           updated_at: string | null
         }
         Insert: {
           created_at?: string | null
-          directorate: string
+          directorate?: string | null
           email: string
           id?: string
           is_active?: boolean | null
@@ -1360,12 +856,12 @@ export type Database = {
           password_hash: string
           phone_number?: string | null
           profile_image?: string | null
-          role: string
+          role?: string | null
           updated_at?: string | null
         }
         Update: {
           created_at?: string | null
-          directorate?: string
+          directorate?: string | null
           email?: string
           id?: string
           is_active?: boolean | null
@@ -1373,7 +869,7 @@ export type Database = {
           password_hash?: string
           phone_number?: string | null
           profile_image?: string | null
-          role?: string
+          role?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1383,27 +879,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      approve_pending_registration: {
-        Args: { registration_id: string }
-        Returns: undefined
-      }
-      check_certificate_expiry: { Args: never; Returns: undefined }
-      log_audit_trail: {
-        Args: {
-          p_action: string
-          p_description?: string
-          p_ip_address?: unknown
-          p_module: string
-          p_new_values?: Json
-          p_old_values?: Json
-          p_record_id?: string
-          p_staff_id: string
-          p_staff_name: string
-          p_user_agent?: string
-          p_user_id: string
-        }
-        Returns: string
-      }
+      [_ in never]: never
     }
     Enums: {
       [_ in never]: never
