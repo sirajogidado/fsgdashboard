@@ -46,7 +46,10 @@ const Dashboard = () => {
     amotCount: 0,
     daclCount: 0,
     foccCount: 0,
-    acceptanceCount: 0
+    acceptanceCount: 0,
+    aerodromeCount: 0,
+    inspectionCount: 0,
+    personnelCount: 0
   });
 
   const [chartData, setChartData] = useState({

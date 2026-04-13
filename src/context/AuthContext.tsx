@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 interface AuthContextType extends AuthState {
   login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
+  refreshUser: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -18,24 +19,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   });
 
   useEffect(() => {
-    // Check for stored user on mount
     const storedUser = localStorage.getItem("ncaa_user");
     if (storedUser) {
       try {
         const user = JSON.parse(storedUser);
-        setState({
-          user,
-          isAuthenticated: true,
-          isLoading: false
-        });
+        setState({ user, isAuthenticated: true, isLoading: false });
       } catch (error) {
         console.error("Failed to parse stored user", error);
         localStorage.removeItem("ncaa_user");
-        setState({
-          user: null,
-          isAuthenticated: false,
-          isLoading: false
-        });
+        setState({ user: null, isAuthenticated: false, isLoading: false });
       }
     } else {
       setState(prev => ({ ...prev, isLoading: false }));
@@ -46,7 +38,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setState(prev => ({ ...prev, isLoading: true }));
     
     try {
-      // Query the users table directly for authentication
       const { data: users, error } = await supabase
         .from('users')
         .select('*')
@@ -70,11 +61,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         profileImage: users.profile_image
       };
 
-      setState({
-        user,
-        isAuthenticated: true,
-        isLoading: false
-      });
+      setState({ user, isAuthenticated: true, isLoading: false });
       localStorage.setItem("ncaa_user", JSON.stringify(user));
       return true;
     } catch (error) {
@@ -84,23 +71,42 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  const refreshUser = async () => {
+    if (!state.user?.id) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', state.user.id)
+        .single();
+
+      if (error || !data) return;
+
+      const updatedUser: User = {
+        id: data.id,
+        name: data.name,
+        email: data.email,
+        phoneNumber: data.phone_number,
+        directorate: data.directorate as Directorate,
+        role: data.role as UserRole,
+        profileImage: data.profile_image
+      };
+
+      setState({ user: updatedUser, isAuthenticated: true, isLoading: false });
+      localStorage.setItem("ncaa_user", JSON.stringify(updatedUser));
+    } catch (error) {
+      console.error("Error refreshing user:", error);
+    }
+  };
+
   const logout = () => {
-    setState({
-      user: null,
-      isAuthenticated: false,
-      isLoading: false
-    });
+    setState({ user: null, isAuthenticated: false, isLoading: false });
     localStorage.removeItem("ncaa_user");
   };
 
   return (
-    <AuthContext.Provider
-      value={{
-        ...state,
-        login,
-        logout
-      }}
-    >
+    <AuthContext.Provider value={{ ...state, login, logout, refreshUser }}>
       {children}
     </AuthContext.Provider>
   );
