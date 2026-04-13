@@ -1,57 +1,50 @@
 
 
-# Plan: Database Function, Test Users, and Registration Approval
+# Plan: Fix Access Control, Link Modules, and Enable Profile Picture Uploads
 
 ## What This Plan Does
 
-1. **Create the `approve_pending_registration` database function** that takes a pending registration ID, creates a user in the `users` table with default password "password", and updates the registration status to "approved"
-2. **Seed the directorates table** with DAWS, DAAS, DATR, DOLTS, ICT entries
-3. **Create 4 additional test user accounts**:
-   - **Reader User** (`reader@ncaa.gov.ng` / `reader123`) — Role: "Read and View", Directorate: DAWS — can only view data
-   - **Technical User** (`technical@ncaa.gov.ng` / `tech123`) — Role: "Technical", Directorate: DAWS — can read and write
-   - **DAAS User** (`daas@ncaa.gov.ng` / `daas123`) — Role: "Technical", Directorate: DAAS — only sees DAAS module
-   - **DATR User** (`datr@ncaa.gov.ng` / `datr123`) — Role: "Technical", Directorate: DATR — only sees DATR/Economic License views
+1. **Create a storage bucket** for profile image uploads (currently no buckets exist, so uploads fail)
+2. **Fix the profile save flow** to actually persist profile image URLs to the database (currently `handleSave` only shows a toast but never updates the `users` table or refreshes the auth context)
+3. **Update the Header** to show profile images (currently only shows initials)
+4. **Add DAAS cards to the Dashboard** so DAAS users see their relevant quick-access cards (Aerodrome Certifications, Safety Inspections, Personnel)
+5. **Verify sidebar access** -- the sidebar already correctly filters by directorate, but the Dashboard's `navigationCards` is missing DAAS-specific entries
 
 ## Technical Details
 
-### Step 1: Database Migration
-Create the `approve_pending_registration` SQL function:
+### Step 1: Database Migration - Create Storage Bucket
 ```sql
-CREATE OR REPLACE FUNCTION public.approve_pending_registration(registration_id uuid)
-RETURNS void AS $$
-DECLARE
-  reg RECORD;
-BEGIN
-  SELECT * INTO reg FROM pending_registrations WHERE id = registration_id;
-  IF NOT FOUND THEN RAISE EXCEPTION 'Registration not found'; END IF;
-  
-  INSERT INTO users (name, email, phone_number, directorate, role, password_hash)
-  VALUES (reg.full_name, reg.email, reg.phone_number, reg.requested_directorate, 
-          COALESCE(reg.requested_role, 'Read and View'), 'password');
-  
-  UPDATE pending_registrations SET status = 'approved', updated_at = now() 
-  WHERE id = registration_id;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+INSERT INTO storage.buckets (id, name, public) VALUES ('avatars', 'avatars', true);
+
+-- Allow anyone to upload avatars
+CREATE POLICY "Allow avatar uploads" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'avatars');
+CREATE POLICY "Allow avatar reads" ON storage.objects FOR SELECT USING (bucket_id = 'avatars');
+CREATE POLICY "Allow avatar updates" ON storage.objects FOR UPDATE USING (bucket_id = 'avatars');
+CREATE POLICY "Allow avatar deletes" ON storage.objects FOR DELETE USING (bucket_id = 'avatars');
 ```
 
-### Step 2: Insert Seed Data
-- Insert directorates: DAWS, DAAS, DATR, DOLTS, ICT
-- Insert 4 test user accounts with the credentials listed above
+### Step 2: Fix ProfilePage.tsx
+- Change storage bucket from `'documents'` to `'avatars'`
+- Update `handleSave` to actually call `supabase.from('users').update(...)` with the new profile image URL, name, phone number
+- After saving, update localStorage auth state so the profile image persists across the session
+- Add a `refreshUser` method to AuthContext that reloads user data from DB
 
-### Step 3: Fix PendingRegistrations Component
-Update the `handleApprove` call to use the RPC function properly (remove the `as any` cast since the function will now exist in the types).
+### Step 3: Update AuthContext.tsx
+- Add a `refreshUser()` function that re-fetches the user from the DB and updates state + localStorage
+- Export it so ProfilePage and Header can use it
 
-### Step 4: Test Login
-Navigate to the app and verify admin login works with `admin@ncaa.gov.ng` / `admin123`.
+### Step 4: Update Header.tsx
+- Import `AvatarImage` and show the user's `profileImage` if available, falling back to initials
 
-## Test Accounts Summary
+### Step 5: Update Dashboard.tsx
+- Add DAAS-specific navigation cards (Aerodrome Certifications, Safety Inspections, Personnel) with counts from the database
+- These cards should only be visible to DAAS directorate users and Super Users
+- Ensure the "Economic Licenses" card links to `/economic-license/paas` (first sub-page) instead of `/economic-license` which doesn't exist as a route
 
-| Email | Password | Role | Directorate | Access |
-|-------|----------|------|-------------|--------|
-| admin@ncaa.gov.ng | admin123 | Super User | ICT | Full access |
-| reader@ncaa.gov.ng | reader123 | Read and View | DAWS | View only |
-| technical@ncaa.gov.ng | tech123 | Technical | DAWS | Read & write |
-| daas@ncaa.gov.ng | daas123 | Technical | DAAS | DAAS module only |
-| datr@ncaa.gov.ng | datr123 | Technical | DATR | Economic License only |
+### Files Changed
+- `supabase/migrations/` -- new migration for avatars bucket
+- `src/context/AuthContext.tsx` -- add `refreshUser()`
+- `src/pages/ProfilePage.tsx` -- fix save + upload bucket
+- `src/components/Header.tsx` -- show profile image
+- `src/pages/Dashboard.tsx` -- add DAAS cards, fix Economic License link
 
