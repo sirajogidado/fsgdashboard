@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -67,6 +67,9 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
                 aria-label="User menu"
               >
                 <Avatar className="h-8 w-8">
+                  {user?.profileImage && (
+                    <AvatarImage src={user.profileImage} alt={user.name} />
+                  )}
                   <AvatarFallback>
                     {user?.name ? getInitials(user.name) : "U"}
                   </AvatarFallback>

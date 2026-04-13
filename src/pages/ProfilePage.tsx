@@ -12,14 +12,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { Camera, User } from "lucide-react";
 
 const ProfilePage = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [directorates, setDirectorates] = useState<any[]>([]);
   const [profileData, setProfileData] = useState({
     name: user?.name || "",
     email: user?.email || "",
     phoneNumber: user?.phoneNumber || "",
-    profileImage: user?.profileImage || "/placeholder.svg",
+    profileImage: user?.profileImage || "",
     directorate: user?.directorate || ""
   });
 
@@ -29,12 +30,24 @@ const ProfilePage = () => {
     fetchDirectorates();
   }, []);
 
+  useEffect(() => {
+    if (user) {
+      setProfileData({
+        name: user.name || "",
+        email: user.email || "",
+        phoneNumber: user.phoneNumber || "",
+        profileImage: user.profileImage || "",
+        directorate: user.directorate || ""
+      });
+    }
+  }, [user]);
+
   const fetchDirectorates = async () => {
     try {
       const { data, error } = await supabase
         .from('directorates')
         .select('*')
-        .order('directorate_name');
+        .order('name');
 
       if (error) throw error;
       setDirectorates(data || []);
@@ -50,59 +63,81 @@ const ProfilePage = () => {
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) { // 5MB limit
-        toast({
-          title: "File too large",
-          description: "Please select an image smaller than 5MB.",
-          variant: "destructive",
-        });
-        return;
-      }
+    if (!file) return;
 
-      try {
-        // Upload to Supabase storage
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${user?.id || 'user'}_${Date.now()}.${fileExt}`;
-        const filePath = `avatars/${fileName}`;
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Please select an image smaller than 5MB.", variant: "destructive" });
+      return;
+    }
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('documents')
-          .upload(filePath, file);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user?.id || 'user'}_${Date.now()}.${fileExt}`;
+      const filePath = `${fileName}`;
 
-        if (uploadError) throw uploadError;
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
 
-        // Get public URL
-        const { data: { publicUrl } } = supabase.storage
-          .from('documents')
-          .getPublicUrl(filePath);
+      if (uploadError) throw uploadError;
 
-        setProfileData(prev => ({ 
-          ...prev, 
-          profileImage: publicUrl 
-        }));
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
 
-        toast({
-          title: "Image uploaded",
-          description: "Your profile image has been updated.",
-        });
-      } catch (error: any) {
-        console.error('Error uploading image:', error);
-        toast({
-          title: "Upload failed",
-          description: error.message || "Failed to upload image",
-          variant: "destructive",
-        });
-      }
+      setProfileData(prev => ({ ...prev, profileImage: publicUrl }));
+
+      // Persist immediately to DB
+      await supabase
+        .from('users')
+        .update({ profile_image: publicUrl })
+        .eq('id', user?.id);
+
+      await refreshUser();
+
+      toast({ title: "Image uploaded", description: "Your profile image has been updated." });
+    } catch (error: any) {
+      console.error('Error uploading image:', error);
+      toast({ title: "Upload failed", description: error.message || "Failed to upload image", variant: "destructive" });
     }
   };
 
-  const handleSave = () => {
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been updated successfully.",
-    });
-    setIsEditing(false);
+  const handleSave = async () => {
+    if (!user?.id) return;
+    setIsSaving(true);
+
+    try {
+      const updateData: any = {
+        phone_number: profileData.phoneNumber,
+      };
+
+      if (isSuperUser) {
+        updateData.name = profileData.name;
+        updateData.email = profileData.email;
+        updateData.directorate = profileData.directorate;
+      }
+
+      if (profileData.profileImage) {
+        updateData.profile_image = profileData.profileImage;
+      }
+
+      const { error } = await supabase
+        .from('users')
+        .update(updateData)
+        .eq('id', user.id);
+
+      if (error) throw error;
+
+      await refreshUser();
+
+      toast({ title: "Profile Updated", description: "Your profile has been updated successfully." });
+      setIsEditing(false);
+    } catch (error: any) {
+      console.error('Error saving profile:', error);
+      toast({ title: "Save failed", description: error.message || "Failed to save profile", variant: "destructive" });
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleCancel = () => {
@@ -110,7 +145,7 @@ const ProfilePage = () => {
       name: user?.name || "",
       email: user?.email || "",
       phoneNumber: user?.phoneNumber || "",
-      profileImage: user?.profileImage || "/placeholder.svg",
+      profileImage: user?.profileImage || "",
       directorate: user?.directorate || ""
     });
     setIsEditing(false);
@@ -119,7 +154,7 @@ const ProfilePage = () => {
   if (!user) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-ncaa-primary"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
       </div>
     );
   }
@@ -128,9 +163,7 @@ const ProfilePage = () => {
     <div className="space-y-6 max-w-2xl mx-auto">
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Profile</h1>
-        <p className="text-muted-foreground">
-          Manage your account settings and preferences
-        </p>
+        <p className="text-muted-foreground">Manage your account settings and preferences</p>
       </div>
 
       <Card>
@@ -138,10 +171,9 @@ const ProfilePage = () => {
           <CardTitle>Personal Information</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Profile Image */}
           <div className="flex flex-col items-center space-y-4">
             <div className="relative">
-              {profileData.profileImage && profileData.profileImage !== "/placeholder.svg" ? (
+              {profileData.profileImage ? (
                 <img
                   src={profileData.profileImage}
                   alt="Profile"
@@ -152,78 +184,43 @@ const ProfilePage = () => {
                   <User className="w-12 h-12 text-gray-400" />
                 </div>
               )}
-              <label className="absolute bottom-0 right-0 bg-ncaa-primary text-white rounded-full p-2 cursor-pointer hover:bg-ncaa-primary/80 transition-colors">
+              <label className="absolute bottom-0 right-0 bg-primary text-primary-foreground rounded-full p-2 cursor-pointer hover:opacity-80 transition-opacity">
                 <Camera className="w-4 h-4" />
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="hidden"
-                />
+                <input type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
               </label>
             </div>
-            <p className="text-sm text-gray-600 text-center">
+            <p className="text-sm text-muted-foreground text-center">
               Click the camera icon to upload your profile picture
               <br />
-              <span className="text-xs text-gray-500">Maximum file size: 5MB</span>
+              <span className="text-xs">Maximum file size: 5MB</span>
             </p>
           </div>
 
-          {/* Form Fields */}
           <div className="grid gap-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
-              <Input
-                id="name"
-                name="name"
-                value={profileData.name}
-                onChange={handleInputChange}
-                disabled={!isEditing || !isSuperUser}
-                className={!isSuperUser ? "bg-gray-100" : ""}
-              />
-              {!isSuperUser && (
-                <p className="text-xs text-gray-500">Only Super Users can edit name</p>
-              )}
+              <Input id="name" name="name" value={profileData.name} onChange={handleInputChange} disabled={!isEditing || !isSuperUser} className={!isSuperUser ? "bg-muted" : ""} />
+              {!isSuperUser && <p className="text-xs text-muted-foreground">Only Super Users can edit name</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={profileData.email}
-                onChange={handleInputChange}
-                disabled={!isEditing || !isSuperUser}
-                className={!isSuperUser ? "bg-gray-100" : ""}
-              />
-              {!isSuperUser && (
-                <p className="text-xs text-gray-500">Only Super Users can edit email</p>
-              )}
+              <Input id="email" name="email" type="email" value={profileData.email} onChange={handleInputChange} disabled={!isEditing || !isSuperUser} className={!isSuperUser ? "bg-muted" : ""} />
+              {!isSuperUser && <p className="text-xs text-muted-foreground">Only Super Users can edit email</p>}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="phoneNumber">Phone Number</Label>
-              <Input
-                id="phoneNumber"
-                name="phoneNumber"
-                value={profileData.phoneNumber}
-                onChange={handleInputChange}
-                disabled={!isEditing}
-              />
+              <Input id="phoneNumber" name="phoneNumber" value={profileData.phoneNumber} onChange={handleInputChange} disabled={!isEditing} />
             </div>
 
             <div className="space-y-2">
               <Label>Role</Label>
-              <Badge
-                className={
-                  user.role === "Super User"
-                    ? "bg-purple-100 text-purple-800 border-purple-300"
-                    : user.role === "Technical"
-                    ? "bg-blue-100 text-blue-800 border-blue-300"
-                    : "bg-gray-100 text-gray-800 border-gray-300"
-                }
-              >
+              <Badge className={
+                user.role === "Super User" ? "bg-purple-100 text-purple-800 border-purple-300" :
+                user.role === "Technical" ? "bg-blue-100 text-blue-800 border-blue-300" :
+                "bg-gray-100 text-gray-800 border-gray-300"
+              }>
                 {user.role}
               </Badge>
             </div>
@@ -231,46 +228,30 @@ const ProfilePage = () => {
             <div className="space-y-2">
               <Label htmlFor="directorate">Directorate</Label>
               {isEditing && isSuperUser ? (
-                <Select
-                  value={profileData.directorate}
-                  onValueChange={(value) => setProfileData(prev => ({ ...prev, directorate: value }))}
-                >
+                <Select value={profileData.directorate} onValueChange={(value) => setProfileData(prev => ({ ...prev, directorate: value }))}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select directorate" />
                   </SelectTrigger>
                   <SelectContent className="bg-white z-50">
                     {directorates.map((dir) => (
-                      <SelectItem key={dir.id} value={dir.directorate_name}>
-                        {dir.directorate_name}
-                      </SelectItem>
+                      <SelectItem key={dir.id} value={dir.code}>{dir.name}</SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               ) : (
-                <Badge variant="outline" className="bg-gray-100">
-                  {user?.directorate}
-                </Badge>
+                <Badge variant="outline" className="bg-muted">{user?.directorate}</Badge>
               )}
-              {!isSuperUser && (
-                <p className="text-xs text-gray-500">Only Super Users can edit directorate</p>
-              )}
+              {!isSuperUser && <p className="text-xs text-muted-foreground">Only Super Users can edit directorate</p>}
             </div>
           </div>
 
-          {/* Action Buttons */}
           <div className="flex gap-2 pt-4">
             {!isEditing ? (
-              <Button onClick={() => setIsEditing(true)}>
-                Edit Profile
-              </Button>
+              <Button onClick={() => setIsEditing(true)}>Edit Profile</Button>
             ) : (
               <>
-                <Button onClick={handleSave}>
-                  Save Changes
-                </Button>
-                <Button variant="outline" onClick={handleCancel}>
-                  Cancel
-                </Button>
+                <Button onClick={handleSave} disabled={isSaving}>{isSaving ? "Saving..." : "Save Changes"}</Button>
+                <Button variant="outline" onClick={handleCancel}>Cancel</Button>
               </>
             )}
           </div>
@@ -285,27 +266,15 @@ const ProfilePage = () => {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="currentPassword">Current Password</Label>
-              <Input
-                id="currentPassword"
-                type="password"
-                placeholder="Enter current password"
-              />
+              <Input id="currentPassword" type="password" placeholder="Enter current password" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="newPassword">New Password</Label>
-              <Input
-                id="newPassword"
-                type="password"
-                placeholder="Enter new password"
-              />
+              <Input id="newPassword" type="password" placeholder="Enter new password" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm New Password</Label>
-              <Input
-                id="confirmPassword"
-                type="password"
-                placeholder="Confirm new password"
-              />
+              <Input id="confirmPassword" type="password" placeholder="Confirm new password" />
             </div>
             <Button>Update Password</Button>
           </CardContent>
