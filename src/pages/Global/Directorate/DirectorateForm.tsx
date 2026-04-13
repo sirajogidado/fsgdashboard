@@ -14,7 +14,8 @@ interface DirectorateFormProps {
 }
 
 interface DirectorateData {
-  directorate_name: string;
+  name: string;
+  code: string;
 }
 
 const DirectorateForm = ({ onCancel, editingId, onSuccess }: DirectorateFormProps) => {

@@ -23,7 +23,6 @@ export interface AerodromeCertification {
   last_inspection_date: string | null;
   next_inspection_date: string | null;
   comments: string | null;
-  certificate_url: string | null;
   created_at: string;
   updated_at: string;
 }

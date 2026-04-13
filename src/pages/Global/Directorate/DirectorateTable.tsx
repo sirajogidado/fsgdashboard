@@ -25,9 +25,10 @@ interface DirectorateTableProps {
 
 interface Directorate {
   id: string;
-  directorate_name: string;
+  name: string;
+  code: string;
+  description: string | null;
   created_at: string;
-  updated_at: string;
 }
 
 const DirectorateTable = ({ searchQuery, onEdit, refreshTrigger }: DirectorateTableProps) => {
