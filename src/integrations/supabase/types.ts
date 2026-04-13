@@ -879,7 +879,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      approve_pending_registration: {
+        Args: { registration_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

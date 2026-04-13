@@ -82,7 +82,7 @@ const PendingRegistrations = () => {
 
   const handleApprove = async (id: string) => {
     try {
-      const { error } = await (supabase.rpc as any)('approve_pending_registration', {
+      const { error } = await supabase.rpc('approve_pending_registration', {
         registration_id: id
       });
 
