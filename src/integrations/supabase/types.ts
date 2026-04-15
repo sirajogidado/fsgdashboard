@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      acceptance_certificates: {
+        Row: {
+          aircraft_manufacturer: string | null
+          aircraft_type: string | null
+          certificate_number: string | null
+          created_at: string | null
+          id: string
+          issue_date: string | null
+          serial_number: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          aircraft_manufacturer?: string | null
+          aircraft_type?: string | null
+          certificate_number?: string | null
+          created_at?: string | null
+          id?: string
+          issue_date?: string | null
+          serial_number?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          aircraft_manufacturer?: string | null
+          aircraft_type?: string | null
+          certificate_number?: string | null
+          created_at?: string | null
+          id?: string
+          issue_date?: string | null
+          serial_number?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       aerodrome_certifications: {
         Row: {
           aerodrome_name: string
@@ -210,6 +246,135 @@ export type Database = {
         }
         Relationships: []
       }
+      aircraft_manufacturers: {
+        Row: {
+          country: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          manufacturer_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          manufacturer_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          country?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          manufacturer_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      aircraft_status: {
+        Row: {
+          aircraft_type: string | null
+          aoc_holder: string | null
+          cofa_expiry: string | null
+          created_at: string | null
+          id: string
+          registered_owner: string | null
+          registration_mark: string | null
+          serial_number: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          aircraft_type?: string | null
+          aoc_holder?: string | null
+          cofa_expiry?: string | null
+          created_at?: string | null
+          id?: string
+          registered_owner?: string | null
+          registration_mark?: string | null
+          serial_number?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          aircraft_type?: string | null
+          aoc_holder?: string | null
+          cofa_expiry?: string | null
+          created_at?: string | null
+          id?: string
+          registered_owner?: string | null
+          registration_mark?: string | null
+          serial_number?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      aircraft_types: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          manufacturer: string | null
+          type_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          manufacturer?: string | null
+          type_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          manufacturer?: string | null
+          type_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      amo_licenses: {
+        Row: {
+          approval_number: string | null
+          created_at: string | null
+          expiry_date: string | null
+          holder_criteria: string | null
+          id: string
+          maintenance_location: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          approval_number?: string | null
+          created_at?: string | null
+          expiry_date?: string | null
+          holder_criteria?: string | null
+          id?: string
+          maintenance_location?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          approval_number?: string | null
+          created_at?: string | null
+          expiry_date?: string | null
+          holder_criteria?: string | null
+          id?: string
+          maintenance_location?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       aoc_certificates: {
         Row: {
           certificate_number: string | null
@@ -309,6 +474,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ato_licenses: {
+        Row: {
+          certificate_number: string | null
+          created_at: string | null
+          expiry_date: string | null
+          id: string
+          issue_date: string | null
+          organization_name: string | null
+          status: string | null
+          training_type: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          certificate_number?: string | null
+          created_at?: string | null
+          expiry_date?: string | null
+          id?: string
+          issue_date?: string | null
+          organization_name?: string | null
+          status?: string | null
+          training_type?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          certificate_number?: string | null
+          created_at?: string | null
+          expiry_date?: string | null
+          id?: string
+          issue_date?: string | null
+          organization_name?: string | null
+          status?: string | null
+          training_type?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       atol_licenses: {
         Row: {
           created_at: string | null
@@ -372,6 +573,36 @@ export type Database = {
           module?: string | null
           user_id?: string | null
           user_name?: string | null
+        }
+        Relationships: []
+      }
+      certificate_types: {
+        Row: {
+          category: string | null
+          certificate_name: string
+          created_at: string | null
+          description: string | null
+          id: string
+          updated_at: string | null
+          validity: string | null
+        }
+        Insert: {
+          category?: string | null
+          certificate_name: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          updated_at?: string | null
+          validity?: string | null
+        }
+        Update: {
+          category?: string | null
+          certificate_name?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          updated_at?: string | null
+          validity?: string | null
         }
         Relationships: []
       }
@@ -564,6 +795,36 @@ export type Database = {
         }
         Relationships: []
       }
+      foreign_airlines: {
+        Row: {
+          airline_name: string
+          country: string | null
+          created_at: string | null
+          iata_code: string | null
+          icao_code: string | null
+          id: string
+          updated_at: string | null
+        }
+        Insert: {
+          airline_name: string
+          country?: string | null
+          created_at?: string | null
+          iata_code?: string | null
+          icao_code?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Update: {
+          airline_name?: string
+          country?: string | null
+          created_at?: string | null
+          iata_code?: string | null
+          icao_code?: string | null
+          id?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       foreign_amo: {
         Row: {
           approval_number: string | null
@@ -594,6 +855,33 @@ export type Database = {
         }
         Relationships: []
       }
+      foreign_registration_marks: {
+        Row: {
+          country: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          registration_mark: string
+          updated_at: string | null
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          registration_mark: string
+          updated_at?: string | null
+        }
+        Update: {
+          country?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          registration_mark?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       general_aviation: {
         Row: {
           aircraft_type: string | null
@@ -620,6 +908,33 @@ export type Database = {
           operator_name?: string | null
           registration?: string | null
           status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      operation_types: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          operation_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          operation_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          operation_type?: string
           updated_at?: string | null
         }
         Relationships: []
@@ -831,6 +1146,120 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      state_of_registry: {
+        Row: {
+          country_code: string | null
+          country_name: string
+          created_at: string | null
+          id: string
+          registration_prefix: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          country_code?: string | null
+          country_name: string
+          created_at?: string | null
+          id?: string
+          registration_prefix?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          country_code?: string | null
+          country_name?: string
+          created_at?: string | null
+          id?: string
+          registration_prefix?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      training_organizations: {
+        Row: {
+          category: string | null
+          country: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          organization_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          country?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          organization_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          country?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          organization_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      travel_agencies: {
+        Row: {
+          agency_name: string
+          contact_person: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          location: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          agency_name: string
+          contact_person?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          location?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          agency_name?: string
+          contact_person?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          location?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_roles_config: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          permissions: Json | null
+          role_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          permissions?: Json | null
+          role_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          permissions?: Json | null
+          role_name?: string
+          updated_at?: string | null
+        }
+        Relationships: []
       }
       users: {
         Row: {
