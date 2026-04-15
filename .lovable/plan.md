@@ -1,50 +1,91 @@
 
 
-# Plan: Fix Access Control, Link Modules, and Enable Profile Picture Uploads
+# Plan: Remove Mock Data and Connect All Modules to Database
 
-## What This Plan Does
+## Summary
+Remove all hardcoded mock/sample data from 25+ components and connect them to live database tables. Create missing database tables for modules that don't have them yet. After this, the platform will show empty tables ready for real data entry, while preserving existing user accounts and directorates.
 
-1. **Create a storage bucket** for profile image uploads (currently no buckets exist, so uploads fail)
-2. **Fix the profile save flow** to actually persist profile image URLs to the database (currently `handleSave` only shows a toast but never updates the `users` table or refreshes the auth context)
-3. **Update the Header** to show profile images (currently only shows initials)
-4. **Add DAAS cards to the Dashboard** so DAAS users see their relevant quick-access cards (Aerodrome Certifications, Safety Inspections, Personnel)
-5. **Verify sidebar access** -- the sidebar already correctly filters by directorate, but the Dashboard's `navigationCards` is missing DAAS-specific entries
+## Step 1: Database Migration — Create Missing Tables
 
-## Technical Details
+Create the following tables that don't exist yet but are needed by components:
 
-### Step 1: Database Migration - Create Storage Bucket
-```sql
-INSERT INTO storage.buckets (id, name, public) VALUES ('avatars', 'avatars', true);
+- **aircraft_status** — for ACStatusList (aoc_holder, registration_mark, aircraft_type, serial_number, cofa_expiry, registered_owner, status)
+- **amo_licenses** — for LocalAMOList (holder_criteria, approval_number, maintenance_location, expiry_date, status)
+- **ato_licenses** — for ATOList (organization_name, certificate_number, training_type, issue_date, expiry_date, status)
+- **acceptance_certificates** — for AcceptanceCertificateList (certificate_number, aircraft_manufacturer, aircraft_type, serial_number, issue_date, status)
+- **aircraft_types** — Global (type_name, manufacturer, category, description)
+- **aircraft_manufacturers** — Global (manufacturer_name, country, description)
+- **operation_types** — Global (operation_type, category, description)
+- **state_of_registry** — Global (country_name, country_code, registration_prefix)
+- **training_organizations** — Global (organization_name, country, category, description)
+- **travel_agencies** — Global (agency_name, location, contact_person, description)
+- **foreign_registration_marks** — Global (registration_mark, country, description)
+- **certificate_types** — Global (certificate_name, category, validity, description)
+- **foreign_airlines** — Global (airline_name, country, iata_code, icao_code)
+- **user_roles_config** — Global (role_name, description, permissions)
 
--- Allow anyone to upload avatars
-CREATE POLICY "Allow avatar uploads" ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'avatars');
-CREATE POLICY "Allow avatar reads" ON storage.objects FOR SELECT USING (bucket_id = 'avatars');
-CREATE POLICY "Allow avatar updates" ON storage.objects FOR UPDATE USING (bucket_id = 'avatars');
-CREATE POLICY "Allow avatar deletes" ON storage.objects FOR DELETE USING (bucket_id = 'avatars');
-```
+All tables get RLS policies (public access for now), `id uuid` primary key, `created_at`/`updated_at` timestamps.
 
-### Step 2: Fix ProfilePage.tsx
-- Change storage bucket from `'documents'` to `'avatars'`
-- Update `handleSave` to actually call `supabase.from('users').update(...)` with the new profile image URL, name, phone number
-- After saving, update localStorage auth state so the profile image persists across the session
-- Add a `refreshUser` method to AuthContext that reloads user data from DB
+## Step 2: Update List/Table Components (25 files)
 
-### Step 3: Update AuthContext.tsx
-- Add a `refreshUser()` function that re-fetches the user from the DB and updates state + localStorage
-- Export it so ProfilePage and Header can use it
+Replace hardcoded data with Supabase queries in each component:
 
-### Step 4: Update Header.tsx
-- Import `AvatarImage` and show the user's `profileImage` if available, falling back to initials
+**Module Lists (fetch from DB, show empty if no records):**
+- `ACStatusList.tsx` → query `aircraft_status`
+- `LocalAMOList.tsx` → query `amo_licenses`
+- `ForeignAMOList.tsx` → query `foreign_amo`
+- `AOCList.tsx` → query `aoc_certificates`
+- `ATOList.tsx` → query `ato_licenses`
+- `AcceptanceCertificateList.tsx` → query `acceptance_certificates`
+- `FOCCMCCList.tsx` → query `focc_mcc_records`
+- `ForeignAirlineDACLList.tsx` → query `foreign_airline_dacl`
+- `PAASList.tsx` → query `paas_licenses`
+- `AuditTrailPage.tsx` → query `audit_trail`
 
-### Step 5: Update Dashboard.tsx
-- Add DAAS-specific navigation cards (Aerodrome Certifications, Safety Inspections, Personnel) with counts from the database
-- These cards should only be visible to DAAS directorate users and Super Users
-- Ensure the "Economic Licenses" card links to `/economic-license/paas` (first sub-page) instead of `/economic-license` which doesn't exist as a route
+**Global Tables (fetch from DB, show empty if no records):**
+- `AircraftTypeTable.tsx` → query `aircraft_types`
+- `AircraftManufacturerTable.tsx` → query `aircraft_manufacturers`
+- `OperationTypeTable.tsx` → query `operation_types`
+- `StateOfRegistryTable.tsx` → query `state_of_registry`
+- `TrainingOrganizationTable.tsx` → query `training_organizations`
+- `TravelAgencyTable.tsx` → query `travel_agencies`
+- `ForeignRegistrationMarkTable.tsx` → query `foreign_registration_marks`
+- `CertificateTypeTable.tsx` → query `certificate_types`
+- `ForeignAMOTable.tsx` → query `foreign_amo`
+- `ForeignAirlineTable.tsx` → query `foreign_airlines`
+- `GeneralAviationTable.tsx` → query `general_aviation`
+- `UserRolesTable.tsx` → query `user_roles_config`
+- `AuditTrailTable.tsx` → query `audit_trail`
 
-### Files Changed
-- `supabase/migrations/` -- new migration for avatars bucket
-- `src/context/AuthContext.tsx` -- add `refreshUser()`
-- `src/pages/ProfilePage.tsx` -- fix save + upload bucket
-- `src/components/Header.tsx` -- show profile image
-- `src/pages/Dashboard.tsx` -- add DAAS cards, fix Economic License link
+Each component will:
+1. Use `useState` + `useEffect` to fetch data from Supabase on mount
+2. Show a loading state while fetching
+3. Show "No records found" when empty
+4. Support real delete (call `supabase.from(...).delete()`)
+5. Refresh data after delete
+
+## Step 3: Update Form Components
+
+Update form dropdowns that use mock arrays to fetch from related DB tables instead:
+- `AcceptanceCertificateForm.tsx` — fetch aircraft manufacturers from `aircraft_manufacturers`
+- `ForeignAMOForm.tsx` — fetch from `foreign_amo` global table
+- `FOCCMCCForm.tsx` — fetch from `general_aviation`, `state_of_registry`
+- `ATOForm.tsx` — fetch from `training_organizations`
+- `ForeignAirlineDACLForm.tsx` — fetch from `foreign_airlines`
+- Economic License forms (PAAS, AOP, PNCF, ATOL) — fetch AOC data from `aoc_certificates`
+
+## Step 4: Update Form Save Handlers
+
+Ensure all form "save" handlers actually insert/update records in the database instead of just showing a toast.
+
+## Files Changed
+- `supabase/migrations/` — 1 new migration with ~14 CREATE TABLE statements
+- ~25 list/table component files — replace mock data with DB queries
+- ~10 form component files — replace mock dropdowns with DB queries and wire up save
+
+## What Stays
+- All user accounts (admin, reader, technical, daas, datr)
+- All directorates (DAWS, DAAS, DATR, DOLTS, ICT)
+- Existing aerodrome certifications, safety inspections, personnel data
+- Storage bucket and profile image functionality
 
