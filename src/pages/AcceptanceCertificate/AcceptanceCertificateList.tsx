@@ -1,41 +1,10 @@
-
-import React from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import React, { useState, useEffect } from "react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import { CircleEllipsis } from "lucide-react";
-
-// Mock data for demonstration
-const mockData = [
-  {
-    id: "1",
-    certificateNumber: "TAC-2023-001",
-    aircraftManufacturer: "Boeing",
-    aircraftType: "737-800",
-    engineType: "CFM56-7B",
-    issueDate: "2023-01-15"
-  },
-  {
-    id: "2",
-    certificateNumber: "TAC-2023-002",
-    aircraftManufacturer: "Airbus",
-    aircraftType: "A350-900",
-    engineType: "Rolls-Royce Trent XWB",
-    issueDate: "2023-05-22"
-  },
-];
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { CircleEllipsis, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 interface AcceptanceCertificateListProps {
   searchQuery: string;
@@ -43,18 +12,36 @@ interface AcceptanceCertificateListProps {
 }
 
 const AcceptanceCertificateList: React.FC<AcceptanceCertificateListProps> = ({ searchQuery, onEdit }) => {
-  const filteredData = mockData.filter(item => 
-    item.certificateNumber.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    item.aircraftManufacturer.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.aircraftType.toLowerCase().includes(searchQuery.toLowerCase())
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    setLoading(true);
+    const { data: records } = await supabase.from("acceptance_certificates").select("*").order("created_at", { ascending: false });
+    setData(records || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchData(); }, []);
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("acceptance_certificates").delete().eq("id", id);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: "Deleted", description: "Acceptance certificate deleted." }); fetchData(); }
+  };
+
+  const filteredData = data.filter(item =>
+    (item.certificate_number || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.aircraft_manufacturer || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.aircraft_type || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (loading) return <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
   return (
     <div>
       {filteredData.length === 0 ? (
-        <div className="text-center py-10">
-          <p className="text-muted-foreground">No type acceptance certificate records found</p>
-        </div>
+        <div className="text-center py-10"><p className="text-muted-foreground">No type acceptance certificate records found</p></div>
       ) : (
         <div className="rounded-md border">
           <Table>
@@ -63,7 +50,7 @@ const AcceptanceCertificateList: React.FC<AcceptanceCertificateListProps> = ({ s
                 <TableHead>Certificate Number</TableHead>
                 <TableHead>Aircraft Manufacturer</TableHead>
                 <TableHead>Aircraft Type</TableHead>
-                <TableHead>Engine Type</TableHead>
+                <TableHead>Serial Number</TableHead>
                 <TableHead>Issue Date</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
@@ -71,26 +58,17 @@ const AcceptanceCertificateList: React.FC<AcceptanceCertificateListProps> = ({ s
             <TableBody>
               {filteredData.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{item.certificateNumber}</TableCell>
-                  <TableCell>{item.aircraftManufacturer}</TableCell>
-                  <TableCell>{item.aircraftType}</TableCell>
-                  <TableCell>{item.engineType}</TableCell>
-                  <TableCell>{item.issueDate}</TableCell>
+                  <TableCell>{item.certificate_number}</TableCell>
+                  <TableCell>{item.aircraft_manufacturer}</TableCell>
+                  <TableCell>{item.aircraft_type}</TableCell>
+                  <TableCell>{item.serial_number}</TableCell>
+                  <TableCell>{item.issue_date}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <CircleEllipsis className="h-5 w-5" />
-                        </Button>
-                      </DropdownMenuTrigger>
+                      <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><CircleEllipsis className="h-5 w-5" /></Button></DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => onEdit(item.id)}>
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
-                          Delete
-                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onEdit(item.id)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(item.id)}>Delete</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

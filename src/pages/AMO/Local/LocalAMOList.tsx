@@ -1,39 +1,10 @@
-
-import React from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import React, { useState, useEffect } from "react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import { CircleEllipsis } from "lucide-react";
-
-// Mock data for demonstration
-const mockData = [
-  {
-    id: "1",
-    holderCriteria: "Existing AOC",
-    approvalNumber: "ETH-AMO-2023-001",
-    maintenanceLocation: "Addis Ababa",
-    expireDate: "2024-12-31"
-  },
-  {
-    id: "2",
-    holderCriteria: "Non AOC holder",
-    approvalNumber: "ETH-AMO-2023-002",
-    maintenanceLocation: "Bahir Dar",
-    expireDate: "2025-06-15"
-  },
-];
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { CircleEllipsis, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 export interface LocalAMOListProps {
   searchQuery: string;
@@ -41,18 +12,36 @@ export interface LocalAMOListProps {
 }
 
 const LocalAMOList: React.FC<LocalAMOListProps> = ({ searchQuery, onEdit }) => {
-  const filteredData = mockData.filter(item => 
-    item.holderCriteria.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    item.approvalNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.maintenanceLocation.toLowerCase().includes(searchQuery.toLowerCase())
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    setLoading(true);
+    const { data: records, error } = await supabase.from("amo_licenses").select("*").order("created_at", { ascending: false });
+    if (error) console.error(error); else setData(records || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchData(); }, []);
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("amo_licenses").delete().eq("id", id);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: "Deleted", description: "Local AMO record deleted." }); fetchData(); }
+  };
+
+  const filteredData = data.filter(item =>
+    (item.holder_criteria || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.approval_number || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.maintenance_location || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (loading) return <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
   return (
     <div>
       {filteredData.length === 0 ? (
-        <div className="text-center py-10">
-          <p className="text-muted-foreground">No local AMO records found</p>
-        </div>
+        <div className="text-center py-10"><p className="text-muted-foreground">No local AMO records found</p></div>
       ) : (
         <div className="rounded-md border">
           <Table>
@@ -68,25 +57,16 @@ const LocalAMOList: React.FC<LocalAMOListProps> = ({ searchQuery, onEdit }) => {
             <TableBody>
               {filteredData.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{item.holderCriteria}</TableCell>
-                  <TableCell>{item.approvalNumber}</TableCell>
-                  <TableCell>{item.maintenanceLocation}</TableCell>
-                  <TableCell>{item.expireDate}</TableCell>
+                  <TableCell>{item.holder_criteria}</TableCell>
+                  <TableCell>{item.approval_number}</TableCell>
+                  <TableCell>{item.maintenance_location}</TableCell>
+                  <TableCell>{item.expiry_date}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <CircleEllipsis className="h-5 w-5" />
-                        </Button>
-                      </DropdownMenuTrigger>
+                      <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><CircleEllipsis className="h-5 w-5" /></Button></DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => onEdit(item.id)}>
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
-                          Delete
-                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onEdit(item.id)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(item.id)}>Delete</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

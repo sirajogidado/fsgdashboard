@@ -1,81 +1,52 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DataTable } from "@/components/DataTable/DataTable";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "@/components/ui/use-toast";
+import { Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
-interface StateOfRegistry {
-  id: string;
-  countryName: string;
-  countryCode: string;
-  registrationPrefix: string;
-}
+interface StateOfRegistry { id: string; country_name: string; country_code: string | null; registration_prefix: string | null; }
 
-interface StateOfRegistryTableProps {
-  searchQuery: string;
-  onEdit: (id: string) => void;
-}
+interface StateOfRegistryTableProps { searchQuery: string; onEdit: (id: string) => void; }
 
 const StateOfRegistryTable = ({ searchQuery, onEdit }: StateOfRegistryTableProps) => {
-  const [data, setData] = useState<StateOfRegistry[]>([
-    { id: "1", countryName: "Nigeria", countryCode: "NG", registrationPrefix: "5N" },
-    { id: "2", countryName: "United States", countryCode: "US", registrationPrefix: "N" },
-    { id: "3", countryName: "United Kingdom", countryCode: "GB", registrationPrefix: "G" },
-  ]);
+  const [data, setData] = useState<StateOfRegistry[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleDelete = (id: string) => {
-    setData(prev => prev.filter(item => item.id !== id));
-    toast({
-      title: "State of Registry Deleted",
-      description: "The state of registry has been deleted successfully.",
-    });
+  const fetchData = async () => {
+    setLoading(true);
+    const { data: records } = await supabase.from("state_of_registry").select("*").order("created_at", { ascending: false });
+    setData((records as StateOfRegistry[]) || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchData(); }, []);
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("state_of_registry").delete().eq("id", id);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: "Deleted", description: "State of registry deleted." }); fetchData(); }
   };
 
   const columns: ColumnDef<StateOfRegistry>[] = [
-    {
-      accessorKey: "countryName",
-      header: "Country Name",
-    },
-    {
-      accessorKey: "countryCode",
-      header: "Country Code",
-    },
-    {
-      accessorKey: "registrationPrefix",
-      header: "Registration Prefix",
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onEdit(row.original.id)}
-          >
-            Edit
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleDelete(row.original.id)}
-            className="text-red-500 hover:text-red-700"
-          >
-            Delete
-          </Button>
-        </div>
-      ),
-    },
+    { accessorKey: "country_name", header: "Country Name" },
+    { accessorKey: "country_code", header: "Country Code" },
+    { accessorKey: "registration_prefix", header: "Registration Prefix" },
+    { id: "actions", header: "Actions", cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" onClick={() => onEdit(row.original.id)}>Edit</Button>
+        <Button variant="outline" size="sm" onClick={() => handleDelete(row.original.id)} className="text-destructive">Delete</Button>
+      </div>
+    )},
   ];
 
-  const filteredData = searchQuery
-    ? data.filter(item =>
-        item.countryName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.countryCode.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : data;
+  const filteredData = searchQuery ? data.filter(item =>
+    (item.country_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.country_code || "").toLowerCase().includes(searchQuery.toLowerCase())
+  ) : data;
+
+  if (loading) return <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
   return <DataTable columns={columns} data={filteredData} />;
 };

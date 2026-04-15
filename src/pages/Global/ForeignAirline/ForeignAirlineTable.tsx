@@ -1,85 +1,53 @@
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { DataTable } from "@/components/DataTable/DataTable";
 import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "@/components/ui/use-toast";
+import { Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
-interface ForeignAirline {
-  id: string;
-  airlineName: string;
-  country: string;
-  iataCode: string;
-  icaoCode: string;
-}
+interface ForeignAirline { id: string; airline_name: string; country: string | null; iata_code: string | null; icao_code: string | null; }
 
-interface ForeignAirlineTableProps {
-  searchQuery: string;
-  onEdit: (id: string) => void;
-}
+interface ForeignAirlineTableProps { searchQuery: string; onEdit: (id: string) => void; }
 
 const ForeignAirlineTable = ({ searchQuery, onEdit }: ForeignAirlineTableProps) => {
-  const [data, setData] = useState<ForeignAirline[]>([
-    { id: "1", airlineName: "British Airways", country: "United Kingdom", iataCode: "BA", icaoCode: "BAW" },
-    { id: "2", airlineName: "Emirates", country: "United Arab Emirates", iataCode: "EK", icaoCode: "UAE" },
-  ]);
+  const [data, setData] = useState<ForeignAirline[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleDelete = (id: string) => {
-    setData(prev => prev.filter(item => item.id !== id));
-    toast({
-      title: "Foreign Airline Deleted",
-      description: "The foreign airline has been deleted successfully.",
-    });
+  const fetchData = async () => {
+    setLoading(true);
+    const { data: records } = await supabase.from("foreign_airlines").select("*").order("created_at", { ascending: false });
+    setData((records as ForeignAirline[]) || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchData(); }, []);
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("foreign_airlines").delete().eq("id", id);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: "Deleted", description: "Foreign airline deleted." }); fetchData(); }
   };
 
   const columns: ColumnDef<ForeignAirline>[] = [
-    {
-      accessorKey: "airlineName",
-      header: "Airline Name",
-    },
-    {
-      accessorKey: "country",
-      header: "Country",
-    },
-    {
-      accessorKey: "iataCode",
-      header: "IATA Code",
-    },
-    {
-      accessorKey: "icaoCode",
-      header: "ICAO Code",
-    },
-    {
-      id: "actions",
-      header: "Actions",
-      cell: ({ row }) => (
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onEdit(row.original.id)}
-          >
-            Edit
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleDelete(row.original.id)}
-            className="text-red-500 hover:text-red-700"
-          >
-            Delete
-          </Button>
-        </div>
-      ),
-    },
+    { accessorKey: "airline_name", header: "Airline Name" },
+    { accessorKey: "country", header: "Country" },
+    { accessorKey: "iata_code", header: "IATA Code" },
+    { accessorKey: "icao_code", header: "ICAO Code" },
+    { id: "actions", header: "Actions", cell: ({ row }) => (
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" onClick={() => onEdit(row.original.id)}>Edit</Button>
+        <Button variant="outline" size="sm" onClick={() => handleDelete(row.original.id)} className="text-destructive">Delete</Button>
+      </div>
+    )},
   ];
 
-  const filteredData = searchQuery
-    ? data.filter(item =>
-        item.airlineName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        item.country.toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : data;
+  const filteredData = searchQuery ? data.filter(item =>
+    (item.airline_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.country || "").toLowerCase().includes(searchQuery.toLowerCase())
+  ) : data;
+
+  if (loading) return <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
   return <DataTable columns={columns} data={filteredData} />;
 };
