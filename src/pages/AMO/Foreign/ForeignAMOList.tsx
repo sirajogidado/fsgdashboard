@@ -1,41 +1,10 @@
-
-import React from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import React, { useState, useEffect } from "react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger
-} from "@/components/ui/dropdown-menu";
-import { CircleEllipsis } from "lucide-react";
-
-// Mock data for demonstration
-const mockData = [
-  {
-    id: "1",
-    amoHolder: "Emirates",
-    country: "United Arab Emirates",
-    amoNumber: "UAE-AMO-2023-001",
-    ratings: "A1, B1, C1",
-    expireDate: "2024-12-31"
-  },
-  {
-    id: "2",
-    amoHolder: "Qatar Airways",
-    country: "Qatar",
-    amoNumber: "QTR-AMO-2023-002",
-    ratings: "A1, A2, B3, D1",
-    expireDate: "2025-06-15"
-  },
-];
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { CircleEllipsis, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 export interface ForeignAMOListProps {
   searchQuery: string;
@@ -43,18 +12,36 @@ export interface ForeignAMOListProps {
 }
 
 const ForeignAMOList: React.FC<ForeignAMOListProps> = ({ searchQuery, onEdit }) => {
-  const filteredData = mockData.filter(item => 
-    item.amoHolder.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    item.country.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.amoNumber.toLowerCase().includes(searchQuery.toLowerCase())
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchData = async () => {
+    setLoading(true);
+    const { data: records, error } = await supabase.from("foreign_amo").select("*").order("created_at", { ascending: false });
+    if (error) console.error(error); else setData(records || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchData(); }, []);
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("foreign_amo").delete().eq("id", id);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: "Deleted", description: "Foreign AMO record deleted." }); fetchData(); }
+  };
+
+  const filteredData = data.filter(item =>
+    (item.organization_name || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.country || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.approval_number || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (loading) return <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
   return (
     <div>
       {filteredData.length === 0 ? (
-        <div className="text-center py-10">
-          <p className="text-muted-foreground">No foreign AMO records found</p>
-        </div>
+        <div className="text-center py-10"><p className="text-muted-foreground">No foreign AMO records found</p></div>
       ) : (
         <div className="rounded-md border">
           <Table>
@@ -63,34 +50,23 @@ const ForeignAMOList: React.FC<ForeignAMOListProps> = ({ searchQuery, onEdit }) 
                 <TableHead>AMO Holder</TableHead>
                 <TableHead>Country</TableHead>
                 <TableHead>AMO Number</TableHead>
-                <TableHead>Ratings</TableHead>
-                <TableHead>Expire Date</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredData.map((item) => (
                 <TableRow key={item.id}>
-                  <TableCell>{item.amoHolder}</TableCell>
+                  <TableCell>{item.organization_name}</TableCell>
                   <TableCell>{item.country}</TableCell>
-                  <TableCell>{item.amoNumber}</TableCell>
-                  <TableCell>{item.ratings}</TableCell>
-                  <TableCell>{item.expireDate}</TableCell>
+                  <TableCell>{item.approval_number}</TableCell>
+                  <TableCell>{item.status}</TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <CircleEllipsis className="h-5 w-5" />
-                        </Button>
-                      </DropdownMenuTrigger>
+                      <DropdownMenuTrigger asChild><Button variant="ghost" size="icon"><CircleEllipsis className="h-5 w-5" /></Button></DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => onEdit(item.id)}>
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>View Details</DropdownMenuItem>
-                        <DropdownMenuItem className="text-destructive">
-                          Delete
-                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => onEdit(item.id)}>Edit</DropdownMenuItem>
+                        <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(item.id)}>Delete</DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </TableCell>

@@ -1,20 +1,11 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { DataTable } from "@/components/DataTable/DataTable";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Loader2 } from "lucide-react";
 import { usePermissions } from "@/hooks/usePermissions";
-
-interface PAASRecord {
-  id: string;
-  permitNumber: string;
-  applicantName: string;
-  serviceType: string;
-  validityPeriod: string;
-  status: string;
-  issueDate: string;
-  expiryDate: string;
-}
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 interface PAASListProps {
   searchQuery: string;
@@ -23,112 +14,56 @@ interface PAASListProps {
 
 const PAASList = ({ searchQuery, onEdit }: PAASListProps) => {
   const { canEdit, canDelete } = usePermissions();
+  const [data, setData] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data - replace with actual data fetching
-  const mockData: PAASRecord[] = [
-    {
-      id: "1",
-      permitNumber: "PAAS-2024-001",
-      applicantName: "Sky Services Ltd",
-      serviceType: "Aerial Photography",
-      validityPeriod: "12 months",
-      status: "Active",
-      issueDate: "2024-01-15",
-      expiryDate: "2025-01-15"
-    },
-    {
-      id: "2",
-      permitNumber: "PAAS-2024-002",
-      applicantName: "AgriDrone Solutions",
-      serviceType: "Crop Spraying",
-      validityPeriod: "24 months",
-      status: "Active",
-      issueDate: "2024-02-01",
-      expiryDate: "2026-02-01"
-    }
-  ];
+  const fetchData = async () => {
+    setLoading(true);
+    const { data: records } = await supabase.from("paas_licenses").select("*").order("created_at", { ascending: false });
+    setData(records || []);
+    setLoading(false);
+  };
 
-  const filteredData = mockData.filter(item =>
-    item.permitNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.applicantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    item.serviceType.toLowerCase().includes(searchQuery.toLowerCase())
+  useEffect(() => { fetchData(); }, []);
+
+  const handleDelete = async (id: string) => {
+    const { error } = await supabase.from("paas_licenses").delete().eq("id", id);
+    if (error) toast({ title: "Error", description: error.message, variant: "destructive" });
+    else { toast({ title: "Deleted", description: "PAAS license deleted." }); fetchData(); }
+  };
+
+  const filteredData = data.filter(item =>
+    (item.license_number || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.operator_name || "").toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const getStatusBadge = (status: string) => {
-    const statusConfig = {
-      Active: "bg-green-100 text-green-800",
-      Expired: "bg-red-100 text-red-800",
-      Suspended: "bg-yellow-100 text-yellow-800",
-      Revoked: "bg-gray-100 text-gray-800"
+    const statusConfig: Record<string, string> = {
+      active: "bg-green-100 text-green-800",
+      expired: "bg-red-100 text-red-800",
+      suspended: "bg-yellow-100 text-yellow-800",
     };
-    
-    return (
-      <Badge className={statusConfig[status as keyof typeof statusConfig] || "bg-gray-100 text-gray-800"}>
-        {status}
-      </Badge>
-    );
+    return <Badge className={statusConfig[status] || "bg-gray-100 text-gray-800"}>{status}</Badge>;
   };
 
   const columns = [
+    { accessorKey: "license_number", header: "License Number" },
+    { accessorKey: "operator_name", header: "Operator Name" },
+    { accessorKey: "issue_date", header: "Issue Date" },
+    { accessorKey: "expiry_date", header: "Expiry Date" },
+    { accessorKey: "status", header: "Status", cell: ({ row }: any) => getStatusBadge(row.original.status) },
     {
-      accessorKey: "permitNumber",
-      header: "Permit Number",
-    },
-    {
-      accessorKey: "applicantName",
-      header: "Applicant Name",
-    },
-    {
-      accessorKey: "serviceType",
-      header: "Service Type",
-    },
-    {
-      accessorKey: "validityPeriod",
-      header: "Validity Period",
-    },
-    {
-      accessorKey: "issueDate",
-      header: "Issue Date",
-    },
-    {
-      accessorKey: "expiryDate",
-      header: "Expiry Date",
-    },
-    {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }: any) => getStatusBadge(row.original.status),
-    },
-    {
-      id: "actions",
-      header: "Actions",
+      id: "actions", header: "Actions",
       cell: ({ row }: any) => (
         <div className="flex space-x-2">
-          {canEdit() && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onEdit(row.original.id)}
-            >
-              <Edit className="h-4 w-4" />
-            </Button>
-          )}
-          {canDelete() && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                // Handle delete
-                console.log("Delete", row.original.id);
-              }}
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          )}
+          {canEdit() && <Button variant="outline" size="sm" onClick={() => onEdit(row.original.id)}><Edit className="h-4 w-4" /></Button>}
+          {canDelete() && <Button variant="outline" size="sm" onClick={() => handleDelete(row.original.id)}><Trash2 className="h-4 w-4" /></Button>}
         </div>
       ),
     },
   ];
+
+  if (loading) return <div className="flex justify-center py-10"><Loader2 className="h-6 w-6 animate-spin" /></div>;
 
   return <DataTable columns={columns} data={filteredData} />;
 };
