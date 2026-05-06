@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DataTable } from "@/components/DataTable/DataTable";
 import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { callAuthApi } from "@/lib/authApi";
 import {
   Dialog,
   DialogContent,
@@ -36,129 +35,56 @@ const PendingRegistrations = () => {
   const [selectedRegistration, setSelectedRegistration] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    fetchRegistrations();
-
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('pending-registrations-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'pending_registrations'
-        },
-        () => {
-          fetchRegistrations();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, []);
-
   const fetchRegistrations = async () => {
     try {
-      const { data, error } = await supabase
-        .from('pending_registrations')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching registrations:', error);
-        return;
-      }
-
-      setRegistrations(data || []);
+      const { registrations } = await callAuthApi<{ registrations: PendingRegistration[] }>(
+        "list_pending_registrations",
+      );
+      setRegistrations(registrations || []);
     } catch (error) {
-      console.error('Error fetching registrations:', error);
+      console.error("Error fetching registrations:", error);
     } finally {
       setIsLoading(false);
     }
   };
 
+  useEffect(() => {
+    fetchRegistrations();
+  }, []);
+
   const handleApprove = async (id: string) => {
     try {
-      const { error } = await supabase.rpc('approve_pending_registration', {
-        registration_id: id
-      });
-
-      if (error) {
-        console.error('Error approving registration:', error);
-        toast({
-          title: "Error",
-          description: "Failed to approve registration.",
-          variant: "destructive",
-        });
-        return;
-      }
-
+      await callAuthApi("approve_registration", { id });
       toast({
         title: "Registration Approved",
         description: "User account created and can now login with default password 'password'.",
       });
-    } catch (error) {
-      console.error('Error approving registration:', error);
+      fetchRegistrations();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Failed to approve.", variant: "destructive" });
     }
   };
 
   const handleReject = async (id: string) => {
     if (!rejectionReason.trim()) {
-      toast({
-        title: "Error",
-        description: "Please provide a reason for rejection.",
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: "Please provide a reason for rejection.", variant: "destructive" });
       return;
     }
-
     try {
-      const { error } = await supabase
-        .from('pending_registrations')
-        .update({ 
-          status: 'rejected',
-          rejection_reason: rejectionReason
-        })
-        .eq('id', id);
-
-      if (error) {
-        console.error('Error rejecting registration:', error);
-        toast({
-          title: "Error",
-          description: "Failed to reject registration.",
-          variant: "destructive",
-        });
-        return;
-      }
-
+      await callAuthApi("reject_registration", { id, reason: rejectionReason });
       setRejectionReason("");
       setSelectedRegistration(null);
-      
-      toast({
-        title: "Registration Rejected",
-        description: "User has been notified of the rejection.",
-      });
-    } catch (error) {
-      console.error('Error rejecting registration:', error);
+      toast({ title: "Registration Rejected", description: "User has been notified of the rejection." });
+      fetchRegistrations();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Failed to reject.", variant: "destructive" });
     }
   };
 
   const columns: ColumnDef<PendingRegistration>[] = [
-    {
-      accessorKey: "full_name",
-      header: "Full Name",
-    },
-    {
-      accessorKey: "email",
-      header: "Email",
-    },
-    {
-      accessorKey: "phone_number",
-      header: "Phone Number",
-    },
+    { accessorKey: "full_name", header: "Full Name" },
+    { accessorKey: "email", header: "Email" },
+    { accessorKey: "phone_number", header: "Phone Number" },
     {
       accessorKey: "requested_directorate",
       header: "Directorate",
@@ -200,16 +126,13 @@ const PendingRegistrations = () => {
     {
       accessorKey: "created_at",
       header: "Applied On",
-      cell: ({ row }) => {
-        return new Date(row.original.created_at).toLocaleDateString();
-      },
+      cell: ({ row }) => new Date(row.original.created_at).toLocaleDateString(),
     },
     {
       id: "actions",
       header: "Actions",
       cell: ({ row }) => {
         const registration = row.original;
-        
         if (registration.status !== "pending") {
           return (
             <span className="text-sm text-gray-500">
@@ -217,7 +140,6 @@ const PendingRegistrations = () => {
             </span>
           );
         }
-
         return (
           <div className="flex items-center gap-2">
             <Button
@@ -282,7 +204,7 @@ const PendingRegistrations = () => {
     },
   ];
 
-  const pendingCount = registrations.filter(reg => reg.status === "pending").length;
+  const pendingCount = registrations.filter((reg) => reg.status === "pending").length;
 
   if (isLoading) {
     return <div className="flex items-center justify-center p-4">Loading...</div>;
@@ -294,7 +216,7 @@ const PendingRegistrations = () => {
         <div>
           <h3 className="text-lg font-semibold">Pending User Registrations</h3>
           <p className="text-sm text-gray-600">
-            {pendingCount} registration{pendingCount !== 1 ? 's' : ''} awaiting approval
+            {pendingCount} registration{pendingCount !== 1 ? "s" : ""} awaiting approval
           </p>
         </div>
         {pendingCount > 0 && (
@@ -303,7 +225,7 @@ const PendingRegistrations = () => {
           </Badge>
         )}
       </div>
-      
+
       <DataTable columns={columns} data={registrations} searchKey="full_name" />
     </div>
   );
