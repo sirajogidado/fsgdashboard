@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { callAuthApi } from "@/lib/authApi";
 
 interface RegistrationData {
   fullName: string;
@@ -43,26 +43,13 @@ const RegistrationForm = ({ onBackToLogin }: RegistrationFormProps) => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
-        .from('pending_registrations')
-        .insert({
-          full_name: formData.fullName,
-          email: formData.email,
-          phone_number: formData.phoneNumber,
-          requested_directorate: 'DAWS',
-          requested_role: 'Technical',
-          status: 'pending'
-        });
-
-      if (error) {
-        console.error('Registration error:', error);
-        toast({
-          title: "Error",
-          description: "Failed to submit registration. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
+      await callAuthApi("register", {
+        full_name: formData.fullName,
+        email: formData.email,
+        phone_number: formData.phoneNumber,
+        requested_directorate: "DAWS",
+        requested_role: "Technical",
+      });
 
       toast({
         title: "Registration Submitted",
