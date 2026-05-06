@@ -71,12 +71,12 @@ const AIDashboard = () => {
 
   const fetchRealStats = async () => {
     try {
-      const [documentsResult, chatSessionsResult, reportsResult, usersResult] = await Promise.all([
+      const [documentsResult, chatSessionsResult, reportsResult] = await Promise.all([
         supabase.from('document_analysis').select('id', { count: 'exact' }),
         supabase.from('ai_chat_sessions').select('id', { count: 'exact' }),
         supabase.from('ai_reports').select('id', { count: 'exact' }),
-        supabase.from('users').select('id', { count: 'exact' }).eq('is_active', true)
       ]);
+      const usersResult = { count: 0 } as { count: number };
 
       setStats([
         {

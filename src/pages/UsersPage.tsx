@@ -28,7 +28,7 @@ import { toast } from "@/components/ui/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PendingRegistrations from "@/components/PendingRegistrations";
-import { supabase } from "@/integrations/supabase/client";
+import { callAuthApi } from "@/lib/authApi";
 
 interface DatabaseUser {
   id: string;
@@ -60,43 +60,14 @@ const UsersPage = () => {
 
   useEffect(() => {
     fetchUsers();
-
-    // Set up real-time subscription
-    const channel = supabase
-      .channel('users-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'users'
-        },
-        () => {
-          fetchUsers();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, []);
 
   const fetchUsers = async () => {
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) {
-        console.error('Error fetching users:', error);
-        return;
-      }
-
-      setUsers(data || []);
+      const { users } = await callAuthApi<{ users: DatabaseUser[] }>("list_users");
+      setUsers(users || []);
     } catch (error) {
-      console.error('Error fetching users:', error);
+      console.error("Error fetching users:", error);
     } finally {
       setIsLoading(false);
     }
@@ -122,106 +93,52 @@ const UsersPage = () => {
 
   const handleUpdateUser = async () => {
     if (!editingUser) return;
-
     try {
-      const updateData: any = {
+      await callAuthApi("update_user", {
+        id: editingUser.id,
         name: newUser.name,
         email: newUser.email,
         phone_number: newUser.phoneNumber,
         directorate: newUser.directorate,
         role: newUser.role,
-      };
-
-      // Only update password if provided
-      if (newUser.password) {
-        updateData.password_hash = newUser.password;
-      }
-
-      const { error } = await supabase
-        .from('users')
-        .update(updateData)
-        .eq('id', editingUser.id);
-
-      if (error) {
-        console.error('Error updating user:', error);
-        toast({
-          title: "Error",
-          description: "Failed to update user.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "User Updated",
-        description: `${newUser.name} has been updated successfully.`,
+        password: newUser.password || undefined,
       });
+      toast({ title: "User Updated", description: `${newUser.name} has been updated successfully.` });
       setIsEditUserOpen(false);
       setEditingUser(null);
       resetForm();
-    } catch (error) {
-      console.error('Error updating user:', error);
+      fetchUsers();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Failed to update user.", variant: "destructive" });
     }
   };
 
   const handleAddUser = async () => {
     try {
-      const { error } = await supabase
-        .from('users')
-        .insert({
-          name: newUser.name,
-          email: newUser.email,
-          phone_number: newUser.phoneNumber,
-          directorate: newUser.directorate,
-          role: newUser.role,
-          password_hash: newUser.password,
-          is_active: true
-        });
-
-      if (error) {
-        console.error('Error adding user:', error);
-        toast({
-          title: "Error",
-          description: "Failed to add user.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "User Added",
-        description: `${newUser.name} has been added successfully.`,
+      await callAuthApi("create_user", {
+        name: newUser.name,
+        email: newUser.email,
+        phone_number: newUser.phoneNumber,
+        directorate: newUser.directorate,
+        role: newUser.role,
+        password: newUser.password,
       });
+      toast({ title: "User Added", description: `${newUser.name} has been added successfully.` });
       setIsAddUserOpen(false);
       resetForm();
-    } catch (error) {
-      console.error('Error adding user:', error);
+      fetchUsers();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Failed to add user.", variant: "destructive" });
     }
   };
 
   const handleDeactivateUser = async (userId: string, userName: string) => {
     try {
-      const { error } = await supabase
-        .from('users')
-        .update({ is_active: false })
-        .eq('id', userId);
-
-      if (error) {
-        console.error('Error deactivating user:', error);
-        toast({
-          title: "Error",
-          description: "Failed to deactivate user.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "User Deactivated",
-        description: `${userName} has been deactivated.`,
-      });
-    } catch (error) {
-      console.error('Error deactivating user:', error);
+      await callAuthApi("deactivate_user", { id: userId });
+      toast({ title: "User Deactivated", description: `${userName} has been deactivated.` });
+      fetchUsers();
+    } catch (error: any) {
+      toast({ title: "Error", description: error.message || "Failed to deactivate user.", variant: "destructive" });
     }
   };
 

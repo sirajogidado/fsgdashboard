@@ -87,11 +87,9 @@ const ProfilePage = () => {
 
       setProfileData(prev => ({ ...prev, profileImage: publicUrl }));
 
-      // Persist immediately to DB
-      await supabase
-        .from('users')
-        .update({ profile_image: publicUrl })
-        .eq('id', user?.id);
+      // Persist immediately via secure edge function
+      const { callAuthApi } = await import("@/lib/authApi");
+      await callAuthApi("update_profile", { profile_image: publicUrl });
 
       await refreshUser();
 
@@ -107,27 +105,15 @@ const ProfilePage = () => {
     setIsSaving(true);
 
     try {
-      const updateData: any = {
-        phone_number: profileData.phoneNumber,
-      };
-
+      const payload: any = { phone_number: profileData.phoneNumber };
       if (isSuperUser) {
-        updateData.name = profileData.name;
-        updateData.email = profileData.email;
-        updateData.directorate = profileData.directorate;
+        payload.name = profileData.name;
+        payload.email = profileData.email;
+        payload.directorate = profileData.directorate;
       }
+      if (profileData.profileImage) payload.profile_image = profileData.profileImage;
 
-      if (profileData.profileImage) {
-        updateData.profile_image = profileData.profileImage;
-      }
-
-      const { error } = await supabase
-        .from('users')
-        .update(updateData)
-        .eq('id', user.id);
-
-      if (error) throw error;
-
+      await (await import("@/lib/authApi")).callAuthApi("update_profile", payload);
       await refreshUser();
 
       toast({ title: "Profile Updated", description: "Your profile has been updated successfully." });
