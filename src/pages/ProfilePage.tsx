@@ -87,11 +87,9 @@ const ProfilePage = () => {
 
       setProfileData(prev => ({ ...prev, profileImage: publicUrl }));
 
-      // Persist immediately to DB
-      await supabase
-        .from('users')
-        .update({ profile_image: publicUrl })
-        .eq('id', user?.id);
+      // Persist immediately via secure edge function
+      const { callAuthApi } = await import("@/lib/authApi");
+      await callAuthApi("update_profile", { profile_image: publicUrl });
 
       await refreshUser();
 
