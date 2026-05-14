@@ -86,6 +86,23 @@ const AuditTrailPage = () => {
           <Button variant="outline"><Download className="h-4 w-4 mr-2" />Export PDF</Button>
         </div>
       </div>
+
+      {failedLoginAlerts.length > 0 && (
+        <Alert variant="destructive">
+          <ShieldAlert className="h-4 w-4" />
+          <AlertTitle>Failed Login Alert</AlertTitle>
+          <AlertDescription>
+            <div className="mt-2 space-y-1">
+              {failedLoginAlerts.map((a) => (
+                <div key={a.email} className="text-sm">
+                  <strong>{a.email}</strong> — {a.count} failed attempts in the last {FAILED_LOGIN_WINDOW_MIN} minutes (last IP: {a.ip})
+                </div>
+              ))}
+            </div>
+          </AlertDescription>
+        </Alert>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle>System Activity Log</CardTitle>
