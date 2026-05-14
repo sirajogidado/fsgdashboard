@@ -118,6 +118,8 @@ const AuditTrailPage = () => {
                 <SelectItem value="CREATE">Create</SelectItem>
                 <SelectItem value="UPDATE">Update</SelectItem>
                 <SelectItem value="DELETE">Delete</SelectItem>
+                <SelectItem value="LOGIN_SUCCESS">Login Success</SelectItem>
+                <SelectItem value="LOGIN_FAILED">Login Failed</SelectItem>
               </SelectContent>
             </Select>
             <Select value={moduleFilter} onValueChange={setModuleFilter}>
