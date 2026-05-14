@@ -61,6 +61,11 @@ serve(async (req) => {
       const missing = requireFields(body, ["email", "password"]);
       if (missing) return json({ error: `Missing ${missing}` }, 400);
 
+      const ip =
+        req.headers.get("x-forwarded-for")?.split(",")[0].trim() ||
+        req.headers.get("cf-connecting-ip") ||
+        "unknown";
+
       const { data: user } = await supabase
         .from("users")
         .select("*")
@@ -69,12 +74,32 @@ serve(async (req) => {
         .eq("is_active", true)
         .maybeSingle();
 
-      if (!user) return json({ error: "Invalid credentials" }, 401);
+      if (!user) {
+        // Log failed attempt
+        await supabase.from("audit_trail").insert({
+          user_id: null,
+          user_name: body.email,
+          action: "LOGIN_FAILED",
+          module: "Authentication",
+          details: `Failed login attempt for ${body.email}`,
+          ip_address: ip,
+        });
+        return json({ error: "Invalid credentials" }, 401);
+      }
 
       const sessionToken = crypto.randomUUID() + crypto.randomUUID();
       await supabase.from("user_sessions").insert({
         user_id: user.id,
         token: sessionToken,
+      });
+
+      await supabase.from("audit_trail").insert({
+        user_id: user.id,
+        user_name: user.name,
+        action: "LOGIN_SUCCESS",
+        module: "Authentication",
+        details: `User ${user.email} signed in`,
+        ip_address: ip,
       });
 
       return json({ user: publicUser(user), token: sessionToken });
