@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import NotificationBell from "@/components/NotificationBell";
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -58,7 +59,8 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
           <h1 className="text-xl font-semibold text-gray-800 hidden md:block">NCAA Flight Standards Group</h1>
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          <NotificationBell />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
