@@ -912,6 +912,87 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_preferences: {
+        Row: {
+          created_at: string | null
+          email_approvals: boolean | null
+          email_enabled: boolean | null
+          email_expiry: boolean | null
+          email_general: boolean | null
+          id: string
+          sms_approvals: boolean | null
+          sms_enabled: boolean | null
+          sms_expiry: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          email_approvals?: boolean | null
+          email_enabled?: boolean | null
+          email_expiry?: boolean | null
+          email_general?: boolean | null
+          id?: string
+          sms_approvals?: boolean | null
+          sms_enabled?: boolean | null
+          sms_expiry?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          email_approvals?: boolean | null
+          email_enabled?: boolean | null
+          email_expiry?: boolean | null
+          email_general?: boolean | null
+          id?: string
+          sms_approvals?: boolean | null
+          sms_enabled?: boolean | null
+          sms_expiry?: boolean | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          category: string | null
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          link: string | null
+          metadata: Json | null
+          read_at: string | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          link?: string | null
+          metadata?: Json | null
+          read_at?: string | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          link?: string | null
+          metadata?: Json | null
+          read_at?: string | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       operation_types: {
         Row: {
           category: string | null
@@ -1087,6 +1168,57 @@ export type Database = {
           license_number?: string | null
           operator_name?: string | null
           status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      record_workflow: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          assigned_to: string | null
+          created_at: string | null
+          current_stage: string
+          directorate: string | null
+          id: string
+          priority: string | null
+          record_id: string
+          rejection_reason: string | null
+          submitted_at: string | null
+          submitted_by: string | null
+          table_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          assigned_to?: string | null
+          created_at?: string | null
+          current_stage?: string
+          directorate?: string | null
+          id?: string
+          priority?: string | null
+          record_id: string
+          rejection_reason?: string | null
+          submitted_at?: string | null
+          submitted_by?: string | null
+          table_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          assigned_to?: string | null
+          created_at?: string | null
+          current_stage?: string
+          directorate?: string | null
+          id?: string
+          priority?: string | null
+          record_id?: string
+          rejection_reason?: string | null
+          submitted_at?: string | null
+          submitted_by?: string | null
+          table_name?: string
           updated_at?: string | null
         }
         Relationships: []
@@ -1332,6 +1464,78 @@ export type Database = {
           profile_image?: string | null
           role?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      workflow_stages: {
+        Row: {
+          color: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_terminal: boolean | null
+          stage_key: string
+          stage_name: string
+          stage_order: number
+          updated_at: string | null
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_terminal?: boolean | null
+          stage_key: string
+          stage_name: string
+          stage_order?: number
+          updated_at?: string | null
+        }
+        Update: {
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_terminal?: boolean | null
+          stage_key?: string
+          stage_name?: string
+          stage_order?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      workflow_transitions: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_name: string | null
+          comment: string | null
+          created_at: string | null
+          from_stage: string | null
+          id: string
+          record_workflow_id: string
+          to_stage: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_name?: string | null
+          comment?: string | null
+          created_at?: string | null
+          from_stage?: string | null
+          id?: string
+          record_workflow_id: string
+          to_stage: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_name?: string | null
+          comment?: string | null
+          created_at?: string | null
+          from_stage?: string | null
+          id?: string
+          record_workflow_id?: string
+          to_stage?: string
         }
         Relationships: []
       }
