@@ -67,6 +67,11 @@ import FCOPPage from "./pages/EconomicLicense/FCOP/FCOPPage";
 // Audit Trail Page
 import AuditTrailPage from "./pages/AuditTrail/AuditTrailPage";
 
+// Phase 2: Workflow + Notifications
+import MyApprovalsPage from "./pages/MyApprovalsPage";
+import NotificationsPage from "./pages/NotificationsPage";
+import NotificationPreferencesPage from "./pages/NotificationPreferencesPage";
+
 // Create QueryClient outside the component
 const queryClient = new QueryClient();
 
@@ -438,6 +443,11 @@ function App() {
                     </ProtectedRoute>
                   } 
                 />
+
+                {/* Phase 2: Approvals + Notifications */}
+                <Route path="approvals" element={<MyApprovalsPage />} />
+                <Route path="notifications" element={<NotificationsPage />} />
+                <Route path="notifications/preferences" element={<NotificationPreferencesPage />} />
 
                 {/* Audit Trail Route - Super Users only */}
                 <Route 

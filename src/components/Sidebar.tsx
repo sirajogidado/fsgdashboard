@@ -20,6 +20,7 @@ import {
   BarChart3,
   Zap,
   Building,
+  Inbox,
 } from "lucide-react";
 import {
   Collapsible,
@@ -258,6 +259,19 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
             >
               <LayoutDashboard className="h-5 w-5 mr-3" />
               <span>Overview</span>
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              to="/approvals"
+              className={cn(
+                "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
+                isActive("/approvals") && "bg-white/20"
+              )}
+            >
+              <Inbox className="h-5 w-5 mr-3" />
+              <span>My Approvals</span>
             </Link>
           </li>
           

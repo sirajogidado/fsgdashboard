@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Menu, Settings, User } from "lucide-react";
+import { Menu, Settings, User, Bell } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import NotificationBell from "@/components/NotificationBell";
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -58,7 +59,8 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
           <h1 className="text-xl font-semibold text-gray-800 hidden md:block">NCAA Flight Standards Group</h1>
         </div>
 
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-2">
+          <NotificationBell />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button 
@@ -89,6 +91,10 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
               <DropdownMenuItem onClick={handleProfileClick}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/notifications/preferences")}>
+                <Bell className="mr-2 h-4 w-4" />
+                <span>Notification Preferences</span>
               </DropdownMenuItem>
               {user?.role === "Super User" && (
                 <DropdownMenuItem onClick={handleSettingsClick}>
