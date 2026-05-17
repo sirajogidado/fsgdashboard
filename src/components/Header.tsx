@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Menu, Settings, User } from "lucide-react";
+import { Menu, Settings, User, Bell } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import {
@@ -91,6 +91,10 @@ const Header = ({ toggleSidebar }: HeaderProps) => {
               <DropdownMenuItem onClick={handleProfileClick}>
                 <User className="mr-2 h-4 w-4" />
                 <span>Profile</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => navigate("/notifications/preferences")}>
+                <Bell className="mr-2 h-4 w-4" />
+                <span>Notification Preferences</span>
               </DropdownMenuItem>
               {user?.role === "Super User" && (
                 <DropdownMenuItem onClick={handleSettingsClick}>
