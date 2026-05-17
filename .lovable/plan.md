@@ -1,91 +1,92 @@
+# Phase 2 Build Plan
 
+You picked three pillars (**Workflow & Approvals**, **Operator Self-Service Portal**, **Compliance Automation / expiry engine**) plus **Email + SMS** notifications. This is a large body of work, so I'll ship it in **4 milestones** you can approve and test one at a time.
 
-# Plan: Remove Mock Data and Connect All Modules to Database
+---
 
-## Summary
-Remove all hardcoded mock/sample data from 25+ components and connect them to live database tables. Create missing database tables for modules that don't have them yet. After this, the platform will show empty tables ready for real data entry, while preserving existing user accounts and directorates.
+## Milestone 1 — Foundations (workflow + notifications wiring)
 
-## Step 1: Database Migration — Create Missing Tables
+**Goal:** every record in the platform gains a workflow lifecycle, and the system can send an email or SMS when something happens.
 
-Create the following tables that don't exist yet but are needed by components:
+### Database
+- New `workflow_stages` table — global stage definitions (Draft, Submitted, Inspector Review, Director Approval, Issued, Rejected).
+- New `record_workflow` table — links any record (table_name + record_id) to its current stage, assigned approver, and history of transitions.
+- New `notifications` table — in-app inbox per user (title, body, link, read flag).
+- New `notification_preferences` table — per-user toggles (email on/off, SMS on/off, per category).
 
-- **aircraft_status** — for ACStatusList (aoc_holder, registration_mark, aircraft_type, serial_number, cofa_expiry, registered_owner, status)
-- **amo_licenses** — for LocalAMOList (holder_criteria, approval_number, maintenance_location, expiry_date, status)
-- **ato_licenses** — for ATOList (organization_name, certificate_number, training_type, issue_date, expiry_date, status)
-- **acceptance_certificates** — for AcceptanceCertificateList (certificate_number, aircraft_manufacturer, aircraft_type, serial_number, issue_date, status)
-- **aircraft_types** — Global (type_name, manufacturer, category, description)
-- **aircraft_manufacturers** — Global (manufacturer_name, country, description)
-- **operation_types** — Global (operation_type, category, description)
-- **state_of_registry** — Global (country_name, country_code, registration_prefix)
-- **training_organizations** — Global (organization_name, country, category, description)
-- **travel_agencies** — Global (agency_name, location, contact_person, description)
-- **foreign_registration_marks** — Global (registration_mark, country, description)
-- **certificate_types** — Global (certificate_name, category, validity, description)
-- **foreign_airlines** — Global (airline_name, country, iata_code, icao_code)
-- **user_roles_config** — Global (role_name, description, permissions)
+### Backend (Edge Functions)
+- `workflow-engine` — submit / approve / reject / reassign actions. Logs every transition to `audit_trail`.
+- `send-notification` — single dispatcher; takes `{user_id, channel, template, data}` and routes to in-app + email + SMS based on prefs.
+- Twilio integration for SMS (we'll request the Twilio API key here).
+- Email infrastructure setup (requires you to configure a sender domain — handled via the email setup dialog).
 
-All tables get RLS policies (public access for now), `id uuid` primary key, `created_at`/`updated_at` timestamps.
+### Frontend
+- "My Approvals" page — queue of records awaiting the logged-in user's action.
+- Stage badge + "Submit / Approve / Reject" action bar on every existing record detail page.
+- Bell icon in the header → notifications dropdown + full inbox page.
+- Notification preferences in Profile page.
 
-## Step 2: Update List/Table Components (25 files)
+---
 
-Replace hardcoded data with Supabase queries in each component:
+## Milestone 2 — Compliance Automation (expiry engine)
 
-**Module Lists (fetch from DB, show empty if no records):**
-- `ACStatusList.tsx` → query `aircraft_status`
-- `LocalAMOList.tsx` → query `amo_licenses`
-- `ForeignAMOList.tsx` → query `foreign_amo`
-- `AOCList.tsx` → query `aoc_certificates`
-- `ATOList.tsx` → query `ato_licenses`
-- `AcceptanceCertificateList.tsx` → query `acceptance_certificates`
-- `FOCCMCCList.tsx` → query `focc_mcc_records`
-- `ForeignAirlineDACLList.tsx` → query `foreign_airline_dacl`
-- `PAASList.tsx` → query `paas_licenses`
-- `AuditTrailPage.tsx` → query `audit_trail`
+**Goal:** the platform proactively chases expiring certificates instead of waiting to be checked.
 
-**Global Tables (fetch from DB, show empty if no records):**
-- `AircraftTypeTable.tsx` → query `aircraft_types`
-- `AircraftManufacturerTable.tsx` → query `aircraft_manufacturers`
-- `OperationTypeTable.tsx` → query `operation_types`
-- `StateOfRegistryTable.tsx` → query `state_of_registry`
-- `TrainingOrganizationTable.tsx` → query `training_organizations`
-- `TravelAgencyTable.tsx` → query `travel_agencies`
-- `ForeignRegistrationMarkTable.tsx` → query `foreign_registration_marks`
-- `CertificateTypeTable.tsx` → query `certificate_types`
-- `ForeignAMOTable.tsx` → query `foreign_amo`
-- `ForeignAirlineTable.tsx` → query `foreign_airlines`
-- `GeneralAviationTable.tsx` → query `general_aviation`
-- `UserRolesTable.tsx` → query `user_roles_config`
-- `AuditTrailTable.tsx` → query `audit_trail`
+### Backend
+- `expiry-scanner` Edge Function — runs daily via `pg_cron`. Scans every certificate table (AOC, ATO, AMO, Aerodrome, PAAS, AOP, ATL, ATOL, FCOP, PNCL, Acceptance) for `expiry_date` within 90 / 60 / 30 / 7 days.
+- For each match: creates a notification, optionally drafts a renewal record, and tags the record with a risk level.
+- Skips duplicates so the same cert isn't notified twice in the same window.
 
-Each component will:
-1. Use `useState` + `useEffect` to fetch data from Supabase on mount
-2. Show a loading state while fetching
-3. Show "No records found" when empty
-4. Support real delete (call `supabase.from(...).delete()`)
-5. Refresh data after delete
+### Frontend
+- **Expiry Dashboard** — heatmap + table of all expiring certificates grouped by directorate, with filters and CSV export.
+- **Risk badge** on every certificate list (green / amber / red / expired).
+- "Generate Renewal" button on expiring records — pre-fills a new application linked to the previous certificate.
 
-## Step 3: Update Form Components
+---
 
-Update form dropdowns that use mock arrays to fetch from related DB tables instead:
-- `AcceptanceCertificateForm.tsx` — fetch aircraft manufacturers from `aircraft_manufacturers`
-- `ForeignAMOForm.tsx` — fetch from `foreign_amo` global table
-- `FOCCMCCForm.tsx` — fetch from `general_aviation`, `state_of_registry`
-- `ATOForm.tsx` — fetch from `training_organizations`
-- `ForeignAirlineDACLForm.tsx` — fetch from `foreign_airlines`
-- Economic License forms (PAAS, AOP, PNCF, ATOL) — fetch AOC data from `aoc_certificates`
+## Milestone 3 — Operator Self-Service Portal
 
-## Step 4: Update Form Save Handlers
+**Goal:** external operators (airlines, AMOs, ATOs, training orgs) can log in, submit applications, upload supporting documents, and track status — without staff data entry.
 
-Ensure all form "save" handlers actually insert/update records in the database instead of just showing a toast.
+### Database
+- `operators` table — external organisations (name, type, country, contact email).
+- `operator_users` table — login accounts tied to an operator (separate from staff `users`).
+- `applications` table — generic application record (operator_id, application_type, payload jsonb, current workflow stage, attached documents).
+- Extends the auth-api Edge Function with `operator_login` / `operator_register` actions and a separate session namespace.
 
-## Files Changed
-- `supabase/migrations/` — 1 new migration with ~14 CREATE TABLE statements
-- ~25 list/table component files — replace mock data with DB queries
-- ~10 form component files — replace mock dropdowns with DB queries and wire up save
+### Frontend (new public site at `/portal`)
+- Public landing page with NCAA branding.
+- Operator registration + login.
+- Operator dashboard: my applications, status, documents, certificates issued.
+- Application submission wizard (chooses application type → dynamic form → upload docs → submit).
+- Read-only certificate viewer.
 
-## What Stays
-- All user accounts (admin, reader, technical, daas, datr)
-- All directorates (DAWS, DAAS, DATR, DOLTS, ICT)
-- Existing aerodrome certifications, safety inspections, personnel data
-- Storage bucket and profile image functionality
+### Staff side
+- "Applications Inbox" feeding the existing workflow engine — staff review operator submissions, approve/reject, issue certificates.
 
+---
+
+## Milestone 4 — Polish & Reporting
+
+- AI-generated weekly summary email per directorate (uses existing AI features).
+- PDF certificate generation on approval (issued certificates downloadable by operator and staff).
+- Public verification page (`/verify/:certificate_number`) so third parties can confirm a certificate is genuine — read-only, no auth.
+- Audit trail filters extended to cover workflow + notification + portal events.
+
+---
+
+## Technical Notes (for the developer)
+- Workflow stages stored as a config table so super users can edit them later without code changes.
+- `record_workflow` keyed by `(table_name, record_id)` to keep it generic across all 14 record types instead of one workflow column per table.
+- Notifications follow a queue → dispatcher pattern; SMS uses Twilio gateway, email uses Lovable Email.
+- Operator portal uses a separate session token namespace to keep staff and operator authentication isolated; both flow through the existing `auth-api` Edge Function with new actions.
+
+---
+
+## What I need from you before I start
+
+1. **Email sender domain.** I'll trigger the setup dialog at the start of Milestone 1 — you'll add 2 NS records at your domain provider so emails come from `@yourdomain.gov.ng`.
+2. **Twilio account** (or Africa's Talking — say which one). I'll request the API key/secret when we get to the SMS dispatcher in Milestone 1.
+3. **Confirm the milestone order** — I recommend 1 → 2 → 3 → 4. If you'd rather I start with the Operator Portal (Milestone 3) before Compliance Automation, tell me now.
+
+Reply **"go"** to start Milestone 1, or tell me what to change.
