@@ -28,6 +28,7 @@ import AerodromeCertificationList, {
 } from "./AerodromeCertificationList";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import RecordWorkflowSection from "@/components/RecordWorkflowSection";
 
 const AerodromeCertificationPage = () => {
   const [certifications, setCertifications] = useState<AerodromeCertification[]>([]);
