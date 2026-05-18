@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PNCFForm from "./PNCFForm";
+import RecordWorkflowSection from "@/components/RecordWorkflowSection";
 
 const PNCFPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -15,10 +16,10 @@ const PNCFPage = () => {
       </div>
 
       {isFormOpen && (
-        <PNCFForm 
-          onCancel={() => setIsFormOpen(false)} 
-          editingId={editingId} 
-        />
+        <>
+          <RecordWorkflowSection tableName="pncl_licenses" editingId={editingId} />
+          <PNCFForm onCancel={() => setIsFormOpen(false)} editingId={editingId} />
+        </>
       )}
 
       <Card>

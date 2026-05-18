@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import FCOPForm from "./FCOPForm";
+import RecordWorkflowSection from "@/components/RecordWorkflowSection";
 
 const FCOPPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -15,10 +16,10 @@ const FCOPPage = () => {
       </div>
 
       {isFormOpen && (
-        <FCOPForm 
-          onCancel={() => setIsFormOpen(false)} 
-          editingId={editingId} 
-        />
+        <>
+          <RecordWorkflowSection tableName="fcop_licenses" editingId={editingId} />
+          <FCOPForm onCancel={() => setIsFormOpen(false)} editingId={editingId} />
+        </>
       )}
 
       <Card>
