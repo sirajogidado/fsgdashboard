@@ -244,6 +244,13 @@ const AerodromeCertificationPage = () => {
                 : "Add New Aerodrome Certification"}
             </DialogTitle>
           </DialogHeader>
+          {selectedCertification && (
+            <RecordWorkflowSection
+              tableName="aerodrome_certifications"
+              editingId={selectedCertification.id}
+              directorate="DAAS"
+            />
+          )}
           <AerodromeCertificationForm
             onSubmit={handleSubmit}
             initialData={getInitialData()}
