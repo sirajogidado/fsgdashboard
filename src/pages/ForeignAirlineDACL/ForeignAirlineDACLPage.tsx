@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import RecordWorkflowSection from "@/components/RecordWorkflowSection";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -65,6 +66,7 @@ const ForeignAirlineDACLPage = () => {
         </TabsContent>
         
         <TabsContent value="add">
+          <RecordWorkflowSection tableName="foreign_airline_dacl" editingId={editingId} />
           <Card>
             <CardHeader>
               <CardTitle>{editingId ? "Edit DACL" : "Add New DACL"}</CardTitle>
