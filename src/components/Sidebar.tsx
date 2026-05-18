@@ -21,6 +21,7 @@ import {
   Zap,
   Building,
   Inbox,
+  AlertTriangle,
 } from "lucide-react";
 import {
   Collapsible,
@@ -272,6 +273,19 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
             >
               <Inbox className="h-5 w-5 mr-3" />
               <span>My Approvals</span>
+            </Link>
+          </li>
+
+          <li>
+            <Link
+              to="/expiry-dashboard"
+              className={cn(
+                "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
+                isActive("/expiry-dashboard") && "bg-white/20"
+              )}
+            >
+              <AlertTriangle className="h-5 w-5 mr-3" />
+              <span>Expiry & Compliance</span>
             </Link>
           </li>
           

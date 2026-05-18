@@ -71,6 +71,7 @@ import AuditTrailPage from "./pages/AuditTrail/AuditTrailPage";
 import MyApprovalsPage from "./pages/MyApprovalsPage";
 import NotificationsPage from "./pages/NotificationsPage";
 import NotificationPreferencesPage from "./pages/NotificationPreferencesPage";
+import ExpiryDashboardPage from "./pages/ExpiryDashboardPage";
 
 // Create QueryClient outside the component
 const queryClient = new QueryClient();
@@ -448,6 +449,7 @@ function App() {
                 <Route path="approvals" element={<MyApprovalsPage />} />
                 <Route path="notifications" element={<NotificationsPage />} />
                 <Route path="notifications/preferences" element={<NotificationPreferencesPage />} />
+                <Route path="expiry-dashboard" element={<ExpiryDashboardPage />} />
 
                 {/* Audit Trail Route - Super Users only */}
                 <Route 
