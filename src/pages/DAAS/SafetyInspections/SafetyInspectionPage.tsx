@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import { SafetyInspectionForm } from "./SafetyInspectionForm";
 import { SafetyInspectionList } from "./SafetyInspectionList";
+import RecordWorkflowSection from "@/components/RecordWorkflowSection";
 
 const SafetyInspectionPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -118,6 +119,13 @@ const SafetyInspectionPage = () => {
           <DialogHeader>
             <DialogTitle>{editingInspection ? "Edit Inspection" : "Add New Inspection"}</DialogTitle>
           </DialogHeader>
+          {editingInspection && (
+            <RecordWorkflowSection
+              tableName="safety_inspections"
+              editingId={(editingInspection as any).id}
+              directorate="DAAS"
+            />
+          )}
           <SafetyInspectionForm
             initialData={editingInspection}
             onSubmit={handleSubmit}

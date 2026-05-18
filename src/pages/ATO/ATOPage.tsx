@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import RecordWorkflowSection from "@/components/RecordWorkflowSection";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -61,6 +62,7 @@ const ATOPage = () => {
         </TabsContent>
         
         <TabsContent value="add">
+          <RecordWorkflowSection tableName="ato_licenses" editingId={editingId} />
           <Card>
             <CardHeader>
               <CardTitle>{editingId ? "Edit ATO" : "Add New ATO"}</CardTitle>

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ATLForm from "./ATLForm";
+import RecordWorkflowSection from "@/components/RecordWorkflowSection";
 
 const ATLPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -15,10 +16,13 @@ const ATLPage = () => {
       </div>
 
       {isFormOpen && (
-        <ATLForm 
-          onCancel={() => setIsFormOpen(false)} 
-          editingId={editingId} 
-        />
+        <>
+          <RecordWorkflowSection tableName="atl_licenses" editingId={editingId} />
+          <ATLForm 
+            onCancel={() => setIsFormOpen(false)} 
+            editingId={editingId} 
+          />
+        </>
       )}
 
       <Card>

@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import RecordWorkflowSection from "@/components/RecordWorkflowSection";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -60,6 +61,7 @@ const FOCCMCCPage = () => {
         </TabsContent>
         
         <TabsContent value="add">
+          <RecordWorkflowSection tableName="focc_mcc_records" editingId={editingId} />
           <Card>
             <CardHeader>
               <CardTitle>{editingId ? "Edit FOCC/MCC" : "Add New FOCC/MCC"}</CardTitle>

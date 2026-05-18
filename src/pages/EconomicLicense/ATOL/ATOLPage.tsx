@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ATOLForm from "./ATOLForm";
+import RecordWorkflowSection from "@/components/RecordWorkflowSection";
 
 const ATOLPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -15,10 +16,10 @@ const ATOLPage = () => {
       </div>
 
       {isFormOpen && (
-        <ATOLForm 
-          onCancel={() => setIsFormOpen(false)} 
-          editingId={editingId} 
-        />
+        <>
+          <RecordWorkflowSection tableName="atol_licenses" editingId={editingId} />
+          <ATOLForm onCancel={() => setIsFormOpen(false)} editingId={editingId} />
+        </>
       )}
 
       <Card>

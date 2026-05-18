@@ -1,5 +1,6 @@
 
 import React, { useState } from "react";
+import RecordWorkflowSection from "@/components/RecordWorkflowSection";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -60,6 +61,7 @@ const LocalAMOPage = () => {
         </TabsContent>
         
         <TabsContent value="add">
+          <RecordWorkflowSection tableName="amo_licenses" editingId={editingId} />
           <Card>
             <CardHeader>
               <CardTitle>{editingId ? "Edit Local AMO" : "Add New Local AMO"}</CardTitle>

@@ -10,6 +10,7 @@ import { Plus, Edit, Trash2, Award } from "lucide-react";
 import { PersonnelForm } from "./PersonnelForm";
 import { format } from "date-fns";
 import { useNavigate } from "react-router-dom";
+import RecordWorkflowSection from "@/components/RecordWorkflowSection";
 
 const PersonnelPage = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -175,6 +176,13 @@ const PersonnelPage = () => {
           <DialogHeader>
             <DialogTitle>{editingPersonnel ? "Edit Personnel" : "Add New Personnel"}</DialogTitle>
           </DialogHeader>
+          {editingPersonnel && (
+            <RecordWorkflowSection
+              tableName="aerodrome_personnel"
+              editingId={(editingPersonnel as any).id}
+              directorate="DAAS"
+            />
+          )}
           <PersonnelForm
             initialData={editingPersonnel}
             onSubmit={handleSubmit}

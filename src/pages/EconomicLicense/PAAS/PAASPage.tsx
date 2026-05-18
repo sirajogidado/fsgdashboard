@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import RecordWorkflowSection from "@/components/RecordWorkflowSection";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -59,6 +60,7 @@ const PAASPage = () => {
         </TabsContent>
         
         <TabsContent value="add">
+          <RecordWorkflowSection tableName="paas_licenses" editingId={editingId} />
           <PAASForm onCancel={handleCancel} editingId={editingId} />
         </TabsContent>
       </Tabs>

@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,12 +7,20 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/use-toast";
 import { ExpiryFinding, RiskLevel, riskColor, riskLabel, toCSV } from "@/lib/expiry";
+import { routeForRecord } from "@/lib/expiryRoutes";
 import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { AlertTriangle, Download, Loader2, RefreshCw, Search } from "lucide-react";
+import { AlertTriangle, Download, ExternalLink, History, Loader2, RefreshCw, Search } from "lucide-react";
 
 const RISK_ORDER: RiskLevel[] = ["expired", "critical", "high", "medium", "low"];
+
+interface ScanRun {
+  id: string;
+  created_at: string;
+  details: string | null;
+  user_name: string | null;
+}
 
 const ExpiryDashboardPage = () => {
   const [findings, setFindings] = useState<ExpiryFinding[]>([]);
@@ -19,6 +28,17 @@ const ExpiryDashboardPage = () => {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<RiskLevel | "all">("all");
   const [lastScan, setLastScan] = useState<string | null>(null);
+  const [history, setHistory] = useState<ScanRun[]>([]);
+
+  const loadHistory = async () => {
+    const { data } = await supabase
+      .from("audit_trail")
+      .select("id, created_at, details, user_name")
+      .eq("action", "EXPIRY_SCAN")
+      .order("created_at", { ascending: false })
+      .limit(20);
+    setHistory((data as ScanRun[]) ?? []);
+  };
 
   const runScan = async () => {
     setLoading(true);
@@ -31,6 +51,7 @@ const ExpiryDashboardPage = () => {
         title: "Scan complete",
         description: `${data?.findings?.length ?? 0} items flagged · ${data?.notificationsCreated ?? 0} notifications`,
       });
+      loadHistory();
     } catch (e: any) {
       toast({ title: "Scan failed", description: e.message, variant: "destructive" });
     } finally {
@@ -38,7 +59,7 @@ const ExpiryDashboardPage = () => {
     }
   };
 
-  useEffect(() => { runScan(); }, []);
+  useEffect(() => { runScan(); loadHistory(); }, []);
 
   const buckets = useMemo(() => {
     const b: Record<RiskLevel, number> = { expired: 0, critical: 0, high: 0, medium: 0, low: 0, ok: 0 };
@@ -67,6 +88,15 @@ const ExpiryDashboardPage = () => {
     a.download = `expiry-report-${new Date().toISOString().slice(0, 10)}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  // Parse counts from details string: "Scanned N tables; M findings; K notifications"
+  const parseScanCounts = (details: string | null) => {
+    if (!details) return { findings: "—", notifications: "—", tables: "—" };
+    const t = details.match(/Scanned\s+(\d+)/i)?.[1] ?? "—";
+    const f = details.match(/(\d+)\s+findings/i)?.[1] ?? "—";
+    const n = details.match(/(\d+)\s+notifications/i)?.[1] ?? "—";
+    return { tables: t, findings: f, notifications: n };
   };
 
   return (
@@ -135,6 +165,7 @@ const ExpiryDashboardPage = () => {
                   <TableHead>Expiry Date</TableHead>
                   <TableHead>Days Left</TableHead>
                   <TableHead>Risk</TableHead>
+                  <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -150,8 +181,56 @@ const ExpiryDashboardPage = () => {
                         {riskLabel(f.risk_level)}
                       </Badge>
                     </TableCell>
+                    <TableCell className="text-right">
+                      <Button asChild size="sm" variant="ghost">
+                        <Link to={routeForRecord(f.table, f.record_id)}>
+                          Review <ExternalLink className="h-3 w-3 ml-1" />
+                        </Link>
+                      </Button>
+                    </TableCell>
                   </TableRow>
                 ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Scan history */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <History className="h-5 w-5 text-muted-foreground" />
+            Scan History
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          {history.length === 0 ? (
+            <div className="text-center py-6 text-muted-foreground text-sm">No scans recorded yet.</div>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>When</TableHead>
+                  <TableHead>Triggered By</TableHead>
+                  <TableHead className="text-right">Tables</TableHead>
+                  <TableHead className="text-right">Findings</TableHead>
+                  <TableHead className="text-right">Notifications</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {history.map((h) => {
+                  const c = parseScanCounts(h.details);
+                  return (
+                    <TableRow key={h.id}>
+                      <TableCell>{new Date(h.created_at).toLocaleString()}</TableCell>
+                      <TableCell className="text-muted-foreground">{h.user_name ?? "System"}</TableCell>
+                      <TableCell className="text-right">{c.tables}</TableCell>
+                      <TableCell className="text-right font-medium">{c.findings}</TableCell>
+                      <TableCell className="text-right">{c.notifications}</TableCell>
+                    </TableRow>
+                  );
+                })}
               </TableBody>
             </Table>
           )}

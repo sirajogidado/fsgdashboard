@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import RecordWorkflowSection from "@/components/RecordWorkflowSection";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -79,7 +80,7 @@ const AOPPage = () => {
       </div>
 
       {isFormOpen && (
-        <Card>
+        <><RecordWorkflowSection tableName="aop_licenses" editingId={editingId} /><Card>
           <CardHeader>
             <CardTitle>{editingId ? "Edit AOP Record" : "Add New AOP Record"}</CardTitle>
           </CardHeader>
@@ -200,7 +201,7 @@ const AOPPage = () => {
             </form>
           </CardContent>
         </Card>
-      )}
+      </>)}
 
       <Card>
         <CardHeader>
