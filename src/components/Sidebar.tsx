@@ -37,6 +37,8 @@ interface SidebarProps {
 
 const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
   const { user } = useAuth();
+  const { hasAccess: canApprovals } = useModuleAccess("approvals");
+  const { hasAccess: canExpiry } = useModuleAccess("expiry");
   const location = useLocation();
   const [openMenus, setOpenMenus] = useState<{
     [key: string]: boolean;
