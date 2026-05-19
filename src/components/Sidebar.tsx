@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { useModuleAccess } from "@/hooks/useModuleAccess";
 import { cn } from "@/lib/utils";
 import {
   ChevronDown,
