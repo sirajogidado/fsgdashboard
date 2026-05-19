@@ -8,6 +8,7 @@ import { AuthProvider } from "./context/AuthContext";
 // Layout
 import MainLayout from "./components/MainLayout";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ModuleAccessRoute from "./components/ModuleAccessRoute";
 
 // Pages
 import Login from "./pages/Login";
@@ -446,10 +447,10 @@ function App() {
                 />
 
                 {/* Phase 2: Approvals + Notifications */}
-                <Route path="approvals" element={<MyApprovalsPage />} />
+                <Route path="approvals" element={<ModuleAccessRoute moduleKey="approvals"><MyApprovalsPage /></ModuleAccessRoute>} />
                 <Route path="notifications" element={<NotificationsPage />} />
                 <Route path="notifications/preferences" element={<NotificationPreferencesPage />} />
-                <Route path="expiry-dashboard" element={<ExpiryDashboardPage />} />
+                <Route path="expiry-dashboard" element={<ModuleAccessRoute moduleKey="expiry"><ExpiryDashboardPage /></ModuleAccessRoute>} />
 
                 {/* Audit Trail Route - Super Users only */}
                 <Route 

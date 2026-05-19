@@ -29,6 +29,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PendingRegistrations from "@/components/PendingRegistrations";
 import { callAuthApi } from "@/lib/authApi";
+import ModuleAccessDialog from "@/components/ModuleAccessDialog";
 
 interface DatabaseUser {
   id: string;
@@ -48,6 +49,7 @@ const UsersPage = () => {
   const [editingUser, setEditingUser] = useState<DatabaseUser | null>(null);
   const [users, setUsers] = useState<DatabaseUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [accessUser, setAccessUser] = useState<DatabaseUser | null>(null);
 
   const [newUser, setNewUser] = useState({
     name: "",
@@ -222,6 +224,13 @@ const UsersPage = () => {
             onClick={() => handleEditUser(row.original)}
           >
             Edit
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setAccessUser(row.original)}
+          >
+            Access
           </Button>
           {row.original.is_active && (
             <Button 
@@ -500,6 +509,13 @@ const UsersPage = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      <ModuleAccessDialog
+        open={!!accessUser}
+        onOpenChange={(o) => !o && setAccessUser(null)}
+        userId={accessUser?.id ?? null}
+        userName={accessUser?.name}
+      />
     </div>
   );
 };
