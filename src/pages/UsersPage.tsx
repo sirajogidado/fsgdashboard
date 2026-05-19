@@ -29,6 +29,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import PendingRegistrations from "@/components/PendingRegistrations";
 import { callAuthApi } from "@/lib/authApi";
+import ModuleAccessDialog from "@/components/ModuleAccessDialog";
 
 interface DatabaseUser {
   id: string;
