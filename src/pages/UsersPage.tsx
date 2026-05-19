@@ -509,6 +509,13 @@ const UsersPage = () => {
           </div>
         </TabsContent>
       </Tabs>
+
+      <ModuleAccessDialog
+        open={!!accessUser}
+        onOpenChange={(o) => !o && setAccessUser(null)}
+        userId={accessUser?.id ?? null}
+        userName={accessUser?.name}
+      />
     </div>
   );
 };
