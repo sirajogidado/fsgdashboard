@@ -266,31 +266,35 @@ const Sidebar = ({ isOpen, toggle }: SidebarProps) => {
             </Link>
           </li>
 
-          <li>
-            <Link
-              to="/approvals"
-              className={cn(
-                "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
-                isActive("/approvals") && "bg-white/20"
-              )}
-            >
-              <Inbox className="h-5 w-5 mr-3" />
-              <span>My Approvals</span>
-            </Link>
-          </li>
+          {canApprovals && (
+            <li>
+              <Link
+                to="/approvals"
+                className={cn(
+                  "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
+                  isActive("/approvals") && "bg-white/20"
+                )}
+              >
+                <Inbox className="h-5 w-5 mr-3" />
+                <span>My Approvals</span>
+              </Link>
+            </li>
+          )}
 
-          <li>
-            <Link
-              to="/expiry-dashboard"
-              className={cn(
-                "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
-                isActive("/expiry-dashboard") && "bg-white/20"
-              )}
-            >
-              <AlertTriangle className="h-5 w-5 mr-3" />
-              <span>Expiry & Compliance</span>
-            </Link>
-          </li>
+          {canExpiry && (
+            <li>
+              <Link
+                to="/expiry-dashboard"
+                className={cn(
+                  "flex items-center px-3 py-2 rounded-md hover:bg-white/10 transition-colors",
+                  isActive("/expiry-dashboard") && "bg-white/20"
+                )}
+              >
+                <AlertTriangle className="h-5 w-5 mr-3" />
+                <span>Expiry & Compliance</span>
+              </Link>
+            </li>
+          )}
           
           {/* AI Features */}
           <li>
