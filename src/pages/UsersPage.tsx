@@ -49,6 +49,7 @@ const UsersPage = () => {
   const [editingUser, setEditingUser] = useState<DatabaseUser | null>(null);
   const [users, setUsers] = useState<DatabaseUser[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [accessUser, setAccessUser] = useState<DatabaseUser | null>(null);
 
   const [newUser, setNewUser] = useState({
     name: "",
