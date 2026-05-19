@@ -225,6 +225,13 @@ const UsersPage = () => {
           >
             Edit
           </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setAccessUser(row.original)}
+          >
+            Access
+          </Button>
           {row.original.is_active && (
             <Button 
               variant="outline" 
