@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
+import { saveRecord, loadRecord } from "@/lib/saveRecord";
+import { useEffect } from "react";
 
 const formSchema = z.object({
   trainingOrganization: z.string().min(1, "Training organization is required"),
@@ -52,15 +54,38 @@ const ATOForm = ({ editingId, onCancel }: ATOFormProps) => {
     },
   });
 
-  const onSubmit = (data: FormValues) => {
-    console.log("Form submitted:", data);
-    toast({
-      title: editingId ? "ATO Updated" : "ATO Added",
-      description: `The ATO has been successfully ${editingId ? "updated" : "added"}.`,
-    });
-    form.reset();
-    if (onCancel) {
-      onCancel();
+  useEffect(() => {
+    (async () => {
+      if (!editingId) return;
+      try {
+        const r = await loadRecord("ato_licenses", editingId);
+        form.reset({
+          trainingOrganization: r.organization_name ?? "",
+          approvalNumber: r.certificate_number ?? "",
+          dateOfInitialIssue: r.issue_date ?? "",
+          dateOfLastRenewal: "",
+          expiryDate: r.expiry_date ?? "",
+          comment: "",
+        });
+      } catch {}
+    })();
+  }, [editingId, form]);
+
+  const onSubmit = async (data: FormValues) => {
+    try {
+      await saveRecord("ato_licenses", editingId, {
+        organization_name: data.trainingOrganization,
+        certificate_number: data.approvalNumber,
+        issue_date: data.dateOfInitialIssue,
+        expiry_date: data.expiryDate,
+        training_type: data.comment || null,
+        status: "active",
+      });
+      toast({ title: editingId ? "ATO Updated" : "ATO Added", description: "Saved successfully." });
+      form.reset();
+      if (onCancel) onCancel();
+    } catch (e: any) {
+      toast({ title: "Save failed", description: e.message, variant: "destructive" });
     }
   };
 

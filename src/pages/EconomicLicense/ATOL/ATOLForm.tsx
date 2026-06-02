@@ -57,10 +57,22 @@ const ATOLForm = ({ onCancel, editingId }: ATOLFormProps) => {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success(editingId ? "ATOL record updated successfully!" : "ATOL record created successfully!");
-    onCancel();
+    try {
+      const { saveRecord } = await import("@/lib/saveRecord");
+      await saveRecord("atol_licenses", editingId, {
+        operator_name: formData.selectedOperator,
+        license_number: formData.licenseNumber,
+        issue_date: formData.dateOfInitialIssue || null,
+        expiry_date: formData.dateOfExpiry || null,
+        status: "active",
+      });
+      toast.success(editingId ? "ATOL record updated successfully!" : "ATOL record created successfully!");
+      onCancel();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
   };
 
   const handleChange = (field: string, value: string) => {

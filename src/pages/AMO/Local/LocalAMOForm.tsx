@@ -1,5 +1,6 @@
 
-import React from "react";
+import React, { useEffect } from "react";
+import { saveRecord, loadRecord } from "@/lib/saveRecord";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -57,15 +58,37 @@ const LocalAMOForm: React.FC<LocalAMOFormProps> = ({ onCancel, editingId }) => {
     },
   });
 
-  const onSubmit = (data: FormValues) => {
-    console.log("Form submitted:", data);
-    
-    toast({
-      title: editingId ? "AMO Updated" : "AMO Added",
-      description: `Local AMO has been ${editingId ? "updated" : "added"} successfully.`,
-    });
-    
-    onCancel();
+  useEffect(() => {
+    (async () => {
+      if (!editingId) return;
+      try {
+        const r = await loadRecord("amo_licenses", editingId);
+        form.reset({
+          holderCriteria: r.holder_criteria ?? "non_aoc_holder",
+          amoHolder: "",
+          amoApprovalNumber: r.approval_number ?? "",
+          maintenanceLocation: r.maintenance_location ?? "",
+          expiryDate: r.expiry_date ?? "",
+          extension: "",
+        });
+      } catch {}
+    })();
+  }, [editingId, form]);
+
+  const onSubmit = async (data: FormValues) => {
+    try {
+      await saveRecord("amo_licenses", editingId, {
+        holder_criteria: data.holderCriteria,
+        approval_number: data.amoApprovalNumber,
+        maintenance_location: data.maintenanceLocation,
+        expiry_date: data.expiryDate,
+        status: "active",
+      });
+      toast({ title: editingId ? "AMO Updated" : "AMO Added", description: "Saved successfully." });
+      onCancel();
+    } catch (e: any) {
+      toast({ title: "Save failed", description: e.message, variant: "destructive" });
+    }
   };
 
   return (

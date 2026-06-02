@@ -26,10 +26,21 @@ const FCOPForm = ({ onCancel, editingId }: FCOPFormProps) => {
     comments: ""
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success(editingId ? "FCOP record updated successfully!" : "FCOP record created successfully!");
-    onCancel();
+    try {
+      const { saveRecord } = await import("@/lib/saveRecord");
+      await saveRecord("fcop_licenses", editingId, {
+        operator_name: formData.foreignAirline,
+        license_number: formData.licenseNumber,
+        issue_date: formData.fcopIssueDate || null,
+        status: formData.status || "active",
+      });
+      toast.success(editingId ? "FCOP record updated successfully!" : "FCOP record created successfully!");
+      onCancel();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
   };
 
   const handleChange = (field: string, value: string) => {

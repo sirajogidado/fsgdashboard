@@ -46,21 +46,33 @@ const AOPPage = () => {
     { id: "2", name: "Charter Services - 5N-DEF" },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success(editingId ? "AOP record updated successfully!" : "AOP record created successfully!");
-    setIsFormOpen(false);
-    setEditingId(null);
-    setFormData({
-      operatorType: "",
-      selectedOperator: "",
-      licenseNumber: "",
-      certificate: null,
-      dateOfInitialIssue: "",
-      dateOfLastRenewal: "",
-      dateOfExpiry: "",
-      comment: ""
-    });
+    try {
+      const { saveRecord } = await import("@/lib/saveRecord");
+      await saveRecord("aop_licenses", editingId, {
+        operator_name: formData.selectedOperator,
+        license_number: formData.licenseNumber,
+        issue_date: formData.dateOfInitialIssue || null,
+        expiry_date: formData.dateOfExpiry || null,
+        status: "active",
+      });
+      toast.success(editingId ? "AOP record updated successfully!" : "AOP record created successfully!");
+      setIsFormOpen(false);
+      setEditingId(null);
+      setFormData({
+        operatorType: "",
+        selectedOperator: "",
+        licenseNumber: "",
+        certificate: null,
+        dateOfInitialIssue: "",
+        dateOfLastRenewal: "",
+        dateOfExpiry: "",
+        comment: ""
+      });
+    } catch (err: any) {
+      toast.error(err.message);
+    }
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {

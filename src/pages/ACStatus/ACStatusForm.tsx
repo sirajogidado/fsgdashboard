@@ -1,5 +1,6 @@
 
-import React from "react";
+import React, { useEffect } from "react";
+import { saveRecord, loadRecord } from "@/lib/saveRecord";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -77,15 +78,45 @@ const ACStatusForm: React.FC<ACStatusFormProps> = ({ onCancel, editingId }) => {
     },
   });
 
-  const onSubmit = (data: FormValues) => {
-    console.log("Form submitted:", data);
-    
-    toast({
-      title: editingId ? "Status Updated" : "Status Added",
-      description: `Aircraft status has been ${editingId ? "updated" : "added"} successfully.`,
-    });
-    
-    onCancel();
+  useEffect(() => {
+    (async () => {
+      if (!editingId) return;
+      try {
+        const r = await loadRecord("aircraft_status", editingId);
+        form.reset({
+          aocHolder: r.aoc_holder ?? "",
+          aircraftMaker: "",
+          registrationMark: r.registration_mark ?? "",
+          aircraftType: r.aircraft_type ?? "",
+          aircraftSerialNumber: r.serial_number ?? "",
+          yearOfManufacture: "",
+          currentRegistrationDate: "",
+          registeredOwner: r.registered_owner ?? "",
+          cofaStatus: r.cofa_expiry ?? "",
+          weight: "",
+          majorChecks: "",
+          rvsm: "no", pbn: "no", lvo: "no", adsb: "no",
+        });
+      } catch {}
+    })();
+  }, [editingId, form]);
+
+  const onSubmit = async (data: FormValues) => {
+    try {
+      await saveRecord("aircraft_status", editingId, {
+        aoc_holder: data.aocHolder,
+        registration_mark: data.registrationMark,
+        aircraft_type: data.aircraftType,
+        serial_number: data.aircraftSerialNumber,
+        registered_owner: data.registeredOwner,
+        cofa_expiry: data.cofaStatus || null,
+        status: "active",
+      });
+      toast({ title: editingId ? "Status Updated" : "Status Added", description: "Saved successfully." });
+      onCancel();
+    } catch (e: any) {
+      toast({ title: "Save failed", description: e.message, variant: "destructive" });
+    }
   };
 
   // Mock data for dropdowns - from global operations
