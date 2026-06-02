@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { saveRecord, loadRecord } from "@/lib/saveRecord";
 
 interface ATLFormProps {
   onCancel: () => void;
@@ -25,7 +26,6 @@ const ATLForm = ({ onCancel, editingId }: ATLFormProps) => {
     comment: ""
   });
 
-  // Mock data for AOC and General Aviation
   const aocData = [
     { id: "1", name: "Airline A - AOC-001-2023" },
     { id: "2", name: "Airline B - AOC-002-2023" },
@@ -37,10 +37,36 @@ const ATLForm = ({ onCancel, editingId }: ATLFormProps) => {
     { id: "2", name: "Charter Services - 5N-DEF" },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    (async () => {
+      if (!editingId) return;
+      try {
+        const r = await loadRecord("atl_licenses", editingId);
+        setFormData((p) => ({ ...p,
+          selectedOperator: r.operator_name ?? "",
+          licenseNumber: r.license_number ?? "",
+          dateOfInitialIssue: r.issue_date ?? "",
+          dateOfExpiry: r.expiry_date ?? "",
+        }));
+      } catch {}
+    })();
+  }, [editingId]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success(editingId ? "ATL record updated successfully!" : "ATL record created successfully!");
-    onCancel();
+    try {
+      await saveRecord("atl_licenses", editingId, {
+        operator_name: formData.selectedOperator,
+        license_number: formData.licenseNumber,
+        issue_date: formData.dateOfInitialIssue || null,
+        expiry_date: formData.dateOfExpiry || null,
+        status: "active",
+      });
+      toast.success(editingId ? "ATL record updated successfully!" : "ATL record created successfully!");
+      onCancel();
+    } catch (e: any) {
+      toast.error(e.message);
+    }
   };
 
   const handleChange = (field: string, value: string) => {

@@ -37,10 +37,22 @@ const PNCFForm = ({ onCancel, editingId }: PNCFFormProps) => {
     { id: "2", name: "Charter Services - 5N-DEF" },
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.success(editingId ? "PNCF record updated successfully!" : "PNCF record created successfully!");
-    onCancel();
+    try {
+      const { saveRecord } = await import("@/lib/saveRecord");
+      await saveRecord("pncl_licenses", editingId, {
+        operator_name: formData.selectedOperator,
+        license_number: formData.licenseNumber,
+        issue_date: formData.dateOfInitialIssue || null,
+        expiry_date: formData.dateOfExpiry || null,
+        status: "active",
+      });
+      toast.success(editingId ? "PNCF record updated successfully!" : "PNCF record created successfully!");
+      onCancel();
+    } catch (err: any) {
+      toast.error(err.message);
+    }
   };
 
   const handleChange = (field: string, value: string) => {
