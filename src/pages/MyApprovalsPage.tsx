@@ -17,7 +17,7 @@ import { Loader2, Inbox, Check, X, ExternalLink } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { Link } from "react-router-dom";
 import { toast } from "@/components/ui/use-toast";
-import { getRouteForTable } from "@/lib/expiryRoutes";
+import { routeForRecord } from "@/lib/expiryRoutes";
 
 interface WorkflowRow {
   id: string;
