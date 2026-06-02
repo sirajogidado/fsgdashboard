@@ -22,6 +22,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useToast } from "@/components/ui/use-toast";
+import { saveRecord, loadRecord } from "@/lib/saveRecord";
 
 const formSchema = z.object({
   aocHolder: z.string().min(1, "AOC holder is required"),
@@ -100,37 +101,38 @@ const AOCForm = ({ onCancel, editingId }: AOCFormProps) => {
   });
 
   useEffect(() => {
-    if (editingId) {
-      const aoc = mockData.find(item => item.id === editingId);
-      if (aoc) {
-        form.reset({
-          aocHolder: aoc.aocHolder,
-          aocCertificate: aoc.certificateNumber,
-          issueDate: aoc.issueDate,
-          validityDate: aoc.validityDate,
-          status: "active",
-        });
+    (async () => {
+      if (editingId) {
+        try {
+          const r = await loadRecord("aoc_certificates", editingId);
+          form.reset({
+            aocHolder: r.operator_name ?? "",
+            aocCertificate: r.certificate_number ?? "",
+            issueDate: r.issue_date ?? "",
+            validityDate: r.expiry_date ?? "",
+            status: r.status ?? "active",
+          });
+        } catch (e) { /* ignore */ }
+      } else {
+        form.reset({ aocHolder: "", aocCertificate: "", issueDate: "", validityDate: "", status: "active" });
       }
-    } else {
-      form.reset({
-        aocHolder: "",
-        aocCertificate: "",
-        issueDate: "",
-        validityDate: "",
-        status: "active",
-      });
-    }
+    })();
   }, [editingId, form]);
 
-  const onSubmit = (data: FormValues) => {
-    console.log("Form submitted:", data);
-    toast({
-      title: editingId ? "AOC Updated" : "AOC Added",
-      description: editingId 
-        ? "The AOC has been successfully updated."
-        : "The AOC has been successfully added.",
-    });
-    onCancel();
+  const onSubmit = async (data: FormValues) => {
+    try {
+      await saveRecord("aoc_certificates", editingId, {
+        operator_name: data.aocHolder,
+        certificate_number: data.aocCertificate,
+        issue_date: data.issueDate,
+        expiry_date: data.validityDate,
+        status: data.status,
+      });
+      toast({ title: editingId ? "AOC Updated" : "AOC Added", description: "Saved successfully." });
+      onCancel();
+    } catch (e: any) {
+      toast({ title: "Save failed", description: e.message, variant: "destructive" });
+    }
   };
 
   // Mock data for dropdowns - in a real app these would come from global operations

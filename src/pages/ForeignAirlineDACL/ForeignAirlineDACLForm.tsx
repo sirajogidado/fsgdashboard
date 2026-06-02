@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { saveRecord, loadRecord } from "@/lib/saveRecord";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -69,15 +70,36 @@ const ForeignAirlineDACLForm: React.FC<ForeignAirlineDACLFormProps> = ({ onCance
     }
   }, [lastDaclNumber, editingId, form]);
 
-  const onSubmit = (data: FormValues) => {
-    console.log("Form submitted:", data);
-    
-    toast({
-      title: editingId ? "DACL Updated" : "DACL Added",
-      description: `Foreign Airline DACL has been ${editingId ? "updated" : "added"} successfully.`,
-    });
-    
-    onCancel();
+  useEffect(() => {
+    (async () => {
+      if (!editingId) return;
+      try {
+        const r = await loadRecord("foreign_airline_dacl", editingId);
+        form.reset({
+          foreignAirline: r.airline_name ?? "",
+          daclNumber: r.permit_number ?? "",
+          daclIssueDate: "",
+          aocExpiryDate: "",
+          country: r.country ?? "",
+          remarks: "",
+        });
+      } catch {}
+    })();
+  }, [editingId, form]);
+
+  const onSubmit = async (data: FormValues) => {
+    try {
+      await saveRecord("foreign_airline_dacl", editingId, {
+        airline_name: data.foreignAirline,
+        permit_number: data.daclNumber,
+        country: data.country,
+        status: "active",
+      });
+      toast({ title: editingId ? "DACL Updated" : "DACL Added", description: "Saved successfully." });
+      onCancel();
+    } catch (e: any) {
+      toast({ title: "Save failed", description: e.message, variant: "destructive" });
+    }
   };
 
   // Mock data for dropdowns - from global operations

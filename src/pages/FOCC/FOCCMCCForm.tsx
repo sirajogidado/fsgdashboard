@@ -1,5 +1,6 @@
 
-import React from "react";
+import React, { useEffect } from "react";
+import { saveRecord, loadRecord } from "@/lib/saveRecord";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -71,15 +72,44 @@ const FOCCMCCForm: React.FC<FOCCMCCFormProps> = ({ onCancel, editingId }) => {
     },
   });
 
-  const onSubmit = (data: FormValues) => {
-    console.log("Form submitted:", data);
-    
-    toast({
-      title: editingId ? "FOCC/MCC Updated" : "FOCC/MCC Added",
-      description: `FOCC/MCC has been ${editingId ? "updated" : "added"} successfully.`,
-    });
-    
-    onCancel();
+  useEffect(() => {
+    (async () => {
+      if (!editingId) return;
+      try {
+        const r = await loadRecord("focc_mcc_records", editingId);
+        form.reset({
+          operatorType: "existing_aoc",
+          existingAocOperator: r.operator_name ?? "",
+          foccNumber: r.record_number ?? "",
+          mccNumber: "",
+          aircraftSerialNumber: "",
+          stateOfRegistry: "",
+          registeredOwner: "",
+          aircraftManufacturer: "",
+          aircraftType: "",
+          aircraftRegNumber: "",
+          dateOfFirstIssue: r.issue_date ?? "",
+          renewalDate: "",
+          validityDate: r.expiry_date ?? "",
+        });
+      } catch {}
+    })();
+  }, [editingId, form]);
+
+  const onSubmit = async (data: FormValues) => {
+    try {
+      await saveRecord("focc_mcc_records", editingId, {
+        operator_name: data.existingAocOperator || data.foccNumber,
+        record_number: data.foccNumber,
+        issue_date: data.dateOfFirstIssue,
+        expiry_date: data.validityDate,
+        status: "active",
+      });
+      toast({ title: editingId ? "FOCC/MCC Updated" : "FOCC/MCC Added", description: "Saved successfully." });
+      onCancel();
+    } catch (e: any) {
+      toast({ title: "Save failed", description: e.message, variant: "destructive" });
+    }
   };
 
   // Mock data for dropdowns - from global operations

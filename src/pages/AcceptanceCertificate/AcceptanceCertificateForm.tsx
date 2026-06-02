@@ -1,5 +1,6 @@
 
-import React from "react";
+import React, { useEffect } from "react";
+import { saveRecord, loadRecord } from "@/lib/saveRecord";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -58,15 +59,39 @@ const AcceptanceCertificateForm: React.FC<AcceptanceCertificateFormProps> = ({ o
     },
   });
 
-  const onSubmit = (data: FormValues) => {
-    console.log("Form submitted:", data);
-    
-    toast({
-      title: editingId ? "Certificate Updated" : "Certificate Added",
-      description: `Type Acceptance Certificate has been ${editingId ? "updated" : "added"} successfully.`,
-    });
-    
-    onCancel();
+  useEffect(() => {
+    (async () => {
+      if (!editingId) return;
+      try {
+        const r = await loadRecord("acceptance_certificates", editingId);
+        form.reset({
+          aircraftManufacturer: r.aircraft_manufacturer ?? "",
+          tcAcceptanceCertNumber: r.certificate_number ?? "",
+          dateIssued: r.issue_date ?? "",
+          tcHolder: r.aircraft_type ?? "",
+          originalTcIssuedBy: "",
+          tcNumber: r.serial_number ?? "",
+          remark: "",
+        });
+      } catch {}
+    })();
+  }, [editingId, form]);
+
+  const onSubmit = async (data: FormValues) => {
+    try {
+      await saveRecord("acceptance_certificates", editingId, {
+        aircraft_manufacturer: data.aircraftManufacturer,
+        certificate_number: data.tcAcceptanceCertNumber,
+        issue_date: data.dateIssued,
+        aircraft_type: data.tcHolder,
+        serial_number: data.tcNumber,
+        status: "active",
+      });
+      toast({ title: editingId ? "Certificate Updated" : "Certificate Added", description: "Saved successfully." });
+      onCancel();
+    } catch (e: any) {
+      toast({ title: "Save failed", description: e.message, variant: "destructive" });
+    }
   };
 
   // Mock data for dropdowns - from global operations

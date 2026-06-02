@@ -1,5 +1,6 @@
 
-import React from "react";
+import React, { useEffect } from "react";
+import { saveRecord, loadRecord } from "@/lib/saveRecord";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -57,15 +58,37 @@ const ForeignAMOForm: React.FC<ForeignAMOFormProps> = ({ onCancel, editingId }) 
     },
   });
 
-  const onSubmit = (data: FormValues) => {
-    console.log("Form submitted:", data);
-    
-    toast({
-      title: editingId ? "AMO Updated" : "AMO Added",
-      description: `Foreign AMO has been ${editingId ? "updated" : "added"} successfully.`,
-    });
-    
-    onCancel();
+  useEffect(() => {
+    (async () => {
+      if (!editingId) return;
+      try {
+        const r = await loadRecord("foreign_amo", editingId);
+        form.reset({
+          amoHolder: r.organization_name ?? "",
+          country: r.country ?? "",
+          moeRef: "",
+          approvals: "",
+          ratings: "",
+          amoNumber: r.approval_number ?? "",
+          expireDate: "",
+        });
+      } catch {}
+    })();
+  }, [editingId, form]);
+
+  const onSubmit = async (data: FormValues) => {
+    try {
+      await saveRecord("foreign_amo", editingId, {
+        organization_name: data.amoHolder,
+        country: data.country,
+        approval_number: data.amoNumber,
+        status: "active",
+      });
+      toast({ title: editingId ? "AMO Updated" : "AMO Added", description: "Saved successfully." });
+      onCancel();
+    } catch (e: any) {
+      toast({ title: "Save failed", description: e.message, variant: "destructive" });
+    }
   };
 
   // Mock data for dropdowns - from Foreign AMO under global operations
