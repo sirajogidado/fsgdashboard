@@ -6,16 +6,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
+  Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
-import { STAGE_COLORS, STAGE_LABELS } from "@/lib/workflow";
-import { Loader2, Inbox } from "lucide-react";
+import {
+  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { STAGE_COLORS, STAGE_LABELS, approveStage, rejectStage } from "@/lib/workflow";
+import { Loader2, Inbox, Check, X, ExternalLink } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { Link } from "react-router-dom";
+import { toast } from "@/components/ui/use-toast";
+import { getRouteForTable } from "@/lib/expiryRoutes";
 
 interface WorkflowRow {
   id: string;
