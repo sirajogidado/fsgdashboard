@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Edit, Trash2, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
+import { onRecordChanged } from "@/lib/recordEvents";
 import { toast } from "@/components/ui/use-toast";
 
 export interface ForeignAirlineDACLListProps {
@@ -22,7 +23,7 @@ const ForeignAirlineDACLList: React.FC<ForeignAirlineDACLListProps> = ({ searchQ
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); const off = onRecordChanged("foreign_airline_dacl", fetchData); return off; }, []);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("foreign_airline_dacl").delete().eq("id", id);

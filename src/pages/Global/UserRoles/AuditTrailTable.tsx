@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ColumnDef } from "@tanstack/react-table";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { onRecordChanged } from "@/lib/recordEvents";
 
 interface AuditTrail { id: string; user_name: string | null; action: string; module: string | null; details: string | null; created_at: string | null; ip_address: string | null; }
 
@@ -13,15 +14,13 @@ const AuditTrailTable = ({ searchQuery }: AuditTrailTableProps) => {
   const [data, setData] = useState<AuditTrail[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetch = async () => {
+  const fetch = async () => {
       setLoading(true);
       const { data: records } = await supabase.from("audit_trail").select("*").order("created_at", { ascending: false });
       setData((records as AuditTrail[]) || []);
       setLoading(false);
     };
-    fetch();
-  }, []);
+  useEffect(() => { fetch(); const off = onRecordChanged("audit_trail", fetch); return off; }, []);
 
   const columns: ColumnDef<AuditTrail>[] = [
     { accessorKey: "user_name", header: "User Name" },

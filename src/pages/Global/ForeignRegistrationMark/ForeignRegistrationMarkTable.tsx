@@ -5,6 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { onRecordChanged } from "@/lib/recordEvents";
 
 interface ForeignRegistrationMark { id: string; registration_mark: string; country: string | null; description: string | null; }
 
@@ -21,7 +22,7 @@ const ForeignRegistrationMarkTable = ({ searchQuery, onEdit }: ForeignRegistrati
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); const off = onRecordChanged("foreign_registration_marks", fetchData); return off; }, []);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("foreign_registration_marks").delete().eq("id", id);

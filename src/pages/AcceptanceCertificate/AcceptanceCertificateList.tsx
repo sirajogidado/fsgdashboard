@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { CircleEllipsis, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { onRecordChanged } from "@/lib/recordEvents";
 import { toast } from "@/components/ui/use-toast";
 
 interface AcceptanceCertificateListProps {
@@ -22,7 +23,7 @@ const AcceptanceCertificateList: React.FC<AcceptanceCertificateListProps> = ({ s
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); const off = onRecordChanged("acceptance_certificates", fetchData); return off; }, []);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("acceptance_certificates").delete().eq("id", id);

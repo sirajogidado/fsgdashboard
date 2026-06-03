@@ -5,6 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { onRecordChanged } from "@/lib/recordEvents";
 
 interface ForeignAirline { id: string; airline_name: string; country: string | null; iata_code: string | null; icao_code: string | null; }
 
@@ -21,7 +22,7 @@ const ForeignAirlineTable = ({ searchQuery, onEdit }: ForeignAirlineTableProps) 
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); const off = onRecordChanged("foreign_airlines", fetchData); return off; }, []);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("foreign_airlines").delete().eq("id", id);

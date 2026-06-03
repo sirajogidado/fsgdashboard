@@ -5,6 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { onRecordChanged } from "@/lib/recordEvents";
 
 interface StateOfRegistry { id: string; country_name: string; country_code: string | null; registration_prefix: string | null; }
 
@@ -21,7 +22,7 @@ const StateOfRegistryTable = ({ searchQuery, onEdit }: StateOfRegistryTableProps
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); const off = onRecordChanged("state_of_registry", fetchData); return off; }, []);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("state_of_registry").delete().eq("id", id);

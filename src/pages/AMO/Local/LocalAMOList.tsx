@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { CircleEllipsis, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { onRecordChanged } from "@/lib/recordEvents";
 import { toast } from "@/components/ui/use-toast";
 
 export interface LocalAMOListProps {
@@ -22,7 +23,7 @@ const LocalAMOList: React.FC<LocalAMOListProps> = ({ searchQuery, onEdit }) => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); const off = onRecordChanged("amo_licenses", fetchData); return off; }, []);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("amo_licenses").delete().eq("id", id);

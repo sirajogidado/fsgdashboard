@@ -5,6 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { onRecordChanged } from "@/lib/recordEvents";
 
 interface TrainingOrganization { id: string; organization_name: string; country: string | null; category: string | null; description: string | null; }
 
@@ -21,7 +22,7 @@ const TrainingOrganizationTable = ({ searchQuery, onEdit }: TrainingOrganization
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); const off = onRecordChanged("training_organizations", fetchData); return off; }, []);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("training_organizations").delete().eq("id", id);
