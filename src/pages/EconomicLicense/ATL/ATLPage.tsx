@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ATLForm from "./ATLForm";
 import RecordWorkflowSection from "@/components/RecordWorkflowSection";
+import SimpleLiveList, { dateCol, statusBadge } from "@/components/SimpleLiveList";
+
 
 const ATLPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -30,7 +32,11 @@ const ATLPage = () => {
           <CardTitle>ATL Records List</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>ATL records list will be displayed here.</p>
+          <SimpleLiveList
+            table="atl_licenses"
+            onEdit={(id) => { setEditingId(id); setIsFormOpen(true); }}
+            columns={[ { key: "operator_name", label: "Operator" }, { key: "license_number", label: "License #" }, { key: "issue_date", label: "Issued", format: dateCol }, { key: "expiry_date", label: "Expires", format: dateCol }, { key: "status", label: "Status", format: statusBadge } ]}
+          />
         </CardContent>
       </Card>
     </div>

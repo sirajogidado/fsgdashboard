@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Edit, Trash2, Loader2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { onRecordChanged } from "@/lib/recordEvents";
 
 interface AircraftManufacturerTableProps {
   searchQuery: string;
@@ -22,7 +23,7 @@ const AircraftManufacturerTable: React.FC<AircraftManufacturerTableProps> = ({ s
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); const off = onRecordChanged("aircraft_manufacturers", fetchData); return off; }, []);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("aircraft_manufacturers").delete().eq("id", id);

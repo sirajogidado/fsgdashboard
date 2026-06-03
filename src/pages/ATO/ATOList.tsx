@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { FileText, Edit, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { onRecordChanged } from "@/lib/recordEvents";
 
 interface ATOListProps {
   searchQuery: string;
@@ -25,15 +26,13 @@ const ATOList = ({ searchQuery, onEdit }: ATOListProps) => {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetch = async () => {
+  const fetch = async () => {
       setLoading(true);
       const { data: records } = await supabase.from("ato_licenses").select("*").order("created_at", { ascending: false });
       setData(records || []);
       setLoading(false);
     };
-    fetch();
-  }, []);
+  useEffect(() => { fetch(); const off = onRecordChanged("ato_licenses", fetch); return off; }, []);
 
   const filteredData = data.filter((item) =>
     Object.values(item).some((value) =>

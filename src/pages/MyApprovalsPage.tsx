@@ -9,7 +9,7 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from "@/components/ui/table";
 import {
-  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle,
+  Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { STAGE_COLORS, STAGE_LABELS, approveStage, rejectStage } from "@/lib/workflow";
@@ -48,11 +48,16 @@ const TABLE_LABELS: Record<string, string> = {
   safety_inspections: "Safety Inspection",
 };
 
+const TERMINAL = new Set(["approved", "rejected", "expired"]);
+
 const MyApprovalsPage = () => {
   const { user } = useAuth();
   const [items, setItems] = useState<WorkflowRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [tab, setTab] = useState("assigned");
+  const [actingId, setActingId] = useState<string | null>(null);
+  const [rejectTarget, setRejectTarget] = useState<WorkflowRow | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
 
   const load = async () => {
     if (!user) return;
@@ -66,8 +71,6 @@ const MyApprovalsPage = () => {
       q = q.eq("assigned_to", user.id).not("current_stage", "in", "(approved,rejected,expired)");
     } else if (tab === "submitted") {
       q = q.eq("submitted_by", user.id);
-    } else if (tab === "all") {
-      // super user: everything
     }
 
     const { data, error } = await q.limit(200);
@@ -75,19 +78,53 @@ const MyApprovalsPage = () => {
     setLoading(false);
   };
 
-  useEffect(() => {
-    load();
-  }, [user, tab]);
+  useEffect(() => { load(); }, [user, tab]);
 
   const isSuperUser = user?.role === "Super User";
+
+  const handleApprove = async (row: WorkflowRow) => {
+    if (!user) return;
+    setActingId(row.id);
+    try {
+      await approveStage(row.table_name, row.record_id, { id: user.id, name: user.name });
+      toast({ title: "Approved", description: "Record advanced to next stage." });
+      load();
+    } catch (e: any) {
+      toast({ title: "Approve failed", description: e.message, variant: "destructive" });
+    } finally {
+      setActingId(null);
+    }
+  };
+
+  const handleRejectConfirm = async () => {
+    if (!user || !rejectTarget) return;
+    if (!rejectReason.trim()) {
+      toast({ title: "Reason required", description: "Please provide a rejection reason.", variant: "destructive" });
+      return;
+    }
+    setActingId(rejectTarget.id);
+    try {
+      await rejectStage(rejectTarget.table_name, rejectTarget.record_id, { id: user.id, name: user.name }, rejectReason.trim());
+      toast({ title: "Rejected", description: "Record marked as rejected." });
+      setRejectTarget(null);
+      setRejectReason("");
+      load();
+    } catch (e: any) {
+      toast({ title: "Reject failed", description: e.message, variant: "destructive" });
+    } finally {
+      setActingId(null);
+    }
+  };
+
+  const canAct = (row: WorkflowRow) =>
+    !TERMINAL.has(row.current_stage) &&
+    (row.assigned_to === user?.id || isSuperUser);
 
   return (
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">My Approvals</h1>
-        <p className="text-muted-foreground">
-          Records moving through the certification workflow
-        </p>
+        <p className="text-muted-foreground">Records moving through the certification workflow</p>
       </div>
 
       <Tabs value={tab} onValueChange={setTab}>
@@ -127,6 +164,7 @@ const MyApprovalsPage = () => {
                       <TableHead>Stage</TableHead>
                       <TableHead>Updated</TableHead>
                       <TableHead>Notes</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -144,13 +182,40 @@ const MyApprovalsPage = () => {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(row.updated_at), {
-                            addSuffix: true,
-                          })}
+                          {formatDistanceToNow(new Date(row.updated_at), { addSuffix: true })}
                         </TableCell>
                         <TableCell className="text-xs">
                           {row.rejection_reason && (
                             <span className="text-red-600">{row.rejection_reason}</span>
+                          )}
+                        </TableCell>
+                        <TableCell className="text-right space-x-1 whitespace-nowrap">
+                          <Button asChild size="sm" variant="ghost" title="Open record">
+                            <Link to={routeForRecord(row.table_name, row.record_id)}>
+                              <ExternalLink className="h-4 w-4" />
+                            </Link>
+                          </Button>
+                          {canAct(row) && (
+                            <>
+                              <Button
+                                size="sm"
+                                variant="default"
+                                className="bg-green-600 hover:bg-green-700"
+                                disabled={actingId === row.id}
+                                onClick={() => handleApprove(row)}
+                              >
+                                {actingId === row.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3 mr-1" />}
+                                Approve
+                              </Button>
+                              <Button
+                                size="sm"
+                                variant="destructive"
+                                disabled={actingId === row.id}
+                                onClick={() => { setRejectTarget(row); setRejectReason(""); }}
+                              >
+                                <X className="h-3 w-3 mr-1" /> Reject
+                              </Button>
+                            </>
                           )}
                         </TableCell>
                       </TableRow>
@@ -162,6 +227,29 @@ const MyApprovalsPage = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <Dialog open={!!rejectTarget} onOpenChange={(o) => !o && setRejectTarget(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reject record</DialogTitle>
+            <DialogDescription>
+              Tell the submitter why this record is being rejected. They will receive a notification.
+            </DialogDescription>
+          </DialogHeader>
+          <Textarea
+            placeholder="Reason for rejection..."
+            value={rejectReason}
+            onChange={(e) => setRejectReason(e.target.value)}
+            rows={4}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setRejectTarget(null)}>Cancel</Button>
+            <Button variant="destructive" onClick={handleRejectConfirm} disabled={!!actingId}>
+              {actingId ? <Loader2 className="h-4 w-4 animate-spin mr-1" /> : null} Confirm Reject
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

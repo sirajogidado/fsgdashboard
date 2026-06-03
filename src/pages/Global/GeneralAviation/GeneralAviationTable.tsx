@@ -5,6 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { onRecordChanged } from "@/lib/recordEvents";
 
 interface GeneralAviation { id: string; operator_name: string | null; registration: string | null; aircraft_type: string | null; status: string | null; }
 
@@ -21,7 +22,7 @@ const GeneralAviationTable = ({ searchQuery, onEdit }: GeneralAviationTableProps
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); const off = onRecordChanged("general_aviation", fetchData); return off; }, []);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("general_aviation").delete().eq("id", id);

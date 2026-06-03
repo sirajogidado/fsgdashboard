@@ -5,6 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { onRecordChanged } from "@/lib/recordEvents";
 
 interface OperationType { id: string; operation_type: string; category: string | null; description: string | null; }
 
@@ -21,7 +22,7 @@ const OperationTypeTable = ({ searchQuery, onEdit }: OperationTypeTableProps) =>
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); const off = onRecordChanged("operation_types", fetchData); return off; }, []);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("operation_types").delete().eq("id", id);

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { CircleEllipsis, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { onRecordChanged } from "@/lib/recordEvents";
 import { toast } from "@/components/ui/use-toast";
 
 export interface ACStatusListProps {
@@ -24,7 +25,7 @@ const ACStatusList: React.FC<ACStatusListProps> = ({ searchQuery, onEdit }) => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); const off = onRecordChanged("aircraft_status", fetchData); return off; }, []);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("aircraft_status").delete().eq("id", id);

@@ -5,6 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { onRecordChanged } from "@/lib/recordEvents";
 
 interface TravelAgency { id: string; agency_name: string; location: string | null; contact_person: string | null; description: string | null; }
 
@@ -21,7 +22,7 @@ const TravelAgencyTable = ({ searchQuery, onEdit }: TravelAgencyTableProps) => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); const off = onRecordChanged("travel_agencies", fetchData); return off; }, []);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("travel_agencies").delete().eq("id", id);

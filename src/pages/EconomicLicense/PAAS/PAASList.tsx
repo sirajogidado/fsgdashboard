@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Edit, Trash2, Loader2 } from "lucide-react";
 import { usePermissions } from "@/hooks/usePermissions";
 import { supabase } from "@/integrations/supabase/client";
+import { onRecordChanged } from "@/lib/recordEvents";
 import { toast } from "@/components/ui/use-toast";
 
 interface PAASListProps {
@@ -24,7 +25,7 @@ const PAASList = ({ searchQuery, onEdit }: PAASListProps) => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); const off = onRecordChanged("paas_licenses", fetchData); return off; }, []);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("paas_licenses").delete().eq("id", id);

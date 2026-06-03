@@ -6,6 +6,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { onRecordChanged } from "@/lib/recordEvents";
 
 interface UserRole { id: string; role_name: string; description: string | null; permissions: any; }
 
@@ -22,7 +23,7 @@ const UserRolesTable = ({ searchQuery, onEdit }: UserRolesTableProps) => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); const off = onRecordChanged("user_roles_config", fetchData); return off; }, []);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("user_roles_config").delete().eq("id", id);

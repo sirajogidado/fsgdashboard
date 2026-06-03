@@ -5,6 +5,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { toast } from "@/components/ui/use-toast";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { onRecordChanged } from "@/lib/recordEvents";
 
 interface ForeignAMO { id: string; organization_name: string | null; country: string | null; approval_number: string | null; }
 
@@ -21,7 +22,7 @@ const ForeignAMOTable = ({ searchQuery, onEdit }: ForeignAMOTableProps) => {
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); const off = onRecordChanged("foreign_amo", fetchData); return off; }, []);
 
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from("foreign_amo").delete().eq("id", id);

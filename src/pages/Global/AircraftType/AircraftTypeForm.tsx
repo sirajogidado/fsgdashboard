@@ -1,203 +1,61 @@
-
-import React, { useEffect } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/components/ui/use-toast";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { toast } from "@/components/ui/use-toast";
+import { saveRecord, loadRecord } from "@/lib/saveRecord";
 
-const formSchema = z.object({
-  manufacturerId: z.string({
-    required_error: "Please select a manufacturer.",
-  }),
-  typeName: z.string().min(2, {
-    message: "Aircraft type must be at least 2 characters.",
-  }),
-  description: z.string().optional(),
-});
+interface Props { onCancel: () => void; editingId: string | null; }
 
-type FormValues = z.infer<typeof formSchema>;
-
-interface AircraftTypeFormProps {
-  onCancel: () => void;
-  editingId: string | null;
-}
-
-// Sample manufacturers data
-const manufacturers = [
-  { id: "1", name: "Boeing" },
-  { id: "2", name: "Airbus" },
-  { id: "3", name: "Embraer" },
-  { id: "4", name: "Bombardier" },
-];
-
-// Sample aircraft types data
-const sampleTypes = [
-  {
-    id: "1",
-    manufacturerId: "1",
-    typeName: "737",
-    description: "Twin jet narrow-body airliner",
-  },
-  {
-    id: "2",
-    manufacturerId: "1",
-    typeName: "777",
-    description: "Wide-body twin-engine jet airliner",
-  },
-  {
-    id: "3",
-    manufacturerId: "2",
-    typeName: "A320",
-    description: "Narrow-body commercial passenger jet",
-  },
-  {
-    id: "4",
-    manufacturerId: "3",
-    typeName: "E190",
-    description: "Narrow-body medium-range jet airliner",
-  },
-];
-
-const AircraftTypeForm: React.FC<AircraftTypeFormProps> = ({
-  onCancel,
-  editingId,
-}) => {
-  const { toast } = useToast();
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      manufacturerId: "",
-      typeName: "",
-      description: "",
-    },
-  });
+const AircraftTypeForm = ({ onCancel, editingId }: Props) => {
+  const [formData, setFormData] = useState({ type_name: "", manufacturer: "", category: "", description: "" });
 
   useEffect(() => {
-    if (editingId) {
-      const aircraftType = sampleTypes.find((type) => type.id === editingId);
-      if (aircraftType) {
-        form.reset({
-          manufacturerId: aircraftType.manufacturerId,
-          typeName: aircraftType.typeName,
-          description: aircraftType.description || "",
+    (async () => {
+      if (!editingId) return;
+      try {
+        const r = await loadRecord("aircraft_types", editingId);
+        setFormData({
+          type_name: r.type_name ?? "",
+          manufacturer: r.manufacturer ?? "",
+          category: r.category ?? "",
+          description: r.description ?? "",
         });
-      }
-    } else {
-      form.reset({
-        manufacturerId: "",
-        typeName: "",
-        description: "",
-      });
-    }
-  }, [editingId, form]);
+      } catch {}
+    })();
+  }, [editingId]);
 
-  function onSubmit(values: FormValues) {
-    console.log(values);
-    toast({
-      title: editingId ? "Aircraft Type Updated" : "Aircraft Type Added",
-      description: editingId
-        ? "Aircraft type has been successfully updated."
-        : "Aircraft type has been successfully added.",
-    });
-    onCancel();
-  }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await saveRecord("aircraft_types", editingId, formData);
+      toast({ title: editingId ? "Aircraft Type Updated" : "Aircraft Type Added", description: "Saved successfully." });
+      onCancel();
+    } catch (err: any) {
+      toast({ title: "Save failed", description: err.message, variant: "destructive" });
+    }
+  };
+
+  const set = (k: keyof typeof formData, v: string) => setFormData((p) => ({ ...p, [k]: v }));
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <h3 className="text-xl font-medium mb-4">
-          {editingId ? "Edit Aircraft Type" : "Add Aircraft Type"}
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <FormField
-            control={form.control}
-            name="manufacturerId"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Aircraft Manufacturer</FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  value={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select manufacturer" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {manufacturers.map((manufacturer) => (
-                      <SelectItem
-                        key={manufacturer.id}
-                        value={manufacturer.id}
-                      >
-                        {manufacturer.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="typeName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Aircraft Type</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter aircraft type" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
-        <FormField
-          control={form.control}
-          name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Description (Optional)</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter description" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <div className="flex justify-end space-x-3">
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-          <Button type="submit">
-            {editingId ? "Update" : "Save"}
-          </Button>
-        </div>
-      </form>
-    </Form>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <h3 className="text-xl font-medium">{editingId ? "Edit Aircraft Type" : "Add Aircraft Type"}</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="space-y-2"><Label>Type Name</Label>
+          <Input value={formData.type_name} onChange={(e) => set("type_name", e.target.value)} required /></div>
+        <div className="space-y-2"><Label>Manufacturer</Label>
+          <Input value={formData.manufacturer} onChange={(e) => set("manufacturer", e.target.value)} /></div>
+        <div className="space-y-2"><Label>Category</Label>
+          <Input value={formData.category} onChange={(e) => set("category", e.target.value)} /></div>
+        <div className="space-y-2"><Label>Description</Label>
+          <Input value={formData.description} onChange={(e) => set("description", e.target.value)} /></div>
+      </div>
+      <div className="flex justify-end gap-2">
+        <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
+        <Button type="submit">{editingId ? "Update" : "Save"}</Button>
+      </div>
+    </form>
   );
 };
 

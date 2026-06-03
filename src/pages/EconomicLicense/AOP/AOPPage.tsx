@@ -8,6 +8,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import SimpleLiveList, { dateCol, statusBadge } from "@/components/SimpleLiveList";
+
 
 interface AOPFormData {
   operatorType: "existing_aoc" | "general_aviation" | "";
@@ -220,7 +222,11 @@ const AOPPage = () => {
           <CardTitle>AOP Records List</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>AOP records list will be displayed here.</p>
+          <SimpleLiveList
+            table="aop_licenses"
+            onEdit={(id) => { setEditingId(id); setIsFormOpen(true); }}
+            columns={[ { key: "operator_name", label: "Operator" }, { key: "license_number", label: "License #" }, { key: "issue_date", label: "Issued", format: dateCol }, { key: "expiry_date", label: "Expires", format: dateCol }, { key: "status", label: "Status", format: statusBadge } ]}
+          />
         </CardContent>
       </Card>
     </div>
