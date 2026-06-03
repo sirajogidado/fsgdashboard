@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PNCFForm from "./PNCFForm";
 import RecordWorkflowSection from "@/components/RecordWorkflowSection";
+import SimpleLiveList, { dateCol, statusBadge } from "@/components/SimpleLiveList";
+
 
 const PNCFPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -27,7 +29,11 @@ const PNCFPage = () => {
           <CardTitle>PNCF Records List</CardTitle>
         </CardHeader>
         <CardContent>
-          <p>PNCF records list will be displayed here.</p>
+          <SimpleLiveList
+            table="pncl_licenses"
+            onEdit={(id) => { setEditingId(id); setIsFormOpen(true); }}
+            columns={[ { key: "operator_name", label: "Operator" }, { key: "license_number", label: "License #" }, { key: "issue_date", label: "Issued", format: dateCol }, { key: "expiry_date", label: "Expires", format: dateCol }, { key: "status", label: "Status", format: statusBadge } ]}
+          />
         </CardContent>
       </Card>
     </div>
