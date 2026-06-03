@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { emitRecordChanged } from "@/lib/recordEvents";
 
 /**
  * Generic save helper for any Supabase table.
@@ -27,6 +28,7 @@ export async function saveRecord<T extends Record<string, any>>(
       .select()
       .single();
     if (error) throw error;
+    emitRecordChanged(table);
     return row;
   }
   const { data: row, error } = await (supabase as any)
@@ -35,6 +37,7 @@ export async function saveRecord<T extends Record<string, any>>(
     .select()
     .single();
   if (error) throw error;
+  emitRecordChanged(table);
   return row;
 }
 
