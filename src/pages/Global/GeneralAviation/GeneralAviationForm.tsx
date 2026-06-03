@@ -1,92 +1,54 @@
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
+import { saveRecord, loadRecord } from "@/lib/saveRecord";
 
-interface GeneralAviationFormProps {
-  onCancel: () => void;
-  editingId: string | null;
-}
+interface Props { onCancel: () => void; editingId: string | null; }
 
-const GeneralAviationForm = ({ onCancel, editingId }: GeneralAviationFormProps) => {
-  const [formData, setFormData] = useState({
-    operatorName: "",
-    registrationMark: "",
-    aircraftType: "",
-    description: "",
-  });
+const GeneralAviationForm = ({ onCancel, editingId }: Props) => {
+  const [formData, setFormData] = useState({ operator_name: "", registration: "", aircraft_type: "", status: "active" });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    (async () => {
+      if (!editingId) return;
+      try {
+        const r = await loadRecord("general_aviation", editingId);
+        setFormData({
+          operator_name: r.operator_name ?? "",
+          registration: r.registration ?? "",
+          aircraft_type: r.aircraft_type ?? "",
+          status: r.status ?? "active",
+        });
+      } catch {}
+    })();
+  }, [editingId]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: editingId ? "General Aviation Updated" : "General Aviation Added",
-      description: `${formData.operatorName} has been ${editingId ? "updated" : "added"} successfully.`,
-    });
-    onCancel();
+    try {
+      await saveRecord("general_aviation", editingId, formData);
+      toast({ title: editingId ? "General Aviation Updated" : "General Aviation Added", description: "Saved successfully." });
+      onCancel();
+    } catch (err: any) {
+      toast({ title: "Save failed", description: err.message, variant: "destructive" });
+    }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const set = (k: keyof typeof formData, v: string) => setFormData((p) => ({ ...p, [k]: v }));
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
-      <div className="space-y-2">
-        <Label htmlFor="operatorName">Operator Name</Label>
-        <Input
-          id="operatorName"
-          name="operatorName"
-          value={formData.operatorName}
-          onChange={handleInputChange}
-          placeholder="Enter operator name"
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="registrationMark">Registration Mark</Label>
-        <Input
-          id="registrationMark"
-          name="registrationMark"
-          value={formData.registrationMark}
-          onChange={handleInputChange}
-          placeholder="Enter registration mark"
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="aircraftType">Aircraft Type</Label>
-        <Input
-          id="aircraftType"
-          name="aircraftType"
-          value={formData.aircraftType}
-          onChange={handleInputChange}
-          placeholder="Enter aircraft type"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Input
-          id="description"
-          name="description"
-          value={formData.description}
-          onChange={handleInputChange}
-          placeholder="Enter description"
-        />
-      </div>
-
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-xl">
+      <div className="space-y-2"><Label>Operator Name</Label>
+        <Input value={formData.operator_name} onChange={(e) => set("operator_name", e.target.value)} required /></div>
+      <div className="space-y-2"><Label>Registration Mark</Label>
+        <Input value={formData.registration} onChange={(e) => set("registration", e.target.value)} required /></div>
+      <div className="space-y-2"><Label>Aircraft Type</Label>
+        <Input value={formData.aircraft_type} onChange={(e) => set("aircraft_type", e.target.value)} /></div>
       <div className="flex gap-2">
-        <Button type="submit">
-          {editingId ? "Update" : "Save"}
-        </Button>
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
+        <Button type="submit">{editingId ? "Update" : "Save"}</Button>
+        <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
       </div>
     </form>
   );

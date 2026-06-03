@@ -1,69 +1,57 @@
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/components/ui/use-toast";
+import { saveRecord, loadRecord } from "@/lib/saveRecord";
 
-interface UserRolesFormProps {
-  onCancel: () => void;
-  editingId: string | null;
-}
+interface Props { onCancel: () => void; editingId: string | null; }
 
-const UserRolesForm = ({ onCancel, editingId }: UserRolesFormProps) => {
-  const [formData, setFormData] = useState({
-    roleName: "",
-    description: "",
-    permissions: "",
-  });
+const UserRolesForm = ({ onCancel, editingId }: Props) => {
+  const [formData, setFormData] = useState({ role_name: "", description: "", permissions: "read" });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    (async () => {
+      if (!editingId) return;
+      try {
+        const r = await loadRecord("user_roles_config", editingId);
+        const perms = Array.isArray(r.permissions) ? (r.permissions[0] ?? "read") : "read";
+        setFormData({
+          role_name: r.role_name ?? "",
+          description: r.description ?? "",
+          permissions: perms,
+        });
+      } catch {}
+    })();
+  }, [editingId]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: editingId ? "User Role Updated" : "User Role Added",
-      description: `${formData.roleName} has been ${editingId ? "updated" : "added"} successfully.`,
-    });
-    onCancel();
+    try {
+      await saveRecord("user_roles_config", editingId, {
+        role_name: formData.role_name,
+        description: formData.description,
+        permissions: [formData.permissions],
+      });
+      toast({ title: editingId ? "Role Updated" : "Role Added", description: "Saved successfully." });
+      onCancel();
+    } catch (err: any) {
+      toast({ title: "Save failed", description: err.message, variant: "destructive" });
+    }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const set = (k: keyof typeof formData, v: string) => setFormData((p) => ({ ...p, [k]: v }));
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
-      <div className="space-y-2">
-        <Label htmlFor="roleName">Role Name</Label>
-        <Input
-          id="roleName"
-          name="roleName"
-          value={formData.roleName}
-          onChange={handleInputChange}
-          placeholder="Enter role name"
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Input
-          id="description"
-          name="description"
-          value={formData.description}
-          onChange={handleInputChange}
-          placeholder="Enter description"
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="permissions">Permissions</Label>
-        <Select onValueChange={(value) => setFormData(prev => ({ ...prev, permissions: value }))}>
-          <SelectTrigger>
-            <SelectValue placeholder="Select permissions" />
-          </SelectTrigger>
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-xl">
+      <div className="space-y-2"><Label>Role Name</Label>
+        <Input value={formData.role_name} onChange={(e) => set("role_name", e.target.value)} required /></div>
+      <div className="space-y-2"><Label>Description</Label>
+        <Input value={formData.description} onChange={(e) => set("description", e.target.value)} /></div>
+      <div className="space-y-2"><Label>Permissions</Label>
+        <Select value={formData.permissions} onValueChange={(v) => set("permissions", v)}>
+          <SelectTrigger><SelectValue /></SelectTrigger>
           <SelectContent>
             <SelectItem value="read">Read Only</SelectItem>
             <SelectItem value="write">Read & Write</SelectItem>
@@ -71,14 +59,9 @@ const UserRolesForm = ({ onCancel, editingId }: UserRolesFormProps) => {
           </SelectContent>
         </Select>
       </div>
-
       <div className="flex gap-2">
-        <Button type="submit">
-          {editingId ? "Update" : "Save"}
-        </Button>
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
+        <Button type="submit">{editingId ? "Update" : "Save"}</Button>
+        <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
       </div>
     </form>
   );

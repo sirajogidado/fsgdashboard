@@ -1,94 +1,56 @@
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
+import { saveRecord, loadRecord } from "@/lib/saveRecord";
 
-interface ForeignAirlineFormProps {
-  onCancel: () => void;
-  editingId: string | null;
-}
+interface Props { onCancel: () => void; editingId: string | null; }
 
-const ForeignAirlineForm = ({ onCancel, editingId }: ForeignAirlineFormProps) => {
-  const [formData, setFormData] = useState({
-    airlineName: "",
-    country: "",
-    iataCode: "",
-    icaoCode: "",
-  });
+const ForeignAirlineForm = ({ onCancel, editingId }: Props) => {
+  const [formData, setFormData] = useState({ airline_name: "", country: "", iata_code: "", icao_code: "" });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    (async () => {
+      if (!editingId) return;
+      try {
+        const r = await loadRecord("foreign_airlines", editingId);
+        setFormData({
+          airline_name: r.airline_name ?? "",
+          country: r.country ?? "",
+          iata_code: r.iata_code ?? "",
+          icao_code: r.icao_code ?? "",
+        });
+      } catch {}
+    })();
+  }, [editingId]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: editingId ? "Foreign Airline Updated" : "Foreign Airline Added",
-      description: `${formData.airlineName} has been ${editingId ? "updated" : "added"} successfully.`,
-    });
-    onCancel();
+    try {
+      await saveRecord("foreign_airlines", editingId, formData);
+      toast({ title: editingId ? "Foreign Airline Updated" : "Foreign Airline Added", description: "Saved successfully." });
+      onCancel();
+    } catch (err: any) {
+      toast({ title: "Save failed", description: err.message, variant: "destructive" });
+    }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const set = (k: keyof typeof formData, v: string) => setFormData((p) => ({ ...p, [k]: v }));
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
-      <div className="space-y-2">
-        <Label htmlFor="airlineName">Airline Name</Label>
-        <Input
-          id="airlineName"
-          name="airlineName"
-          value={formData.airlineName}
-          onChange={handleInputChange}
-          placeholder="Enter airline name"
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="country">Country</Label>
-        <Input
-          id="country"
-          name="country"
-          value={formData.country}
-          onChange={handleInputChange}
-          placeholder="Enter country"
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="iataCode">IATA Code</Label>
-        <Input
-          id="iataCode"
-          name="iataCode"
-          value={formData.iataCode}
-          onChange={handleInputChange}
-          placeholder="Enter IATA code (e.g., BA)"
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="icaoCode">ICAO Code</Label>
-        <Input
-          id="icaoCode"
-          name="icaoCode"
-          value={formData.icaoCode}
-          onChange={handleInputChange}
-          placeholder="Enter ICAO code (e.g., BAW)"
-          required
-        />
-      </div>
-
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-xl">
+      <div className="space-y-2"><Label>Airline Name</Label>
+        <Input value={formData.airline_name} onChange={(e) => set("airline_name", e.target.value)} required /></div>
+      <div className="space-y-2"><Label>Country</Label>
+        <Input value={formData.country} onChange={(e) => set("country", e.target.value)} /></div>
+      <div className="space-y-2"><Label>IATA Code</Label>
+        <Input value={formData.iata_code} onChange={(e) => set("iata_code", e.target.value)} /></div>
+      <div className="space-y-2"><Label>ICAO Code</Label>
+        <Input value={formData.icao_code} onChange={(e) => set("icao_code", e.target.value)} /></div>
       <div className="flex gap-2">
-        <Button type="submit">
-          {editingId ? "Update" : "Save"}
-        </Button>
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
+        <Button type="submit">{editingId ? "Update" : "Save"}</Button>
+        <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
       </div>
     </form>
   );

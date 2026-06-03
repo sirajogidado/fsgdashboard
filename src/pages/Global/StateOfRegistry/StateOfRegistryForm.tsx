@@ -1,81 +1,53 @@
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
+import { saveRecord, loadRecord } from "@/lib/saveRecord";
 
-interface StateOfRegistryFormProps {
-  onCancel: () => void;
-  editingId: string | null;
-}
+interface Props { onCancel: () => void; editingId: string | null; }
 
-const StateOfRegistryForm = ({ onCancel, editingId }: StateOfRegistryFormProps) => {
-  const [formData, setFormData] = useState({
-    countryName: "",
-    countryCode: "",
-    registrationPrefix: "",
-  });
+const StateOfRegistryForm = ({ onCancel, editingId }: Props) => {
+  const [formData, setFormData] = useState({ country_name: "", country_code: "", registration_prefix: "" });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    (async () => {
+      if (!editingId) return;
+      try {
+        const r = await loadRecord("state_of_registry", editingId);
+        setFormData({
+          country_name: r.country_name ?? "",
+          country_code: r.country_code ?? "",
+          registration_prefix: r.registration_prefix ?? "",
+        });
+      } catch {}
+    })();
+  }, [editingId]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: editingId ? "State of Registry Updated" : "State of Registry Added",
-      description: `${formData.countryName} has been ${editingId ? "updated" : "added"} successfully.`,
-    });
-    onCancel();
+    try {
+      await saveRecord("state_of_registry", editingId, formData);
+      toast({ title: editingId ? "State of Registry Updated" : "State of Registry Added", description: "Saved successfully." });
+      onCancel();
+    } catch (err: any) {
+      toast({ title: "Save failed", description: err.message, variant: "destructive" });
+    }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const set = (k: keyof typeof formData, v: string) => setFormData((p) => ({ ...p, [k]: v }));
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
-      <div className="space-y-2">
-        <Label htmlFor="countryName">Country Name</Label>
-        <Input
-          id="countryName"
-          name="countryName"
-          value={formData.countryName}
-          onChange={handleInputChange}
-          placeholder="Enter country name"
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="countryCode">Country Code</Label>
-        <Input
-          id="countryCode"
-          name="countryCode"
-          value={formData.countryCode}
-          onChange={handleInputChange}
-          placeholder="Enter country code (e.g., NG)"
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="registrationPrefix">Registration Prefix</Label>
-        <Input
-          id="registrationPrefix"
-          name="registrationPrefix"
-          value={formData.registrationPrefix}
-          onChange={handleInputChange}
-          placeholder="Enter registration prefix (e.g., 5N)"
-          required
-        />
-      </div>
-
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-xl">
+      <div className="space-y-2"><Label>Country Name</Label>
+        <Input value={formData.country_name} onChange={(e) => set("country_name", e.target.value)} required /></div>
+      <div className="space-y-2"><Label>Country Code</Label>
+        <Input value={formData.country_code} onChange={(e) => set("country_code", e.target.value)} /></div>
+      <div className="space-y-2"><Label>Registration Prefix</Label>
+        <Input value={formData.registration_prefix} onChange={(e) => set("registration_prefix", e.target.value)} /></div>
       <div className="flex gap-2">
-        <Button type="submit">
-          {editingId ? "Update" : "Save"}
-        </Button>
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
+        <Button type="submit">{editingId ? "Update" : "Save"}</Button>
+        <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
       </div>
     </form>
   );

@@ -1,93 +1,56 @@
-
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/use-toast";
+import { saveRecord, loadRecord } from "@/lib/saveRecord";
 
-interface TrainingOrganizationFormProps {
-  onCancel: () => void;
-  editingId: string | null;
-}
+interface Props { onCancel: () => void; editingId: string | null; }
 
-const TrainingOrganizationForm = ({ onCancel, editingId }: TrainingOrganizationFormProps) => {
-  const [formData, setFormData] = useState({
-    organizationName: "",
-    country: "",
-    category: "",
-    description: "",
-  });
+const TrainingOrganizationForm = ({ onCancel, editingId }: Props) => {
+  const [formData, setFormData] = useState({ organization_name: "", country: "", category: "", description: "" });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    (async () => {
+      if (!editingId) return;
+      try {
+        const r = await loadRecord("training_organizations", editingId);
+        setFormData({
+          organization_name: r.organization_name ?? "",
+          country: r.country ?? "",
+          category: r.category ?? "",
+          description: r.description ?? "",
+        });
+      } catch {}
+    })();
+  }, [editingId]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: editingId ? "Training Organization Updated" : "Training Organization Added",
-      description: `${formData.organizationName} has been ${editingId ? "updated" : "added"} successfully.`,
-    });
-    onCancel();
+    try {
+      await saveRecord("training_organizations", editingId, formData);
+      toast({ title: editingId ? "Training Organization Updated" : "Training Organization Added", description: "Saved successfully." });
+      onCancel();
+    } catch (err: any) {
+      toast({ title: "Save failed", description: err.message, variant: "destructive" });
+    }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  const set = (k: keyof typeof formData, v: string) => setFormData((p) => ({ ...p, [k]: v }));
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 max-w-md">
-      <div className="space-y-2">
-        <Label htmlFor="organizationName">Organization Name</Label>
-        <Input
-          id="organizationName"
-          name="organizationName"
-          value={formData.organizationName}
-          onChange={handleInputChange}
-          placeholder="Enter organization name"
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="country">Country</Label>
-        <Input
-          id="country"
-          name="country"
-          value={formData.country}
-          onChange={handleInputChange}
-          placeholder="Enter country"
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="category">Category</Label>
-        <Input
-          id="category"
-          name="category"
-          value={formData.category}
-          onChange={handleInputChange}
-          placeholder="Enter category"
-          required
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="description">Description</Label>
-        <Input
-          id="description"
-          name="description"
-          value={formData.description}
-          onChange={handleInputChange}
-          placeholder="Enter description"
-        />
-      </div>
-
+    <form onSubmit={handleSubmit} className="space-y-4 max-w-xl">
+      <div className="space-y-2"><Label>Organization Name</Label>
+        <Input value={formData.organization_name} onChange={(e) => set("organization_name", e.target.value)} required /></div>
+      <div className="space-y-2"><Label>Country</Label>
+        <Input value={formData.country} onChange={(e) => set("country", e.target.value)} /></div>
+      <div className="space-y-2"><Label>Category</Label>
+        <Input value={formData.category} onChange={(e) => set("category", e.target.value)} /></div>
+      <div className="space-y-2"><Label>Description</Label>
+        <Input value={formData.description} onChange={(e) => set("description", e.target.value)} /></div>
       <div className="flex gap-2">
-        <Button type="submit">
-          {editingId ? "Update" : "Save"}
-        </Button>
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
+        <Button type="submit">{editingId ? "Update" : "Save"}</Button>
+        <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
       </div>
     </form>
   );
