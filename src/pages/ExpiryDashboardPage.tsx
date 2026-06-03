@@ -61,6 +61,17 @@ const ExpiryDashboardPage = () => {
 
   useEffect(() => { runScan(); loadHistory(); }, []);
 
+  // Auto re-scan when any record changes anywhere, debounced
+  useEffect(() => {
+    let timer: any;
+    const handler = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => { runScan(); }, 1500);
+    };
+    window.addEventListener("record:changed", handler);
+    return () => { window.removeEventListener("record:changed", handler); clearTimeout(timer); };
+  }, []);
+
   const buckets = useMemo(() => {
     const b: Record<RiskLevel, number> = { expired: 0, critical: 0, high: 0, medium: 0, low: 0, ok: 0 };
     findings.forEach(f => { b[f.risk_level]++; });
