@@ -10,6 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/context/AuthContext";
 import { toast } from "@/components/ui/use-toast";
 import { Navigate } from "react-router-dom";
+import BackupPanel from "@/components/BackupPanel";
 
 const SettingsPage = () => {
   const { user } = useAuth();
@@ -194,6 +195,7 @@ const SettingsPage = () => {
                 </div>
               </CardContent>
             </Card>
+            <BackupPanel />
           </TabsContent>
         </Tabs>
         
